@@ -150,21 +150,17 @@ it is a recording of what you will download.
 
 ---
 
-## The naming contradiction — half closed, still open
+## The naming question — closed, and the site is now the side that is wrong
 
-**What has changed.** The application no longer calls itself "EQ Buff Tracker". It was renamed in
-its own repository on 2026-08-18, and the rename was done carefully: Electron's userData directory
-is deliberately **pinned to the original folder name** so no one's saved data moves.
+The application calls itself **"EQLS Auras"**, and that is **correct**. EQLS is not an
+abbreviation to be avoided: it is the product name. It pronounces "Equals Auras" and anchors a
+logo family the owner is designing — =Auras, =50Upgrades, =SkyLedger. The earlier ruling for
+"EQL Source Auras" was overruled by the owner, so the second rename recorded here previously is
+void and no work is outstanding in the application.
 
-**What has not changed.** It was renamed to **"EQLS Auras"** — the exact abbreviation ruled out.
-The site says EQL Source Auras; the title bar, the sidebar and the installer would say EQLS Auras.
-The mismatch is narrower than it was and it is the same category of fault.
-
-**The band is unaffected either way.** The cut contains no application chrome, so nothing on the
-page contradicts anything. Nothing in the copy needs to change when the second rename lands,
-because the copy never promises the names match.
-
-Exact sites, and the one line that must not be touched, are in `HANDOFF.md`.
+The residue runs the other way. The band landed on 2026-08-18 carrying the heading
+**"EQL Source Auras"**, which was correct at the moment it shipped and is now wrong. One string in
+the band heading in `public/index.html`. Nothing else in the landed copy names the product.
 
 ## Gate-rule compliance
 

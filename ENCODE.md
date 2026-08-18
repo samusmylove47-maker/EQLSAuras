@@ -1,6 +1,18 @@
-# Encode recipe — EQL Source Auras band asset
+# Encode recipe — EQLS Auras band asset
 
-**Status: FINAL.** Adjudicated 2026-08-18.
+**Status: this describes Session C's asset, which is NOT the asset that shipped.** Session A
+produced its own encode when it landed the band on 2026-08-18. Read this as the recipe and the
+reasoning behind it, not as a description of the live file.
+
+| | Session C (this recipe) | Shipped by Session A |
+|---|---|---|
+| duration | 6.8 s | 8.92 s |
+| frame rate | 30 fps | 24 fps |
+| video | 892 KB | 839 KB |
+| poster | 149 KB | 175 KB |
+
+Both are 1600x900 with no audio stream, and both come in under the 949 KB size precedent. Anyone
+reproducing the commands below will get Session C's 6.8 s cut, not the live one.
 
 Encoded once, by hand, and committed. A rebuild must work on a machine without ffmpeg, so
 `_build/media.py` copies `_media/` into `public/` under a content hash and drops the previous
@@ -16,8 +28,10 @@ source is ever recut, not so it can be automated.
 
 Both come in under precedent. Source was 42.8 MB.
 
-Filenames carry no `eqls-` prefix. A filename is reachable in view-source and the network tab, so
-it is somewhere a reader could meet an internal abbreviation the site otherwise never uses.
+Filenames use the short form `auras`. The original reasoning for this — that `eqls-` was an
+internal abbreviation a reader should not meet — is **void**: EQLS is the product name. The short
+form is still right, because "Auras" is the approved after-first-mention name, and the shipped
+files are already content-hashed into `public/`, so renaming would churn hashes for nothing.
 
 ## Source and cut
 
