@@ -10,8 +10,17 @@ the third party's. CRF 32 approved; the precedent is a size precedent, not a CRF
 
 Session C. Every factual assertion in the band copy, with what backs it.
 
-Verification base: `EQLS Auras.zip`, `EQ tracker/` — newest file in the archive timestamped
-2026-08-18 01:56. Line numbers are from that snapshot.
+**Verification base: `LoxyBee/EQLS-Auras` at commit `c7f7f4e`**, the application's own repository,
+re-verified 2026-08-18. Line numbers are from that commit.
+
+Originally verified against `EQLS Auras.zip`. That snapshot turned out to be **stale** — the live
+repository is ahead of it — so every load-bearing claim was re-checked against the live tree
+rather than left resting on an archive. All of them held: no memory or injection calls anywhere in
+`src/`, every `require()` resolving to a Node built-in or Electron or a sibling file, no
+`dependencies` block at all, no network code, no updater, no crash reporter, the log tail still at
+a two-hundred-millisecond poll starting at end-of-file, and the overlay still transparent,
+always-on-top and click-through. Provenance is now a commit rather than a ZIP, which is strictly
+better evidence.
 
 ---
 
@@ -126,10 +135,9 @@ it is a recording of what you will download.
   copy. **This is a real defect in the Auras repo and wants fixing independently of the band.**
 - **No "no network activity" claim.** Tempting, and nearly true — zero network code in `src/`, no
   `autoUpdater`, no `crashReporter`, no telemetry, no third-party runtime dependency. But the app
-  is Electron, and `HANDOFF.md` records a real incident where Windows raised an "Electron is
-  trying to access your location" alert, traced to routine Chromium/Windows Location Services
-  interaction. A flat "it never talks to the network" would be an overclaim about Chromium
-  behaviour the project does not control. Cut.
+  is Electron, and Chromium makes its own arrangements with the host operating system that the
+  project neither writes nor controls. A flat "it never talks to the network" would be a claim
+  about Chromium's behaviour dressed as a claim about ours. Cut.
 - **No accuracy or coverage claim.** Detection is a priority chain with documented failure modes
   (`CLAUDE.md` gotchas one through ten, several describing real misattribution bugs that shipped
   and were caught live). Nothing in the copy says the timers are always right.
@@ -142,20 +150,21 @@ it is a recording of what you will download.
 
 ---
 
-## The naming contradiction — ruled, and now a release blocker
+## The naming contradiction — half closed, still open
 
-The application calls itself **"EQ Buff Tracker"** on screen — title bar, sidebar header, Windows
-taskbar button — and `package.json` carries `"productName": "EQ Buff Tracker"`. The band copy
-calls it **EQL Source Auras**.
+**What has changed.** The application no longer calls itself "EQ Buff Tracker". It was renamed in
+its own repository on 2026-08-18, and the rename was done carefully: Electron's userData directory
+is deliberately **pinned to the original folder name** so no one's saved data moves.
 
-**Ruled:** the cut keeps every one of those off screen, so nothing on the page contradicts the
-name today, and that was a correctness decision rather than a cosmetic one. But it cannot survive
-to Tuesday. A reader who downloads a binary named differently from the thing the site announced
-has caught the site misnaming its own product.
+**What has not changed.** It was renamed to **"EQLS Auras"** — the exact abbreviation ruled out.
+The site says EQL Source Auras; the title bar, the sidebar and the installer would say EQLS Auras.
+The mismatch is narrower than it was and it is the same category of fault.
 
-**The rename is blocking release, not deferred.** Full site list and the userData migration trap
-are in `HANDOFF.md`. Nothing in the band copy needs to change when it lands — the copy never
-promises the names match, and the video contains no application chrome at all.
+**The band is unaffected either way.** The cut contains no application chrome, so nothing on the
+page contradicts anything. Nothing in the copy needs to change when the second rename lands,
+because the copy never promises the names match.
+
+Exact sites, and the one line that must not be touched, are in `HANDOFF.md`.
 
 ## Gate-rule compliance
 
