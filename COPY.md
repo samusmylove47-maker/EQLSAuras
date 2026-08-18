@@ -2,6 +2,10 @@
 
 **Status: FINAL.** Adjudicated 2026-08-18. C1 through C9 approved as worded.
 
+**Timing: the band may land after the drop rather than before.** The copy is not to be compressed
+in a rush. The words are right as written, and the schedule pressure that made the cut below look
+like a concession no longer exists.
+
 House voice. British spelling. No digits anywhere (see gate notes). No braces. No exclamation
 marks. Claim-by-claim backing is in `CLAIM-SET.md`; the C-numbers below cross-reference it.
 
@@ -62,12 +66,14 @@ is not available for reclaiming.
 
 ## The only cut available
 
-**Adjudicated. One of the three original candidates survives.**
+**Adjudicated. One of the three original candidates survives — and it is no longer urgent.**
 
-1. **APPROVED — drop ", so you can see what is about to drop without looking away"** — saves 11
-   words, taking the band to 109 and the ceiling to 758. The first clause alone still explains
-   the product to a stranger. This is the only ornamental phrase in the band. Session A may take
-   this without asking.
+1. **APPROVED, but not a schedule concession — drop ", so you can see what is about to drop
+   without looking away"** — saves 11 words, taking the band to 109 and the ceiling to 758. The
+   first clause alone still explains the product to a stranger, and this is the only ornamental
+   phrase in the band. Session A may take it without asking **if the ceiling argument is genuinely
+   contested**. Do not take it to save time: the band may land after the drop, so there is no
+   deadline buying anything here, and 120 words is the version that was adjudicated.
 2. **OVERRIDDEN — keep "and the game's own icon art".** Not available. C3 stays in full: naming
    only the log would be incomplete, and a reader who noticed the app opening their spellbook or
    reading their install's icon art would be right to call it an overclaim.
