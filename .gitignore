@@ -1,0 +1,12 @@
+# Source media and archives — inputs, not deliverables.
+# The ZIP is ~349 MB and contains node_modules, a 78 MB installer and a 180 MB
+# packaged exe. The raw recordings are the uncompressed inputs to _media/.
+# GitHub rejects any single file over 100 MB, so the ZIP cannot be committed
+# even if we wanted it.
+*.zip
+EQ AURAS BURST.mp4
+eqlwa custom timers.mp4
+
+# Scratch
+_work/
+_out/
