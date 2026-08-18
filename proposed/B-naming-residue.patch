@@ -1,0 +1,26 @@
+diff --git a/package.json b/package.json
+index 12880fc..179e2fc 100644
+--- a/package.json
++++ b/package.json
+@@ -14,7 +14,7 @@
+     "electron-builder": "^24.13.3"
+   },
+   "build": {
+-    "appId": "com.eqlsource.eqlsauras",
++    "appId": "com.eqlsource.auras",
+     "productName": "EQLS Auras",
+     "win": {
+       "target": "nsis"
+diff --git a/src/renderer/main-window/index.html b/src/renderer/main-window/index.html
+index 442d114..d23c2ea 100644
+--- a/src/renderer/main-window/index.html
++++ b/src/renderer/main-window/index.html
+@@ -47,7 +47,7 @@
+ 
+     <div class="app-body">
+     <nav class="sidebar">
+-      <h1>EQLS Auras</h1>
++      <h1>Auras</h1>
+       <button class="nav-btn active" data-page="page-tracker">Buff Tracker</button>
+ 
+       <button class="nav-btn" data-page="page-overlay" id="widgets-nav-btn">Overlay Auras</button>
