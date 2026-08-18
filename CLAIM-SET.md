@@ -1,12 +1,13 @@
-# Claim set — EQL Source Auras landing band
+# Claim set — EQLS Auras landing band
 
 **Status: ADJUDICATED 2026-08-18. C1 through C9 approved as worded.** Claim wording below is
 frozen; only the surrounding notes have been updated to record the rulings.
 
 Rulings applied: C3 stays in full. C4's optional sentence is held back but kept ready verbatim
-(now in `COPY.md`). The product is named **EQL Source Auras** on first mention and **Auras**
-after — never "EQLS Auras". The owner's nameplate, guild tag and pet name are blurred alongside
-the third party's. CRF 32 approved; the precedent is a size precedent, not a CRF precedent.
+(now in `COPY.md`). The product is named **EQLS Auras** on first mention and **Auras** after — the
+earlier ruling for "EQL Source Auras" was overruled by the owner, and EQLS is the name rather than
+an abbreviation to avoid. The owner's nameplate, guild tag and pet name are blurred alongside the
+third party's. CRF 32 approved; the precedent is a size precedent, not a CRF precedent.
 
 Session C. Every factual assertion in the band copy, with what backs it.
 
