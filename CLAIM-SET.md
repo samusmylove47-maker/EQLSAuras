@@ -1,6 +1,14 @@
-# Claim set — EQLS Auras landing band
+# Claim set — EQL Source Auras landing band
 
-Session C. Every factual assertion in the band copy, with what backs it. Adjudicate before ship.
+**Status: ADJUDICATED 2026-08-18. C1 through C9 approved as worded.** Claim wording below is
+frozen; only the surrounding notes have been updated to record the rulings.
+
+Rulings applied: C3 stays in full. C4's optional sentence is held back but kept ready verbatim
+(now in `COPY.md`). The product is named **EQL Source Auras** on first mention and **Auras**
+after — never "EQLS Auras". The owner's nameplate, guild tag and pet name are blurred alongside
+the third party's. CRF 32 approved; the precedent is a size precedent, not a CRF precedent.
+
+Session C. Every factual assertion in the band copy, with what backs it.
 
 Verification base: `EQLS Auras.zip`, `EQ tracker/` — newest file in the archive timestamped
 2026-08-18 01:56. Line numbers are from that snapshot.
@@ -134,21 +142,20 @@ it is a recording of what you will download.
 
 ---
 
-## One contradiction you must rule on before this ships
+## The naming contradiction — ruled, and now a release blocker
 
-The application calls itself **"EQ Buff Tracker"** on screen — in its own title bar, its sidebar
-header, and its Windows taskbar button. `package.json` still carries
-`"productName": "EQ Buff Tracker"`. The band copy calls it **EQLS Auras**.
+The application calls itself **"EQ Buff Tracker"** on screen — title bar, sidebar header, Windows
+taskbar button — and `package.json` carries `"productName": "EQ Buff Tracker"`. The band copy
+calls it **EQL Source Auras**.
 
-If the footage shows any application chrome, the page will name the product one thing while the
-video visibly names it another, on a site whose whole proposition is that it does not overclaim.
+**Ruled:** the cut keeps every one of those off screen, so nothing on the page contradicts the
+name today, and that was a correctness decision rather than a cosmetic one. But it cannot survive
+to Tuesday. A reader who downloads a binary named differently from the thing the site announced
+has caught the site misnaming its own product.
 
-**How I have handled it:** the cut I recommend contains no application window, no title bar, and
-no taskbar — only the game with the overlay drawn on top. The overlay itself carries no branding.
-The contradiction therefore never reaches the screen, and no on-page disclaimer is needed. This
-was a selection decision, not a cosmetic one, and it is the main reason for the recommended span.
-
----
+**The rename is blocking release, not deferred.** Full site list and the userData migration trap
+are in `HANDOFF.md`. Nothing in the band copy needs to change when it lands — the copy never
+promises the names match, and the video contains no application chrome at all.
 
 ## Gate-rule compliance
 
@@ -160,4 +167,9 @@ was a selection decision, not a cosmetic one, and it is the main reason for the 
   kept out, even though all three are sourced and all three were tempting.
 - **`{token}` reaching visible text** — the copy contains no braces of any kind.
 - **British spelling** — "modelled", "recognise"-class forms checked. No American spellings.
+- **No character names** — the band shows none. Per CLAUDE.md section seven ("The site is generic,
+  never personal"), the owner's nameplate, guild tag and pet name are blurred in both the video
+  and the poster, alongside the third party's name. A landing-page hero video is none of the three
+  standing exemptions.
+- **Word count** — 120 words, requiring the `index.html` ceiling to move 649 to 769.
 - **No exclamation marks** — none.
