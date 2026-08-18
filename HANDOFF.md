@@ -7,25 +7,109 @@ underneath and are deleted from the exchange.
 
 ## From the Director
 
-*Nothing outstanding. Orders of 18 August are executed; results are in the report below.*
+*Nothing outstanding. Orders of 18 August are executed; results below.*
 
 ---
 
 ## To the Director
 
-**GO for Tuesday 25 August 2026, conditional.** Nothing I found is a code blocker. Everything
-outstanding is release packaging, and all of it is hours of work rather than days. Conditions at
-the end of this section.
+**Two corrections to what I told you earlier today. Read the first one now — it is live on the
+website.**
 
-Verified against `LoxyBee/EQLS-Auras` at **`baea785`** — my previous `c7f7f4e` baseline was already
-stale. She merged PR #1 at 16:16 UTC today, "Custom alert sounds, aura terminology, and
-detection/settings fixes", touching `main.js`, `widgetStore.js` and the whole renderer. A
-terminology rename is exactly what can silently break saved state, so I re-verified from the new
-HEAD rather than trusting the old read.
+---
 
-### 1. Rename — verified in the BUILT app, not from source
+### URGENT — the site is currently making a false claim
 
-Installed dependencies, ran `npm run dist`, ran the packaged binary.
+The band on eqlsource.com says:
+
+> It does not read or alter the game's memory, inject code into it, or send it input.
+> **It makes no network requests of its own.**
+
+**That last sentence is now false.** At `src/renderer/main-window/index.html:13-15` the app's main
+window carries:
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:..." rel="stylesheet" />
+
+Every launch requests a stylesheet from Google and, because of `preconnect`, opens the connection
+eagerly before it is even needed. Google receives the user's IP address each time the app starts.
+There is no CSP anywhere in the tree to prevent it.
+
+**Timeline, because it decides whose problem this is:**
+
+- 08:41 — Session A lands the band carrying that sentence
+- shortly after — I verify it against `c7f7f4e` and report it Backed. It was true then: the link
+  did not exist. `git log -S "fonts.googleapis"` returns exactly one commit
+- **16:11 — commit `1fe8fb4` adds the Google Fonts link** as part of the new title bar styling
+- now — the sentence on the live page is false
+
+Nobody wrote a false claim. The application changed under a published one. That is the failure mode
+this site is least able to absorb, because the sentence is a privacy claim and it is the strongest
+thing on the page.
+
+Corroboration beyond reading the tag: when I ran the packaged app it wrote `Network/Cookies`,
+`Network/Network Persistent State`, `Network/TransportSecurity` and `Network/Trust Tokens` into
+userData — files Chromium only creates when it performs network I/O. I did not packet-capture; the
+tag plus those artefacts is the evidence.
+
+**The fix I recommend is to make the sentence true again, not to weaken it.** Self-host the Poppins
+files inside `src/` and drop the three tags. It is a small change, it keeps her visual design
+exactly, and it restores a claim worth having. Removing the sentence from the site instead would be
+the wrong trade — it is the best sentence on the page.
+
+Only the main window is affected. The overlay renderer that draws over the game has no external
+references at all.
+
+**This needs Session A to know today, and Shara to approve the self-hosting.** It is a change to her
+tree, so I have not made it.
+
+---
+
+### CORRECTION — I withdraw this morning's GO. 25 August is at risk.
+
+I said GO earlier today. That was based on building the app, proving saved state safe, and reading
+her `HANDOFF.md`, which lists no blocker. **I did not read the `CLAUDE.md` backlog carefully enough,
+and it contains two things that change the answer.** Both were surfaced by the audit fan-out and I
+then verified them myself.
+
+**1. A shipped feature the owner has already called backwards, whose fix mutates persisted data —
+with no update path.** `CLAUDE.md` records that profile-scoped aura visibility is wrong: today
+`activeProfileIds` is bookkeeping only and every aura shows regardless of active profile, and she
+says an aura not active on the current profile should never show. The fix "touches `widgetStore.js`'s
+data model, `widgetManager.js`'s visibility logic, and the settings UI", and the note says to
+confirm the exact semantics with her before implementing — so it is not even designed yet.
+
+There is no updater in the tree. Ship on the 25th and strangers accumulate real `widgets.json` state
+under semantics she has already rejected, then need a manual re-download plus a data migration to
+get out. That is the same class of problem as the userData split-brain, one layer up.
+
+**2. The core function silently drops real buffs right after launch.** `CLAUDE.md` documents,
+confirmed against a real log dump, that a Quick-Buff-style burst arriving soon after a fresh launch
+causes every not-yet-known-memorized buff in it to be IGNORED — `Agility`, `Symbol of Naltron`,
+`Blessing of the Lord Commander`, `Guard of Vie` and `Blessing of Faith` in the captured case — with
+no recovery inside that session. `currentlyMemorized` is session-only and history is never replayed.
+
+This is precisely what the trailer shows working and what the copy promises. A first-time user
+installs on Tuesday, launches, Quick-Buffs, and sees missing timers. Her proposed fix is already
+specified in the backlog and is narrow.
+
+**Plain answer: NO-GO as things stand today.** Not because of packaging — because of those two.
+
+**It is recoverable inside seven days.** The date returns to GO if:
+
+1. the Quick-Buff burst fix lands (already specified by her, narrow, and it is the core promise), and
+2. the profile-visibility reversal is either landed **or** explicitly deferred with a decision that
+   it will not change persisted data later — deferring is fine, drifting is not, and
+3. the Google Fonts fetch is removed, so the site's claim is true on the day.
+
+Everything else below is hours of work and none of it should move the date.
+
+---
+
+### What I verified in the built app — unchanged and still good
+
+Built and ran the packaged binary at `baea785`.
 
 | Surface | Observed | Settled | |
 |---|---|---|---|
@@ -34,216 +118,127 @@ Installed dependencies, ran `npm run dist`, ran the packaged binary.
 | overlay window | `EQLS Auras Overlay` | — | ok |
 | taskbar / process | `EQLS Auras` | EQLS Auras | ok |
 | `productName` | `EQLS Auras` | EQLS Auras | ok |
-| **sidebar heading** | **`EQLS Auras`** | **`Auras`** | **residue** |
-| **`build.appId`** | **`com.eqlsource.eqlsauras`** | **`com.eqlsource.auras`** | **residue** |
+| `build.appId` | `com.eqlsource.eqlsauras` | `com.eqlsource.auras` | residue |
+| sidebar heading | `EQLS Auras` | `Auras` | residue |
+| **share code prefix** | **`EQBT2-`** | — | **residue, user-visible** |
 
-Window titles were read by enumerating the process's real top-level windows, not from source.
+**The share-code prefix is new and I missed it on my own pass.** `widgetStore.js:242` sets
+`SHARE_CODE_PREFIX = 'EQBT2-'` — "EQ Buff Tracker 2". It is stamped on every share code a user
+copies and pastes to another player, so the dead name travels by hand between users. Changing it
+after release breaks codes already in circulation, so this is the same free-today, expensive-later
+shape as the appId.
 
-**The appId is the time-sensitive one.** It is the NSIS upgrade identity and the registry uninstall
-key. Changing it now costs nothing. Changing it after anyone installs means a later build is not
-recognised as an upgrade — the user ends up with two copies side by side and two uninstall entries.
-Free today, expensive on Wednesday.
+On severity: adversarial verification downgraded the appId and sidebar items from major to minor,
+and it is right. Neither is rendered to a user in a way that misleads, `appId` does not feed the
+userData path — verified independently — and nothing has been distributed, so both are still free.
+The timing argument stands: `appId` is the NSIS uninstall key and Windows AppUserModelID, so the
+window to change it closes the moment anyone installs.
 
-Both are one-line changes, prepared as `proposed/B-naming-residue.patch`. **Not applied — Shara's
-call.**
+The sidebar item is better described than I described it: the title bar added in `1fe8fb4` already
+prints "EQLS Auras", so the `<h1>` directly beneath now prints it a second time, stacked. It is a
+duplicate introduced by the title-bar work, not old-name residue.
 
-A third thing, cosmetic and entirely hers: the terminology rename is half-migrated in the UI. The
-nav reads "Overlay Auras" and "+ Add aura" beside "Buff Tracker" and "Self Buffs", and one Setup
-paragraph uses "buff" and "aura" in consecutive sentences. Her handoff says the rename was "UI text
-only, by explicit user choice", so this may be deliberate staging rather than an oversight.
+### The pin and saved state — unchanged, still proven
 
-### 2. The pin — untouched, and I did not touch it
+`app.setPath` intact at `main.js:24`, above every local require, sole path authority. The packaged
+app created `%APPDATA%\EQ Buff Tracker` with real state in it; removed afterwards, machine clean.
 
-`app.setPath('userData', ...)` is intact at `main.js:24`, still pinned to `EQ Buff Tracker`, still
-above every local `require()`. The new commit did not modify it.
+The seven-case regression test in `proposed/` passes and was mutation-tested against three
+deliberate regressions — pin moved below the requires, pin repointed, a new field left out of
+`normalizeWidget` — each caught, green on revert.
 
-One correction worth recording, because it nearly became a false alarm from me: my first ordering
-check reported the pin as **mis-ordered**. It was wrong. The comment block above the pin contains
-the text `require('./widgetManager')` as an example of what must not appear above it, and a naive
-scan matches that comment. The pin is fine. I mention it because the regression test below had to
-be written to survive exactly that trap — it strips comments before reasoning about order.
+Independent audit agreed and went further: `1fe8fb4` renames no store file, no persisted key,
+changes no existing default and no persisted shape. It adds one store file
+(`lastSoundPickerDir.json`) and four widget fields, all backfilled by `normalizeWidget`. **No
+migration needed.**
 
-### 3. userData — tested, and the deliverable is a regression test
+Two persistence defects worth logging, neither release-blocking, neither introduced by this commit:
 
-**Saved state survives the completed rename. Proven twice, empirically.**
+- an unreadable state file is silently replaced with defaults, destroying it — `store.js`'s
+  `loadJson` catches every error and returns the fallback, so a truncated `widgets.json` is
+  overwritten rather than reported. Pre-existing, affects all stores.
+- duplicating a custom-timer widget persists colliding timer ids, which defeats the id-keying fix
+  in this very commit. Custom sound selections are also dropped on duplicate.
 
-First, in the real packaged app. This machine had no Auras userData beforehand. I ran the built
-binary and it created **`%APPDATA%\EQ Buff Tracker`** — the pinned folder — containing
-`buffs.json`, `profiles.json`, `widgets.json`, `buffsMeta.json` and
-`selfAmbiguousResolutionsByProfile.json`. Not a new folder. The pin works in the shipped artefact,
-not merely in source. I removed the directory afterwards; the machine is as I found it.
+### Packaging — the installer, and what it says about the project
 
-Second, as a test — `proposed/userdata-pin.test.js`. Seven cases, zero dependencies, plain `node`,
-no framework, since the project has none and should not gain one:
+**`EQLS Auras Setup 0.1.0.exe` — 78,504,631 bytes (74.9 MB).** Read off the artefact.
 
-```
-ok  main.js pins userData, and pins it to the original folder name
-ok  the pin runs BEFORE any local require()
-ok  nothing else repoints userData
-ok  saved state written under the old folder still loads after the rename
-ok  without the pin the app would read a different folder (proves the pin is load-bearing)
-ok  a stale folder named after the current product is NOT preferred over the pinned one
-ok  a widget saved before the alert-sounds fields still loads, with defaults filled in
-```
+Two things I did not have this morning, both from the packaging audit and both verified:
 
-**I mutation-tested it, because a test that cannot fail is worth nothing.** Three deliberate
-regressions, each caught, green again on revert:
+- **the shipped exe is branded "GitHub, Inc." as publisher.** Electron's default metadata is never
+  overridden, so Windows attributes her software to GitHub in file properties and in the SmartScreen
+  dialog. Worse than an unsigned binary with no publisher, because it is a wrong one.
+- **the default install directory is `%LOCALAPPDATA%\Programs\eqls-auras`**, derived from
+  `name`, not the product name.
 
-- pin moved below the requires — *the exact bug that already happened once* — caught, exit 1
-- pin repointed at the current product name — caught
-- a new persisted field left out of `normalizeWidget` — caught
+Confirmed clean: `buffs.json` **is** inside the packaged `app.asar` (2,766,347 bytes, parsed from
+the real build), and `1fe8fb4` added no sound assets, so the `files` glob has nothing to miss.
 
-That last case matters beyond the pin. The alert-sounds work added `landSoundId`, `expireSoundId`,
-`warningSoundId` and `alertVolume` to every widget. `normalizeWidget` defaults all four
-(`widgetStore.js:279-282`), so widgets saved before that commit still load — `alertVolume` falls
-back to 100 rather than `undefined`, which would otherwise mute or NaN the alert. Correct today,
-and the test keeps it correct. Custom sounds are copied into `userData/customSounds`, so they sit
-under the pin too and survive renames.
+Still outstanding from this morning: no icon, unsigned installer, no LICENSE, no README, two
+zero-byte tracked files, and auto-update metadata generated for an app with no updater.
 
-**No migration is needed. Do not write one.**
-
-### 4. THE DATE — 25 August holds
-
-Plainly: **yes, as of today.** The engineering is in better shape than the packaging.
-
-- the app builds, packages and runs at HEAD — I did all three today
-- saved state is safe, proven above
-- her own handoff lists no unresolved blocker; known limitations are marked "unchanged, no action
-  needed", and the two bugs found this session were fixed and verified live
-
-The website's "next Tuesday's maintenance", published 18 August, resolves to 25 August. Consistent.
-**No slip to report.** If that changes I will say so here, dated, rather than let anyone infer it.
-
-### 5. SIZE — read off the built package
-
-**`EQLS Auras Setup 0.1.0.exe` — 78,504,631 bytes (74.9 MB).** NSIS, single file, unsigned.
-
-Read from the artefact. If the site ever quotes a size it should read it at build time rather than
-carry a typed number, for the same reason the roster count should not be hand-written.
-
-### 6. `npm run dist` fails silently — the finding I was not looking for
-
-The first build **exited 0 and produced no installer.** Only `win-unpacked` and a debug yml.
-
-The cause is the `winCodeSign` issue her CLAUDE.md already documents: electron-builder unpacks a
-macOS signing archive even for an unsigned Windows build, and two `.dylib` symlinks fail without
-Developer Mode. Her documented workaround fixed it — extract the archive with `darwin*` excluded
-into the cache — and the second run produced the installer.
-
-The documented part is the failure. The undocumented part is that **it reports success while
-producing nothing.** This machine's cache holds sixteen half-extracted attempts dating to 16
-August, so it has been failing quietly and repeatedly here. On her machine the cache is warm and it
-works, which is exactly why this could go unnoticed until release day on a clean machine or in CI.
-
-Worth a one-line guard in the `dist` script asserting the installer exists afterwards. I have not
-written one — it is her build script.
-
-### 7. First-release gaps, none of them code
-
-- **no icon configured.** `build.icon` unset, no `.ico` in the tree, so installer and installed app
-  both carry the default Electron icon. Visible, and awkward for a product whose logo family is
-  being designed right now.
-- **installer is unsigned** — `Get-AuthenticodeSignature` reports `NotSigned`. Windows SmartScreen
-  will warn every first-time downloader. A certificate cannot realistically be obtained and
-  seasoned by Tuesday, so the right move is to **say so in the release notes** rather than let a
-  game community discover it and ask whether the download is malware. That sentence is cheap and
-  buys a lot of goodwill.
-- **no LICENSE and no README.** For software other people install, and on a project whose standard
-  is crediting outside work by name, shipping without a licence is a gap.
-- two zero-byte files, `2188` and `3792`, are tracked in the repo root.
-
-### Conditions on the GO
-
-Blocking, in order, all small: appId corrected before anyone installs; the SmartScreen warning
-acknowledged in the release notes; a LICENSE chosen. Strongly wanted: an icon. Everything else can
-follow the release.
+**And `npm run dist` still exits 0 while producing no installer** when the `winCodeSign` unpack
+fails. Her documented workaround fixes it. The silent success is the part that is not documented,
+and this machine's cache held sixteen failed attempts dating to 16 August.
 
 ### The =Auras mark
 
-**Nothing drawn.** The slot is left for Session A to design centrally in the site's design system,
-proposed before Tuesday, landing only once Shara and the owner approve. I have produced no mark, no
-placeholder, and no glyph that could ship by accident.
+**Nothing drawn.** Slot left for Session A to design centrally, landing only once Shara and the
+owner approve. No mark, no placeholder, no glyph that could ship by accident.
 
 ### What needs Shara's consent
 
-Two patches in `proposed/`, neither applied. No push access needed or used; her tree is untouched
-and my clone is clean.
+In `proposed/`, none applied, no push access used, her tree untouched:
 
-- `A-userdata-regression-test.patch` — the seven-case test plus an `npm test` script. The project's
-  first test. No dependencies.
-- `B-naming-residue.patch` — `appId` to `com.eqlsource.auras`, sidebar `<h1>` to `Auras`.
+- `A-userdata-regression-test.patch` — seven cases plus an `npm test` script; the project's first
+  test, no dependencies
+- `B-naming-residue.patch` — `appId` and the sidebar `<h1>`
+
+Not yet written, pending her decision: self-hosting Poppins, and the `EQBT2-` prefix.
 
 ---
 
 ## Standing: naming — closed
 
-The product is **"EQLS Auras"** on first mention, **"Auras"** after. EQLS is not an abbreviation to
-be avoided; it is the name. It pronounces "Equals Auras" and anchors a logo family the owner is
-designing — =Auras, =50Upgrades, =SkyLedger.
-
-Session C called the rename to "EQLS Auras" wrong. It was right.
-
-Residual naming work is two one-line changes, recorded in the exchange above.
+**"EQLS Auras"** on first mention, **"Auras"** after. EQLS is the name, not an abbreviation to be
+avoided — it pronounces "Equals Auras" and anchors a logo family: =Auras, =50Upgrades, =SkyLedger.
+Session C called the rename to "EQLS Auras" wrong; it was right.
 
 ---
 
 ## Standing: the userData pin — do not touch it
 
-`src/main/main.js:24` pins Electron's userData directory to the original `EQ Buff Tracker` folder,
-above every local `require()`:
+`src/main/main.js:24` pins userData to the original `EQ Buff Tracker` folder, above every local
+`require()`:
 
     app.setPath('userData', path.join(app.getPath('appData'), 'EQ Buff Tracker'));
 
-Load-bearing, and it has already earned its place: an earlier version sat *below* the requires and
-silently seeded a second, empty `widgets.json` under the new folder while buffs, profiles and
-spellbook stayed in the old one. Her `CLAUDE.md` records that a future rename must leave it alone.
-
-Verified intact at `baea785`, and now covered by a regression test that fails if it is moved,
-repointed, or duplicated elsewhere.
+An earlier version sat below the requires and seeded a second, empty `widgets.json` while the real
+state stayed in the old folder. Verified intact at `baea785` and now covered by a regression test
+that fails if it is moved, repointed or duplicated.
 
 ---
 
 ## Standing: band material — landed
 
-Adjudicated 2026-08-18, C1 through C9 approved as worded, wording frozen in `CLAIM-SET.md`. The
-band landed at `0a3360d`, merged in `#96`. Session A wrote its own copy and shipped its own encode
-(8.92 s / 24 fps / 839 KB against Session C's 6.8 s / 30 fps / 892 KB); `ENCODE.md` states this at
-the top so nobody reproduces the recipe and wonders why the bytes differ.
+Adjudicated 18 August, C1-C9 frozen in `CLAIM-SET.md`. Landed at `0a3360d`, merged in `#96`.
+Session A wrote its own copy and shipped its own encode (8.92 s / 24 fps / 839 KB against Session
+C's 6.8 s / 30 fps / 892 KB); `ENCODE.md` says so at the top.
 
-The landed copy is factually sound — its two claims outside the adjudicated set ("no network
-requests of its own", "or send it input") were both verified against the application source.
-
-**One defect remains on the live page:** the band heading reads "EQL Source Auras". It should read
-"EQLS Auras". Correct when it shipped; wrong now. One string, `public/index.html`, Session A's file.
-
----
-
-## Standing: defects in the application
-
-**Roster-count drift — the fifth instance of a hand-written figure beside computed truth.** Docs say
-"~3300 entries"; `src/shared/data/buffs.json` holds **11,337, every one uniquely named**. Recorded
-rather than patched: changing the number produces the sixth instance at the next re-mine. The figure
-should not be hand-written at all — either the mining script writes it, or the doc points at the
-file. A check reading `len(json.load(open('buffs.json')))` that fails on disagreement is the same
-shape as the gate already guarding the site's prose.
-
-**Placeholder text live in the settings UI.** The literal word "planned" where a value belongs, and
-"Not active yet." Invisible in the band because no application chrome is in shot; the settings panel
-is the second thing anyone screenshots after release.
+**Two defects on the live page**, both in the exchange above: the heading reads "EQL Source Auras"
+where it should read "EQLS Auras", and the network sentence is no longer true.
 
 ---
 
 ## Standing: repositories
 
-`samusmylove47-maker/EQLSAuras` — this one. Band material, this exchange, and `proposed/` patches.
-No application source and nothing authored by the app's owner.
+`samusmylove47-maker/EQLSAuras` — this one. Band material, this exchange, `proposed/` patches. No
+application source, nothing authored by the app's owner.
 
-`LoxyBee/EQLS-Auras` — the application, owned and maintained by its author. **Canonical.** Session C
-has read access only and has never written to it. Anything landing there goes as a proposed patch
-with her explicit consent.
+`LoxyBee/EQLS-Auras` — the application, owned by its author. **Canonical.** Read access only;
+Session C has never written to it. Anything landing there goes as a proposed patch with her consent.
 
 `samusmylove47-maker/eql-source` — Session A's. Read to verify what landed; never written to.
-
-The ZIP in this working directory is a stale transfer artefact and is not a source of truth.
 
 *Session C, 2026-08-18.*
