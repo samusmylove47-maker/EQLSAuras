@@ -10,68 +10,58 @@ Session A and Session B can read this file directly:
 
 ## From the Director
 
-*Rulings of 18 August read from `eql-source@claude/eq-map-export-proposal-oe8m6l` and applied.
-Nothing outstanding.*
+*Rulings of 18 August applied. Sequencing note of 18 August applied — see below. Nothing
+outstanding.*
 
 ---
 
 ## To the Director
 
-### 1. Session A must not point the generator at `band.html` yet — spec is ready
+### 1. Acknowledged: I work with Shara, not at her, and I stay out of A's way
 
-**`docs/auras/band.html:7` reads `<h2 class="feath">EQL Auras</h2>`.** Not "EQLS Auras". A third
-name variant, and a wrong one.
+Understood and adopted:
 
-The generator currently emits the *correct* heading — `build1.py:368` renders `EQLS Auras`. So the
-ruled fix, making the generator read `band.html` instead of asserting that it does, **would
-silently regress the heading to a wrong product name.** The retyping that caused the divergence is
-also the only reason the heading is right today.
+- **Direct with Shara until 23 August.** This closes my open item — I had findings prepared and no
+  route to her.
+- **Build with her, not propose at her.** Her project, her release, her design decisions. I bring
+  findings and working code; I do not bring conditions.
+- **No site changes from me during Session A's theme build.** If Shara wants something on the site
+  in the next three days — the band, a download route, an app page — it routes to you first and you
+  sequence it against the theme. Two sessions editing `build1.py` in one afternoon is exactly the
+  collision to avoid, and I am not going near eql-source regardless.
 
-Ordering is load-bearing: fix `band.html` first, point the generator at it second, retire the
-untrue comment third. Doing the second before the first publishes a wrong name.
+**My outstanding spec is queued, not pending.** `proposed/SPEC-auras-band-network-sentence.md`
+proposes edits to `band.html` and to the generator, which is precisely the collision class in your
+note. It is yours to sequence whenever the theme build allows. I will not push it, chase it, or let
+it turn into a reason to touch A's tree.
 
-Full spec: **`proposed/SPEC-auras-band-network-sentence.md`** in this repo, readable by Session A
-over the open channel. It carries the three `band.html` edits, the replacement sentence, the word
-delta (+24, or +34 with an optional clause), and a table mapping every clause to the check that
-proves it.
+### 2. One hazard that survives the sequencing, and gets worse during it
 
-**One conflict inside the rulings, resolved in the spec.** "The Auras sentence" says to state that
-the webfont fetch "is being removed". The owner's later ruling says self-hosting is *offered, never
-required*, and that if Shara prefers the Google fetch "our page simply says so". The later ruling
-wins, so the copy states what the app does today and promises nothing on her behalf. If she
-self-hosts the clause comes out; if she does not it stays and stays true.
+**`docs/auras/band.html:7` still reads `<h2 class="feath">EQL Auras</h2>` — re-checked just now on
+both `main` and `claude/eq-map-export-proposal-oe8m6l`.**
 
-### 2. What I will take to Shara, as findings
+The generator still emits the correct `EQLS Auras` at `build1.py:368`, so nothing is wrong on the
+page today. The risk is that a chrome rebuild touching the band, or any move to make the generator
+read `band.html`, picks up the wrong name in passing. **Fix `band.html` before, or at the same time
+as, anything that makes it authoritative.** Details in the spec; flagging it here because A is now
+rebuilding every page's chrome and this is the moment it could slip through unnoticed.
 
-Per the ruling: findings and information, never conditions. Ordered by how cheap they are for her
-to act on, not by how much I care about them.
+### 3. Ready for Shara, the moment she wants it
 
-- **The typeface.** The one fact that makes it her free choice: **self-hosting Poppins renders
-  identically.** It is a change of where a file comes from, not of how anything looks. It removes
-  the IP disclosure. If she prefers the Google fetch, that is a complete answer and our page says
-  so. Not a blocker, not a condition, not a favour.
-- **The Quick-Buff burst bug** — buffs the player already had are silently ignored after a fresh
-  launch. Her own backlog specifies the fix. This is the one that matters most, because it is the
-  thing the tool is for.
-- **`SHARE_CODE_PREFIX = 'EQBT2-'`** and **the "GitHub, Inc." publisher string** — both free to
-  change today, both expensive after any release: share codes travel between players by hand, and
-  a wrong publisher asserts something untrue about who shipped the binary.
-- **`npm run dist` exits 0 while producing no installer** when the `winCodeSign` unpack fails. Her
-  workaround fixes it; the silent success is the undocumented part.
-- The regression test and the two patches in `proposed/`, offered for her to take or leave.
+Nothing sent, nothing assumed. Four things in `proposed/`, plus the findings list. The typeface
+item leads with the fact that makes it her free choice: **self-hosting Poppins renders
+identically** — it changes where a file comes from, not how anything looks.
 
-**I have no channel to her and no push access.** Everything above is prepared and none of it is
-sent. Tell me how it should reach her and I will format it for that route.
+Standing by for the archive, the plan and her prompt.
 
-### 3. Two corrections to my own last report
+---
 
-- **The heading defect I reported as live is already fixed.** `build1.py:368` renders `EQLS Auras`.
-  My reading was true when I took it; Session A landed the fix before I published. **The network
-  sentence half of that finding is still live and still right.**
-- **I framed my findings as conditions on a release.** "Conditions on the GO", "blocking". That was
-  overreach: it is Shara's project and Shara's release, and what this site controls is what its own
-  pages claim. The correct reading is "we should not describe this as released, and here are the
-  defects we found". Corrected in the standing section below and in how I take these to her.
+## Standing: working with Shara, 18-23 August
+
+Direct channel. Findings and working code, never conditions. Her project, her release, her design.
+
+Any site-side work she wants goes to the Director to sequence against Session A's theme build.
+Session C does not write to `eql-source` and has no push access to `LoxyBee/EQLS-Auras`.
 
 ---
 
@@ -89,18 +79,13 @@ Two findings, either sufficient, both reported as findings rather than condition
 **This governs our page, not her ship date.** The date is hers. What follows for us is only that we
 print no date and do not describe it as released.
 
-Recovery list, unchanged: land the burst fix, land or explicitly defer the visibility reversal with
-a decision that it will not change persisted data later, and resolve the typeface fetch.
-
 ---
 
 ## Standing: the installer figure
 
-**78,504,631 bytes — 74.9 MB**, read off `EQLS Auras Setup 0.1.0.exe`.
-
-The Director's 100.5 MB was Sky Ledger's figure, misattributed across from the audit. Mine is the
-only figure ever read off the artefact it describes. Publish it read at build time, never typed —
-same rule as the roster count.
+**78,504,631 bytes — 74.9 MB**, read off `EQLS Auras Setup 0.1.0.exe`. The Director's 100.5 MB was
+Sky Ledger's figure, misattributed. Mine is the only one ever read off the artefact it describes.
+Publish it read at build time, never typed — same rule as the roster count.
 
 ---
 
@@ -112,13 +97,12 @@ same rule as the roster count.
     app.setPath('userData', path.join(app.getPath('appData'), 'EQ Buff Tracker'));
 
 An earlier version sat below the requires and seeded a second, empty `widgets.json` while the real
-state stayed in the old folder. Verified intact at `baea785`; the packaged app writes its real state
-there. Covered by a seven-case regression test, mutation-tested against three deliberate
+state stayed in the old folder. Verified intact at `baea785`; the packaged app writes its real
+state there. Covered by a seven-case regression test, mutation-tested against three deliberate
 regressions including that one.
 
 **No migration needed** — `1fe8fb4` changed no store filename, key, default or shape, and
-`normalizeWidget` backfills the four new widget fields. Confirmed, and it settles the earlier
-ruling that expected one.
+`normalizeWidget` backfills the four new widget fields.
 
 ---
 
@@ -127,8 +111,8 @@ ruling that expected one.
 **EQLS Auras** on first mention, **Auras** after. It pronounces "Equals Auras" and anchors the logo
 family =Auras, =50Upgrades, =SkyLedger, which originated with Shara and is credited to her.
 
-Residue outstanding in her tree, hers to take: `appId`, the sidebar `<h1>` duplicate, and the
-`EQBT2-` share-code prefix. Residue outstanding in ours: `band.html:7`, covered by the spec.
+Residue in her tree, hers to take: `appId`, the sidebar `<h1>` duplicate, the `EQBT2-` share-code
+prefix. Residue in ours: `band.html:7`, covered by the spec and still live.
 
 ---
 
@@ -138,7 +122,8 @@ Adjudicated 18 August, C1-C9 frozen in `CLAIM-SET.md`. Landed at `0a3360d`, merg
 Session A shipped its own encode (8.92 s / 24 fps / 839 KB against Session C's 6.8 s / 30 fps /
 892 KB); `ENCODE.md` says so at the top. The trailer caption "9s, silent" is accurate.
 
-The heading defect is fixed. The network sentence is the one live defect and the spec corrects it.
+The heading defect on the built page is fixed. The network sentence is the one live defect and the
+spec corrects it.
 
 ---
 
@@ -147,10 +132,9 @@ The heading defect is fixed. The network sentence is the one live defect and the
 `samusmylove47-maker/EQLSAuras` — this one. Band material, this exchange, `proposed/` patches and
 specs. No application source, nothing authored by the app's owner.
 
-`LoxyBee/EQLS-Auras` — the application, owned by its author. **Canonical.** Read access only;
-Session C has never written to it and has no push access.
+`LoxyBee/EQLS-Auras` — the application, owned by its author. **Canonical.** Read access only.
 
-`samusmylove47-maker/eql-source` — Session A's. Read to verify what landed and to read the
-Director's rulings; never written to.
+`samusmylove47-maker/eql-source` — Session A's. Read only, and hands off entirely while the theme
+build runs.
 
 *Session C, 2026-08-18.*
