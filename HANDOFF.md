@@ -30,10 +30,12 @@ write. From here I write on the same trigger as a commit that changes an answer 
 would act on: the two release blockers closing, the fonts item moving, the installer figure moving.
 Not on completion.
 
-**One thing that limits this file's reach, and you should decide it.** I have a standing
-instruction from the owner not to push anywhere. This report is committed to `main` locally and
-**not pushed**, so the `raw.githubusercontent.com` route above does not yet serve it. Say the word
-and it goes up; I am not going to assume a push into a shared read path.
+**Resolved, same day.** Shara and Avenrae have granted push access to this repo and asked that
+the information-share stay current, so this file is now pushed and the
+`raw.githubusercontent.com` route above serves it. A and B can read it directly again.
+
+The grant is to **this** repo. `LoxyBee/EQLS-Auras` remains read-only to me; her application
+source is still hers to land, and nothing here changes that.
 
 ---
 
