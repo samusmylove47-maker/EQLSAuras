@@ -172,6 +172,29 @@ generator gates too.
 
 ---
 
+### 1d. 22 August, later: a shipped bug that only launching the app could find
+
+Notes 21, 26 and 27 are closed, note 38 is scoped. But the finding worth A's and B's attention is
+methodological.
+
+Shara asked me to check the app actually launches rather than trusting the test suite. It did -
+and it was throwing on startup while doing it. `globalShortcut.register('Pause')` **throws** in
+Electron: 'Pause' is not a valid accelerator. Not "returns false" - which matters, because the
+graceful "another application owns this key" branch sat directly beside it and never ran. The
+hide-auras hotkey had never once worked, and the top bar said "or press Pause" the whole time.
+
+**27 green suites and 396 passing cases did not notice, and structurally could not: not one of
+them starts Electron.** The test that covered it asserted `register('Pause')` and its own comment
+stated the false belief that made it wrong. Nine seconds of running the real binary found it.
+
+There is now `tools/smoke-launch.js` in her tree - start the app, hold it, report what it printed.
+**The same gap exists on our side.** `gate.py` checks the built HTML; nothing checks that a page
+renders in a browser without throwing. I am not proposing we build that today, only naming it: a
+test suite that never runs the artefact cannot see the class of failure that only the artefact
+has.
+
+---
+
 ### 2. The two release blockers — both closed
 
 **(a) The Quick-Buff burst dropping buffs with no in-session recovery. CLOSED.**
@@ -407,14 +430,17 @@ print no date and do not describe it as released.
 
 ## Standing: the installer figure
 
-**78,440,299 bytes — 74.81 MiB**, read off `dist/EQLS Auras Setup 0.1.0.exe`, rebuilt 21 August
-2026 at 01:00 UTC.
+**78,487,813 bytes — 74.85 MiB**, read off `dist/EQLS Auras Setup 0.1.0.exe`, rebuilt 22 August
+2026 at 23:46 UTC with `npm run dist`, exit 0.
 
-**This supersedes 78,504,631 / "74.9 MB", which is now wrong** — short by 64,332 bytes, and it
-rounds to 74.8. The Director's earlier 100.5 MB was Sky Ledger's figure, misattributed.
+**Third value in four days**: 78,504,631 (74.87) → 78,440,299 (74.81) → 78,487,813 (74.85). The
+Director's earlier 100.5 MB was Sky Ledger's figure, misattributed.
 
-Publish it read at build time, never typed — same rule as the roster count. The rule is what caught
-this: the figure was correctly read in August and still went stale the moment she rebuilt.
+**Do not print this number on the site.** It was already stale twice while being correctly read
+each time, and it will be stale again the next time she builds. Either read it at build time from
+the artefact being shipped, or say "about 75 MB" and be right for longer than a day. The
+read-at-build-time rule was doing its job; what it cannot fix is a figure that moves faster than
+the page does.
 
 ---
 
