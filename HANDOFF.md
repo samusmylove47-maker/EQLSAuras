@@ -137,6 +137,41 @@ site depends on it, but "the game data is wrong here" was my claim and it should
 
 ---
 
+### 1c. 22 August: notes 21, 26 and 27 move, and a detection bug worth A's attention
+
+**61 commits, 26 suites, 382 cases** green, tree clean.
+
+- **Note 21** rebuilt as a global setting rather than an aura, on her correction.
+- **Note 27** first half done — "Buffs shown" is a top-level card now. The gem-slot half is held
+  pending her explicit go-ahead, because it changes how auras store their picked spells.
+- **Note 26 mostly closed**, and the research is worth passing on.
+
+**The stacking research settles something the site may one day want to state.** There are no buff
+"types" in EverQuest. "HP type 1" is player shorthand for the Courage/Center/Daring/Bravery line.
+The engine models twelve numbered effect slots per spell, and two spells conflict only when they
+put the same effect id in the same numbered SLOT; the calculated values in that one slot then
+decide, ties going to the newcomer. Sources are emulator source code — EQMacEmu's
+`FindAffectSlot` (a decompile of the classic client) and EQEmu's `CheckStackConflict` — and the
+two differ: classic decides on the first conflicting slot, modern requires the newcomer to be
+better on all of them. **If anything on eqlsource.com ever describes buff stacking, it should not
+repeat the "types" framing, and it should say which era it is describing.**
+
+Also confirmed against her logs, resolving something the external research listed as unverified:
+**EQ Legends does emit the modern "(Blocked by X.)" suffix** — 184 instances. That form was added
+to live EverQuest in July 2015 and classic-era servers do not have it, so EQL added it
+deliberately. That is a small, checkable, era-dating fact about the server.
+
+**One finding is a plain defect and I would rather A heard it than not.** Nine of the twelve
+"this cast failed" patterns in her app matched nothing whatsoever across 1,521,971 real log lines.
+They had been written from memory of EverQuest's wording rather than counted: the game says "Your
+`<Spell>` spell fizzles!", not "Your spell fizzles"; "did not take hold", not "would not take
+hold". 570 failed casts per corpus were running on until they timed out. Fixed, and every pattern
+now carries the count it was measured at. **The general lesson is ours as much as hers: a pattern
+nobody has counted is a pattern nobody knows is working**, and that applies to the site's
+generator gates too.
+
+---
+
 ### 2. The two release blockers — both closed
 
 **(a) The Quick-Buff burst dropping buffs with no in-session recovery. CLOSED.**
