@@ -115,6 +115,28 @@ Two decisions inside it are mine, are argued in the code, and are hers to overru
 
 ---
 
+### 1b. Since that report: three more notes closed, and the state of play
+
+Written on the changed-answer trigger, not on completion. **56 commits, 24 suites, 346 cases**
+green, working tree clean, nothing pushed to `LoxyBee/EQLS-Auras`.
+
+- **Note 16 closed** — see the item above.
+- **Note 17 closed** — the RESIST flash, at the 1.4s she asked for.
+- **Note 15 closed** — the cooldown premade. Its blocker ("recast times do not exist anywhere in
+  this project") was stale; the roster rebuild brought them in on 989 of 1,052 entries. Its Risk
+  section was not stale and shaped the whole thing.
+- **Note 21 mostly closed** — the loadout label. Everything except the auto-create, which I left
+  out deliberately and put to her as a question.
+
+**One measurement in there is worth passing to A, because it retires a correction we published.**
+The installer figure aside, this file previously recorded that Promised Renewal's mined recast of
+21.5s was simply "wrong" against her in-game 18s. It was not wrong - it was recast plus cast time.
+Her 18s recast has a 3s cast, and the gap between her consecutive casts across 1.5M log lines
+peaks at exactly 21s. The mined data was right and I had mis-read what it measured. Nothing on the
+site depends on it, but "the game data is wrong here" was my claim and it should not stand.
+
+---
+
 ### 2. The two release blockers — both closed
 
 **(a) The Quick-Buff burst dropping buffs with no in-session recovery. CLOSED.**
