@@ -91,11 +91,27 @@ green. All local — see the push note above and item 6.
 
 **Declined by her:** the 0–200 volume re-range. Nothing else.
 
-**Still open and genuinely hers to decide** — note 16's optional toggle to track debuffs an *ally*
-applied, for boss debuffing. I have told her it will be half a feature and why: the line that says
-a debuff *ended* only ever appears for a spell **she** cast. One of her logs has 14 mez landings
-and zero wear-off lines because all 14 were a groupmate's. My recommendation to her is to show
-ally-applied debuffs **without** a countdown rather than with an invented one. Her call, not mine.
+**~~Still open~~ — closed the same day, and she was right to reject both my options.** I had put
+two to her: an ally's debuff without a countdown, or not at all. She chose a third — make it a
+**warning** rather than a tracker. "A text alert to be careful, and not a standalone timer that may
+be inaccurate."
+
+That is a better answer than mine and it is worth saying why, because the same move is available
+elsewhere. I was trying to decide how much of a broken thing to ship. She changed what the thing
+is. A warning has no duration to be wrong about, so the missing end-line stops being a defect and
+becomes irrelevant. Built and committed at `13a3304`; 52 commits, **22 suites, 306 cases** green.
+
+Two decisions inside it are mine, are argued in the code, and are hers to overrule:
+
+- It fires on the **cast** line, not the landing. Costs a false warning on a resist, about one in
+  ten. Buys roughly two seconds of notice — 96% of landings in her logs arrive exactly two seconds
+  after the cast — and for a warning meaning "do not break this mez", arriving before it lands is
+  the whole point.
+- It **names the caster** instead of saying "a party member". Measured: half the third-person mez
+  and charm casts in her logs are mobs, so that phrasing would have been wrong about half the time
+  it fired. Filtering to the group roster would be worse than either — membership is only learned
+  from join and leave lines seen live, so the feature would go silently dead whenever the app
+  starts mid-session. Depending on that was already a bug in this engine once.
 
 ---
 
