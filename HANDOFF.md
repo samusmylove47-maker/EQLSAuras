@@ -244,6 +244,28 @@ gate.
 
 ---
 
+### 1g. 23 August, evening: 27 of 39 notes done, and a report I nearly dismissed
+
+**76 commits, 30 suites, 451 cases** green. App launches clean, installer builds.
+
+**The finding worth carrying.** Shara reported that the app's detection log "doesn't exist", and it
+did — it had been written continuously for days. The tempting response was to tell her where it
+was. The correct one was that she was right: it sat as a loose file in `%APPDATA%/EQ Buff Tracker`
+among `Cache`, `Code Cache`, `DawnGraphiteCache`, `GPUCache`, `Local Storage` and `Network`. Note
+28 stayed blocked for days on evidence that existed the whole time, because no one could
+reasonably find it.
+
+**A file nobody can reach is a file that does not exist**, and "but it is there" would have closed
+the report while leaving the problem. It now has its own folder, one file per day, and a button
+that opens it. The same test applies to anything we publish that a reader is expected to go and
+find.
+
+Also closed: notes 12 and 18 (counting mobs that share a name), note 10 (timers that roll into a
+cooldown). Note 2 is SKIPPED at her instruction — she has solved first-aggro elsewhere and will
+bring it herself.
+
+---
+
 ### 2. The two release blockers — both closed
 
 **(a) The Quick-Buff burst dropping buffs with no in-session recovery. CLOSED.**
