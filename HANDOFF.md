@@ -195,6 +195,29 @@ has.
 
 ---
 
+### 1e. 23 August: note 38 lands, and a testing habit worth copying
+
+**68 commits, 28 suites, 418 cases** green. App launches clean, `npm run dist` builds.
+
+Zone-gated auras shipped. Of interest to A rather than the feature itself: **one person in
+1,521,971 log lines typed "You have entered Everfrost." into General chat while telling a story.**
+An unanchored match on that line silently relocates the app to a zone the player has never been
+in. Anchoring the pattern on the log timestamp drops it — 225 matches instead of 226. The general
+shape is worth carrying: *user-authored text can imitate system output*, and any pattern that
+reads one must be anchored on something the user cannot type.
+
+**And a habit I am now confident is a real defect generator, not a style quibble.** Four suites in
+her tree were written against a REPRODUCED COPY of a rule that lived somewhere the test could not
+import from. Mutation testing showed every one of them passing while the real rule was inverted —
+a flipped default, a reversed comparison. The fix is not better copies: it is moving the rule into
+a module with no framework dependency so the test calls the actual function. Done for the zone
+rule; the other three are pinned with source-level assertions as a weaker substitute.
+
+If any of `gate.py`'s checks re-implement a rule that also exists in the generator, they will have
+the same failure mode.
+
+---
+
 ### 2. The two release blockers — both closed
 
 **(a) The Quick-Buff burst dropping buffs with no in-session recovery. CLOSED.**
