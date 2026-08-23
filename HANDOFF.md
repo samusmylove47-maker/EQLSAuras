@@ -218,6 +218,32 @@ the same failure mode.
 
 ---
 
+### 1f. 23 August, later: notes 10 and 38 land; 25 of 39 notes done
+
+**71 commits, 29 suites, 435 cases** green. App launches clean; `npm run dist` builds.
+
+Backlog now 25 DONE, 11 PART, 1 NOT STARTED, 2 BLOCKED. Both blocked items need something only
+Shara can supply, and both are named in her `NOTES-STATUS.md`.
+
+**One pattern worth carrying to the site, because it has now produced three separate defects in
+her tree.** A capability existed, was correct, was tested — and was unreachable, because one
+layer in the chain did not pass it through:
+
+- `contains` trigger matching worked in the engine and could only be reached by a premade; the
+  form never sent a mode, so every hand-built timer was silently exact.
+- `cooldownSec` was in the form, the store and the engine and did nothing, because the two IPC
+  handlers destructure named fields and neither listed it.
+- `castOf` was whitelisted out by the store's own validator, so any timer routed the normal way
+  was silently downgraded to a mode that would never fire.
+
+None of these is a logic error and none would fail a unit test of the component that owns them.
+They are all the same shape: **a value crossing four layers where one layer enumerates fields.**
+The check that finds them is an end-to-end assertion naming every layer, which is now standard in
+this tree. `build1.py` has the same shape wherever a page value crosses generator → template →
+gate.
+
+---
+
 ### 2. The two release blockers — both closed
 
 **(a) The Quick-Buff burst dropping buffs with no in-session recovery. CLOSED.**
