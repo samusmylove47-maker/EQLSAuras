@@ -326,7 +326,8 @@ argued in August no longer has its evidence behind it.
 
 I am not asking for it to be lifted, because a plainer reason has replaced it: **there is nothing
 released to point at.** No tag, no GitHub release, no publish target, and the canonical remote does
-not even have the last 51 commits. On the only question our page actually asks — is this released —
+not even have the last 92 commits (51 when this was written; the remote has not moved since). On
+the only question our page actually asks — is this released —
 the answer is still no, and it is now checkable rather than argued. See item 6.
 
 ---
@@ -377,8 +378,9 @@ Verified tonight, read-only:
 - `gh release list --repo LoxyBee/EQLS-Auras` → **no releases**. Your reading is correct.
 - **No git tags**, local or otherwise.
 - `package.json` has **no `build.publish` block**. Nothing is wired to publish anywhere.
-- The remote last received a push at **2026-08-19 02:41 UTC**. My 51 commits are local and
-  unpushed, so the canonical repo is currently behind the working tree by everything in item 1.
+- ~~The remote last received a push at **2026-08-19 02:41 UTC**. My 51 commits are local and
+  unpushed~~ — **superseded 25 August: the figure is now 92 and the remote has not moved at all.**
+  See item 9.2. Corrected in place because the Director reported reading 51 as current.
 - Distribution today is a hand-built NSIS installer handed over as a file. That is the whole
   mechanism.
 
@@ -466,6 +468,197 @@ One question back, because it changes the interface rather than the implementati
 state per-character or global?** Her log files are per-character and the app already scopes
 remembered answers per loadout profile. If it is per-character, the character name has to be an
 input, and that is much cheaper to decide now than to thread through later.
+
+---
+
+### 9. Director's request of 25 August — five answers
+
+Everything below was re-checked against the live trees today, not recalled. Where I re-checked
+something I had previously asserted, I say whether it held.
+
+---
+
+#### 9.1 What I handed over — and what she did with it, which I do not know
+
+**I cannot answer the second half of this question, and I am not going to construct it.**
+
+You asked what landed, what she declined, and what is still open on her side. I have no visibility
+into any of that. My last action was building the handover archive on the evening of 23 August.
+Since then, in the tree I can see: **no commits after mine, no working-tree changes, and no file in
+the tree modified on the 24th or 25th.** The only trace of anything at all is that the archive is
+no longer on the Desktop, which tells me it was moved or sent and tells me nothing about whether it
+was opened.
+
+So the clean separation you asked for is this.
+
+**Ours, definitively — what was handed over.** 92 commits on `feat/eql-roster-and-backlog`, based
+on `da698b4`. 36 suites, 570 cases green; the app launches and stays up; the installer builds; the
+1.5M-line replay identical to baseline on all five figures. Of her 39 notes: **37 done, 0 partial,
+1 blocked, 1 skipped.** The archive is 2.45 MB, 154 files, full history, excluding `node_modules`,
+`dist` and her private file — all three verified absent by extracting the archive and searching it
+rather than by trusting the build.
+
+**Hers, definitively — the two open notes, both open by her own decision.** Note 28 (Ally Buffs
+showed a buff she never cast) is blocked on the bug recurring; the detection log now records which
+of her actions opened the burst and how long ago, which was the missing fact that made a report of
+it indistinguishable from correct operation. Note 2 (first-aggro) she told me to skip because she
+has solved it elsewhere and will bring it herself.
+
+**Hers, definitively — three things I asked her to check because I could not.** The debuff and
+charm mote-tier rates, where the spreadsheet says +10%/tier and marks it *assumed*, and every
+observation in her logs was cut short by the mob dying; 38 of 104 zone display names that are
+inferred because she has never entered those zones; and whether `Permafrost Keep` and `The
+Permafrost Caverns - Group` are one place or two.
+
+**What I would need to answer your actual question:** either her word, or sight of whatever tree
+she is now working in. This working copy is not it. If liaison is now structural rather than
+temporary, this is the gap that makes it fail — **I am reporting on the throw, not the catch.**
+Worth closing before the next handover, and cheaply: one line back from her saying what she took.
+
+---
+
+#### 9.2 Release state — still nothing, and the number was worse than stale
+
+Re-checked today, read-only, against `LoxyBee/EQLS-Auras`:
+
+| check | result |
+|---|---|
+| tags on the remote | **none at all** |
+| `package.json` version | `0.1.0` |
+| `build.publish` block | `null` — nothing wired to publish anywhere |
+| local tags | 0 |
+
+**Against my own definition — a release whose tag matches `package.json`, with an installer
+attached — there is still nothing.** The definition holds and is still one command to check.
+
+**The commit figure is 92, not 51 — and the more important half is that the remote has not moved at
+all.** Its branches are `master` at `f890327`, `feat/sound-alerts-…` at `1fe8fb4`, and
+`feat/detection-fixes-…` at **`da698b4`, which is exactly the commit my branch is based on.** My
+branch exists on the remote under no name, and remote `master` does not contain my HEAD.
+
+So the risk is not that a number drifted from 51 to 92 while the remote crept forward. It is that
+**the remote is precisely where it was when this work began, and all 92 commits live in one working
+copy and one 2.45 MB archive.** That is the single largest exposure on this project and it has not
+improved; it has grown by 41 commits.
+
+I have corrected the 51 in item 6 in place, struck through rather than deleted, so nobody reads it
+as current again. I have no push access to that remote and am not asking for it — recording the
+exposure is the whole of my job here.
+
+---
+
+#### 9.3 The Google Fonts fetch — still live, verified today. A's sentence stands
+
+`src/renderer/main-window/index.html:13–15` — the `preconnect` pair and the Poppins stylesheet
+link, unchanged. No `.woff2`, `.ttf` or `.otf` anywhere in `src/`.
+
+I also re-checked the two details I used to sharpen the disclosure, because I asserted them once and
+should not keep repeating them from memory. Both hold. Counting external references per renderer:
+**main window 3, overlay 0, ambiguous-cast popup 0** — so "the main window only" is still exact, and
+the main window opens at launch, so "each time it launches" is still exact. The CSS still falls back
+to `'Segoe UI', system-ui, sans-serif`, so a blocked fetch degrades quietly rather than breaking.
+
+**Do not change the landing page.** The standing commitment is unchanged: the day this moves I write
+here the same day, and you tell A.
+
+---
+
+#### 9.4 FOR-AURAS.md — read in full and carried
+
+Read at `Desktop/EQLSLockouts/docs/FOR-AURAS.md`, all 190 lines. Carrying it as instructed. The
+three findings are as you describe and I relay them intact. The framing I will put to her is the
+document's own, which is the right one — *"Nothing here is a request."*
+
+1. **Scan the folder, not the newest file.** The two halves of the only reset measurement sit in
+   different files: three grants on 10 August in one, three on 11 August in another. Scan only the
+   current file and you find three grants of three *different* tasks, no repeat, and the module
+   correctly reports `not recorded` having been shown exactly half the evidence. **This one matters
+   doubly for her, and D could not have known why:** her own `logSplitter.js` writes per-day files
+   by design. She is not merely exposed to a log that might roll over — she manufactures the split
+   herself, continuously.
+2. **One engine per character.** Shared state read Avenrae's and Shara's grants, four seconds apart
+   because they were grouped, as one task granted twice, and produced a four-second reset bracket.
+   `createState(character)` now refuses to be shared. **This is the answer to the question I left
+   open at the end of clause 6** — I asked whether lockout state was per-character or global. It is
+   per-character, and it was settled by a bug rather than by a preference, which is the better kind
+   of answer.
+3. **434 MB / 5,253,948 lines in 7.0 seconds, but stream it.** Her planned one-time backfill button
+   is a few seconds, not a progress-bar-and-cancel affair — but one file is 112 MB, and
+   `readFileSync` on the main process would spike memory and block. `readline` over
+   `createReadStream`.
+
+**Two things in that document you did not mention, one of which I verified against her code and
+which she should have regardless of whether the module is ever adopted.**
+
+D reports that `logWatcher._pollActiveFile` opens a fresh `createReadStream` at a **byte** offset
+with `encoding: 'utf8'` every 200 ms, so a multi-byte character straddling a poll boundary decodes
+to U+FFFD. **I checked it and it is correct.** The stream is bounded `start: this.offset, end:
+stat.size - 1` with `encoding: 'utf8'`, and `this.lineBuffer` holds a partial *line* — an
+already-decoded string — so it cannot repair a split *character*. Not biting today: the corpus is
+effectively ASCII, and D measured exactly 9 bytes ≥ 0x80 in 434 MB, all of them `EF BF BD`. A
+latent defect with a small fix, and hers to take or leave.
+
+D also corrected a standing internal ruling of their own in that document — that these logs are
+Windows-1252 — having measured them as UTF-8; and explains that an earlier LF finding was wrong
+because the hexdump was piped through `grep`, which strips the file's terminator and appends its
+own. **They measured the instrument rather than the file, caught it, and wrote down which way they
+had been wrong.** Her `split(/\r\n|\n/)` already handles CRLF correctly, so nothing on her side
+changes. I relay the correction as well as the finding, because the reasoning is the part worth
+having.
+
+---
+
+#### 9.5 A seventh constraint, and three amendments now the six govern more than one module
+
+The six were written for one module against one host. Governing every tool changes two of them,
+closes one, and adds one.
+
+**Seventh — bounded state, with the bound stated.** This is new information out of your own item 4,
+and the one I would most want written down now. The six predate the backfill measurement. A
+one-time scan pushes **5.25 million lines** through a module in a single call, on the main process,
+immediately after a 112 MB stream. Any state that grows per distinct entity with no eviction is at
+its maximum precisely when the user presses the button. My own `damageEngine` caps its pending
+buffer at 400 entries for exactly this reason and says so in the file; a dedupe set of seconds
+accumulated across months of history is unbounded in principle. **A module should state what its
+state is O( ), and cap anything that grows with the length of the log rather than with the number
+of real entities.** Cheap to design in, potentially a redesign to retrofit, and the trigger is
+imminent rather than hypothetical.
+
+**Amendment to clause 2 — say what to do when you *do* need time to pass.** As written, "never read
+the clock, never hold a timer" reads as forbidding anything time-based, which is not what I meant
+and is what the next author will hit. The pattern that satisfies it, which I used this session:
+expose `tick(now)` and let the host own the `setInterval`. My damage meter needs the passage of time
+to clear a fight that ended in silence; `main.js` owns the one-second interval and the engine stays
+clockless. D's module is stronger still — `now` never touches accumulated state at all — and that is
+the better position wherever it is achievable.
+
+**Amendment to clause 4 — separate internal representation from exported state.** "State must
+survive `JSON.parse(JSON.stringify(x))`" reads as banning `Map` and `Set` outright, which would be a
+real and pointless cost. `damageEngine` uses both throughout and emits plain objects. The rule
+should bind **anything crossing `serialize()`, a renderer boundary or IPC** — not a module's private
+fields. D's structural walk over *state* is exactly the right scope; the wording should match what
+they actually built.
+
+**Clause 6's open question is closed** — per-character, established by D's four-second false
+bracket. It should move out of the exchange and into the standing contract as a settled clause.
+
+**A smaller one, offered rather than pressed: per-line cost is shared.** Her `logService.watcher`
+now carries six independent `'line'` listeners — buff engine, custom timers, damage engine, zone
+detection, share-code detection, travel command. Every consumer sees every line, so a module doing
+heavy work per line taxes all of them. Cheap to fix later, which is why I am not making it a clause.
+
+**The four that need no change:** raw line including the prefix; one-second resolution with no
+sub-second ordering; hand back a plain config object and own no file; document idempotency. Clause 3
+in particular has now bitten both of us independently — a mez break sharing a stamp with its wear-off
+for me, the Voidling's closing line arriving before the task line for D — which is about as much
+confirmation as a constraint can earn.
+
+**On the contract becoming house standard.** I would keep it a contract and not let it become a
+style guide. Every clause in it exists because something broke, and each names the breakage. The
+moment a clause is added because it seems tidy, the document stops being evidence and starts being
+opinion, and the next author will be right to ignore it.
+
+*Session C, 25 August.*
 
 ---
 
