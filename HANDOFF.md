@@ -662,6 +662,125 @@ opinion, and the next author will be right to ignore it.
 
 ---
 
+### 10. Tasks of 25 August — the spec, the briefing, and clause 7's character
+
+Neither task was coding, so neither ran as a workflow — your own conditional, and I took it
+literally rather than spending a fleet on prose.
+
+---
+
+#### 10.1 Task 1 — the contract is now `ENGINE-CONTRACT.md` at the repo root
+
+Standalone spec, root rather than `proposed/`, because it binds **our** modules and is not something
+offered to her. Your principle is the first thing after the title, verbatim, and the document is
+governed by it rather than merely quoting it: the appendix names two things I considered and left
+out **because they have no breakage behind them** — per-line cost on the shared watcher, and the
+encoding findings. Both are true and useful. Neither is a clause.
+
+Every clause carries **rule / breakage / how to test**. Your three amendments are in as adopted:
+clause 2 names `tick(now)` with the host owning the interval and explains why the original wording
+read as a ban; clause 4 binds `serialize()`/IPC/renderer boundaries and explicitly leaves private
+fields alone; clause 6 carries the per-character resolution as settled by D's four-second bracket.
+
+**One structural decision you did not ask for and should know about: the numbering is frozen.**
+`lockoutCore.js` carries this contract at the top with one test per clause keyed to numbers 1–6.
+Renumbering to give per-character its own clause — which on the document's own criterion it deserves,
+having a rule, a breakage and a test — would silently invalidate every one of those references. So
+it sits inside clause 6 where I originally raised it, the document says why the numbering is frozen,
+and new clauses append. A retired clause would be struck through and keep its number.
+
+I also folded in a breakage of my own for clause 1 that was not in the original six. Building note
+9's all-of conditions I passed the timestamped line to a matcher comparing against the stripped one.
+Every exact-match condition would have silently never fired — no error, no warning, just a feature
+that does not work. Caught by looking, which is exactly what a clause should remove the need for.
+
+---
+
+#### 10.2 Clause 7 if the client prints the table — my read
+
+**It still bites. It does not become a clause about the backfill path only. What changes is its
+cost and its centre of gravity, and both changes are good.**
+
+Three reasons, in the order I find them convincing.
+
+**Reading makes the current state exact; it does not make the reset rule observable.** A printed
+table says what is locked *now*. "When does it reset" is a question about change over time, and no
+single snapshot answers it — you need two and the difference between them. So the accumulating path
+survives for precisely the measurement that is still open, which is the one D wrote a capture
+protocol for. If anything, a reliable reader makes that accumulation *more* attractive, because each
+observation is now trustworthy enough to be worth keeping.
+
+**The unboundedness moves rather than disappears, and it moves somewhere worse.** Clause 6 demands
+idempotence, because the watcher re-reads tails and the backfill overlaps the live stream. The
+cheapest way to be idempotent is to remember every input you have seen — which is exactly what
+clause 7 forbids, and exactly the defect clause 7 has just found in the Voidling set. A module
+reading a thirty-six-row table still has to dedupe a *stream of reads*. Dedupe on "every second at
+which I saw a table" and you are unbounded again, with thirty-six rows of state. **Clauses 6 and 7
+pull against each other, and that tension is where the next bug will be.** The resolution is to key
+the dedupe on the entity — a per-boss last-seen marker — rather than on stream position. I have put
+that in the clause, because it is the useful half.
+
+**"Bounded by construction" is a claim, not an exemption.** The clause never said "add a cap"; it
+said *state the order of growth, and cap what grows with log length rather than entity count*. A
+reader satisfies it trivially — and, more to the point, *provably*, with a test asserting state size
+is invariant under corpus length. A clause that becomes cheap to satisfy has not stopped mattering;
+it is doing its job at low cost, which is what you want from a clause that can otherwise cost a
+redesign.
+
+Worth noting the wording needed no amendment to survive the change. That is weak evidence the clause
+was framed at the right level — it constrains the *property* rather than prescribing a mechanism.
+
+---
+
+#### 10.3 Task 2 — one briefing, at `proposed/FOR-SHARA-2026-08-25.md`
+
+All three items in one document. `proposed/` because that folder is where material offered to her
+already lives. No conditions, no prescribed fixes, and the commits stated flatly — what is where,
+that it is her call, and explicitly that if it is deliberate the note has cost her thirty seconds.
+
+I carried the FOR-AURAS findings with your addition, and put it the way you framed it: Session D
+wrote "scan the folder" as a warning about logs that *might* roll over, and for her it is not a risk
+at all — `logSplitter.js` writes per-day files by design, continuously, so it is the normal
+behaviour of her own splitter every single day. Their advice was right for a better reason than they
+had.
+
+---
+
+#### 10.4 Two findings of my own on the instance question — one of which is a trap
+
+I searched all 1,521,971 lines of her corpus against item 2(c). **I did not close your open
+question**, and I want that stated plainly before the two things I did find.
+
+**The trap, and it is the one I would most want in her hands.** *"Replay Timer" already appears in
+her logs 37 times and not one of them is a timer.* Every occurrence is the instance invitation —
+`Avenrae has asked you to join the instance: Befallen 1 (Awakened). Would you like to join?
+Accepting will incur you a charge or replay timer.` The only thing separating that from the Alt+Z
+rows you described is **capitalisation**: 37 lowercase `replay timer`, zero title-case. And her
+custom-timer `contains` mode is case-insensitive by design, for good reasons unrelated to this. A
+tracker or a trigger built on those words would fire on every instance invitation and look, from
+outside, exactly like it was working. Neither you nor D could have had this; it needed her corpus.
+
+**The enabling fact, which makes your ten-second test worth running.** Ordinary slash-command output
+*does* reach her log — 180 `Usage: /cast`, 3 `Usage: /memspellset`. So if a command prints the
+table it would almost certainly be logged, which means **a negative result is real evidence rather
+than an absence of data**. That is what turns the test from suggestive into decisive, and it is why
+I have written it up for her as worth ten seconds.
+
+What the corpus does *not* settle: `dzlisttimers`, "Outstanding Instance Timers" and any `/dz`
+command appear **zero times, from anyone, in any channel** — which means she has never typed it, not
+that it does not work. Twice, players in General ask how to see lockouts; both times the answer is
+the window and not a command — *"alt+z for raid lockout timers"*, and to "What is the command for
+your lockout menu?", simply *"alt z"*. I give that its honest weight: it suggests no widely-known
+printing command and it rules nothing out.
+
+**One thing usable regardless of how the question resolves.** That invitation line names zone and
+tier exactly, needs no inference, and has 26 distinct combinations in her corpus already. There is
+no matching join-confirmation line to pair it with — it is the only instance-related signal she has.
+
+*Session C, 25 August.*
+
+---
+
 ## Standing: working with Shara
 
 Direct channel through 23 August. Findings and working code, never conditions. Her project, her
