@@ -781,6 +781,192 @@ no matching join-confirmation line to pair it with — it is the only instance-r
 
 ---
 
+### 11. The published build, verified against the residue list — 27 August
+
+---
+
+#### 11.0 First: she shipped it
+
+There is now a thing a stranger can install. That is a different category from everything before it,
+and it deserves saying before any audit.
+
+**Zero runtime dependencies.** `"dependencies": {}` in a published Electron app is rare and it is
+not an accident — it is the reason there is no supply chain to audit here, and the reason
+`npm install` on a fresh machine fetches only Electron itself. **62 test suites, 952 cases, green**
+— she has taken the harness I left at 36 and 570 and nearly doubled it. And she did the **P0
+detection rework**, which sat at the top of `CLAUDE.md` as the most important architectural problem
+in the project through every session that touched it, including mine.
+
+She also caught a defect in my own work, which is the part I want on the record most. See 11.4.
+
+---
+
+#### 11.1 Read off the artefact
+
+From the release API, not restated from anywhere:
+
+| | |
+|---|---|
+| tag | `latest-dev` — "Latest build", not a draft, not a prerelease |
+| asset | `EQLS-Auras-Setup.exe` |
+| **size** | **78,750,032 bytes = 75.10 MiB = 78.75 MB** |
+| release published | 2026-08-26 19:33:25 UTC |
+| **asset last updated** | **2026-08-27 19:10:44 UTC** |
+| downloads | 0 |
+
+**The figure has moved again**, exactly as it did last time: previous read was 78,440,299 bytes, so
+it is up 309,733 bytes.
+
+**And a unit error of mine that A may have inherited.** My standing figure of "74.9 MB" was derived
+from a *MiB* value and labelled MB. Both numbers above are correct for different units, and Windows
+Explorer will show "75.1 MB" while meaning MiB. Whatever A prints, it should pick one and be
+consistent — **75.1 MB (as Windows shows it)** or **78.75 MB (decimal)**. The two differ by nearly
+four megabytes and a reader comparing against their own download will notice.
+
+**The asset was replaced today, after the release was published yesterday.** That is not a
+hypothetical about rolling builds; it already happened once inside this audit, and it is the
+concrete half of question 2 below.
+
+---
+
+#### 11.2 The residue list, item by item, against published master
+
+**The userData pin — INTACT, and verified against the published tree rather than mine.**
+`src/main/main.js:24` carries `app.setPath('userData', ...)`. The first local `require` is line 28.
+Only `electron` (1) and `path` (2) precede it, neither of which touches userData at require time.
+The full explanatory comment survives, including the record of the split-brain that produced it.
+`test/pin.test.js` is on master and passes. **This is the one that must never regress and it has
+not.**
+
+**Share-code prefix — CONFIRMED as reported.** `widgetStore.js:666`
+`const SHARE_CODE_PREFIX = 'EQLSAURAS1-'`, and `:671`
+`const LEGACY_SHARE_CODE_PREFIXES = ['EQBT2-']`. Exactly what I reported closed, now confirmed in
+the artefact's source. Line numbers moved (was 395) because of her rework; content is right.
+
+**`appId` — unchanged at `com.eqlsource.eqlsauras`.** `proposed/B-naming-residue.patch` still
+applies **cleanly to master** — I tested it against master in an isolated worktree, not against my
+own checkout. Not taken, and that is a decision rather than an oversight; it is hers.
+
+**The sidebar heading — unchanged.** Exactly one `<h1>EQLS Auras</h1>`, now at `index.html:64`. As I
+said last time, this is a house-style item and not a defect: the window is frameless so nothing is
+doubled on screen. Patch B shortens it; also not taken; also hers.
+
+**Patch A — confirmed superseded.** It fails to apply against master (`package.json:7`), as
+predicted. The pin test reached her tree by another route and is there. I will remove the file from
+`proposed/` now that this is on the record.
+
+**Google Fonts — I confirm your check independently.** Three references on master today. Our
+sentence stands, and my undertaking is unchanged: the day it moves I write here the same day.
+
+---
+
+#### 11.3 The two persistence defects — both confirmed PRESENT in the shipped build
+
+**I have no record of logging these.** I searched both repositories and found nothing. So I am not
+going to claim I reported them. What I can do is better than a memory claim in either direction:
+they are described concretely enough to test, so I tested them against master.
+
+**Both are real, and both are in the build strangers can now install.**
+
+**1. An unreadable state file is silently replaced with defaults — CONFIRMED, and it is the more
+serious of the two.** `src/main/store.js`:
+
+```js
+try { return JSON.parse(fs.readFileSync(filePath, 'utf8')); }
+catch (err) { return fallback; }
+```
+
+One `catch` for every failure mode. "File does not exist" and "file exists but I could not read or
+parse it" are indistinguishable, and both return defaults. The damage is in the pairing with
+`saveJson`: load returns defaults, the app runs on defaults, and the next save **overwrites the
+user's real file with them**. A transient lock — antivirus, a backup agent, cloud sync touching
+`widgets.json` at launch — silently destroys every aura the user has built, with no error and
+nothing to recover from.
+
+It has not bitten, and it is pre-existing rather than new. But it is the one item on this list where
+the failure is *silent total loss of user data*, and the population went from one person to anyone
+with the link yesterday. The fix is small: distinguish `ENOENT` from everything else, and refuse to
+save over a file that failed to parse.
+
+**2. Duplicating a custom-timer widget persists colliding ids — CONFIRMED.** `duplicateWidget()` is
+implemented as export-plus-import, and `importCode` assigns a fresh **widget** id
+(`widget.id = crypto.randomUUID()`) while copying `customTimers` verbatim — it is in
+`SHAREABLE_FIELDS`, and `normalizeWidget` passes the array through untouched. Every nested timer
+keeps the id it had in the source widget.
+
+That collides at runtime. `customTimerEngine` keys `activeTimers` on the definition's own id — its
+own comment says `key` is "a single definition's own id (independent) or a whole-widget AND/OR combo
+key" — and keying by id was introduced precisely so two definitions sharing a *name* would not
+overwrite each other. Duplication reintroduces the collision by way of the id instead, and `_save()`
+writes it to disk.
+
+Neither is a blocker and I am not presenting them as one. They are two small, well-understood fixes,
+and the first one is worth doing before the download count leaves zero.
+
+---
+
+#### 11.4 What happened to the 92 commits, and to my work inside them
+
+**All 92 are in master. Verified at the git level, not inferred:** `git merge-base --is-ancestor
+HEAD origin/master` returns true, and `git rev-list --count origin/master..HEAD` is **zero**. They
+arrived as PR #4. Master carries 27 further commits of her own on top.
+
+Two things did not survive intact, and both are fine.
+
+**Note 9's all-of triggers were removed and replaced.** `allOf` and `normalizeAllOf` are gone from
+`src/`, and `test/all-of-triggers.test.js` is gone with them — superseded by a
+**trigger-combine-mode** in the P0 rework. This was not carelessness: `test/trigger-combine-mode.test.js`
+contains a test named *"allOf is gone from the store, not just unread"*, asserting the field survives
+in neither the store nor the renderer. That is precisely the half-removed-capability shape this
+project keeps catching, guarded deliberately. Better than what I built.
+
+**My AA correction was itself over-narrow, and was caught.** I narrowed the gate to
+`scaleCategory === 'buff'` on Shara's instruction. The comment now in `buffEngine.js` records that
+this **silently dropped every `hot` too** — all 16 `scaleCategory: 'hot'` roster entries are
+`kind: 'buff'` on the spreadsheet, and `scaleCategory` exists for the unrelated purpose of the
+mote-tier rate. The gate is now `isAAEligible(entry) { return entry.kind === 'buff' }`, checked
+against the sheet's own classification instead of a whitelist that has to be kept in sync.
+
+**And that third pass explains the measurement I could not.** Celestial Healing IV under the
+corrected gate is 24 × 1.20 × 1.65 = 47.52, rounding to **48** — which is *exactly* the measured
+minimum across 32 castings that I recorded as unexplained. Shara's "refreshed casting" accounts for
+the spread above it; the corrected gate accounts for the floor. My own anomaly was evidence that my
+own fix was wrong, and I did not see it.
+
+---
+
+#### 11.5 The two questions
+
+Both go to her as questions. Drafted for the next briefing, not sent as conditions.
+
+**1. Are the 92 commits pushed? — Answered, and it is closed.** I did not need to ask: master
+contains every one of them, with zero outstanding. **The largest single risk recorded in this file
+is closed**, and I am recording it as closed on measurement rather than on the auto-build being
+suggestive. The exposure was real while it lasted — 92 commits in one working copy and one 2.45 MB
+archive — and it is now gone.
+
+**2. Is a versioned release coming?** The published tag is `latest-dev`, auto-built from master, and
+our promotion is wired to a tag matching `package.json` with an installer attached. It has not
+fired.
+
+I will put it to her as a question about *our* wiring, because that is what it is, with the
+practical reason and not a procedural one — and I now have a fact that makes the reason concrete
+rather than theoretical: **the release is dated the 26th and its asset was replaced on the 27th.**
+If our top band points at `latest-dev`, what a reader downloads changes underneath us, and we do not
+choose when. A tag we can pin is what lets us promote without that.
+
+**And rolling is a perfectly good answer.** If that is how she wants to ship, the definition adapts —
+written down here, deliberately, rather than us quietly linking whatever is newest. I will ask, and
+I will not advocate.
+
+---
+
+*Session C, 27 August. Everything in 11.1 read from the release API; everything in 11.2–11.4
+verified against `origin/master` or in an isolated worktree at `764b16d`. Master's own suite:
+62 suites, 952 cases, green.*
+
+---
+
 ## Standing: working with Shara
 
 Direct channel through 23 August. Findings and working code, never conditions. Her project, her
@@ -798,9 +984,14 @@ guessed its cause.
 
 **NO-GO for describing Auras as released — upheld, on new grounds.**
 
-The two findings that produced the original ruling are **closed** (exchange item 2). The ruling
-stands on a plainer and checkable basis: nothing is released. No tag, no GitHub release, no publish
-target, and the canonical remote is behind the working tree.
+**Updated 27 August.** The two findings that produced the original ruling are closed (exchange item
+2), and so is the third basis — ~~the canonical remote is behind the working tree~~ **is no longer
+true: master contains every one of the 92 commits, verified at the git level.** There is now a
+published installer a stranger can download.
+
+The ruling stands on what is left, which is narrower and still checkable: **the published tag is
+`latest-dev`, auto-built from master, and it does not match `package.json`'s `version` (`0.1.0`).**
+No tag matching the version, so the promotion has not fired. See exchange item 11.
 
 **This governs our page, not her ship date.** The date is hers. What follows for us is only that we
 print no date and do not describe it as released.
@@ -813,14 +1004,25 @@ print no date and do not describe it as released.
 
 ## Standing: the installer figure
 
-**78,487,813 bytes — 74.85 MiB**, read off `dist/EQLS Auras Setup 0.1.0.exe`, rebuilt 22 August
-2026 at 23:46 UTC with `npm run dist`, exit 0.
+**Superseded 27 August — there is now a PUBLISHED artefact, and it is the only one that matters.**
+Read off the release API:
 
-**Third value in four days**: 78,504,631 (74.87) → 78,440,299 (74.81) → 78,487,813 (74.85). The
-Director's earlier 100.5 MB was Sky Ledger's figure, misattributed.
+    EQLS-Auras-Setup.exe   78,750,032 bytes   =   75.10 MiB   =   78.75 MB
 
-**Do not print this number on the site.** It was already stale twice while being correctly read
-each time, and it will be stale again the next time she builds. Either read it at build time from
+Previous local builds, kept for the trend: 78,504,631 (74.87 MiB) → 78,440,299 (74.81) →
+78,487,813 (74.85) → **78,750,032 (75.10), published**. The Director's earlier 100.5 MB was Sky
+Ledger's figure, misattributed.
+
+**A unit error of mine, which A may have inherited.** "74.9 MB" was a *MiB* value labelled MB.
+Windows Explorer shows MiB and calls it MB, so both conventions are defensible and they differ here
+by nearly four megabytes. Pick one and say which: **75.1 MB (as Windows shows it)** or
+**78.75 MB (decimal)**.
+
+**Do not print this number on the site — and the reason is now demonstrated rather than argued.**
+The `latest-dev` release was published on 26 August and **its asset was replaced on the 27th**,
+inside the audit that produced this figure. A rolling tag's asset changes without warning. It was
+already stale twice while being correctly read each time, and it will be stale again the next time
+she pushes to master. Either read it at build time from
 the artefact being shipped, or say "about 75 MB" and be right for longer than a day. The
 read-at-build-time rule was doing its job; what it cannot fix is a figure that moves faster than
 the page does.
