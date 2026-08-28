@@ -967,6 +967,119 @@ verified against `origin/master` or in an isolated worktree at `764b16d`. Master
 
 ---
 
+### 12. The lockout integration — first report, 27 August
+
+*Live. Updated when the state changes, not when asked.*
+
+---
+
+#### 12.0 ONE MEASUREMENT, FOR THE OWNER, AND IT IS TEN SECONDS
+
+**This is the top of the report because it is the only thing on it that someone other than me has
+to do, and because 1 September is itself a reset day.**
+
+Everything the grid cannot say on day one comes from one unmeasured number: **the reset hour.**
+Users who raid that Tuesday will see boundary-day cells reading "unknown" rather than a clean
+answer, and it will read as vagueness in a release rather than as the honesty it is.
+
+**What would retire it, permanently, for every user:**
+
+> Open the **Alt+Z** window. Write down **the wall-clock time you opened it, to the minute** — and
+> then, in the same note, **the remaining time the window is showing** on any one boss row.
+> A screenshot plus the time you took it is perfect.
+>
+> **Do that twice, hours apart or on different days.** Two readings that agree prove both the reset
+> instant *and* that the locks share one.
+
+That is the whole thing. A remaining-time plus the moment it was read gives the reset instant
+directly, by subtraction — no inference, no assumption about the period, and nothing typed as a
+constant. It is the single measurement that turns the grid from a bracket into an answer.
+
+**Why nobody can do it from the logs instead:** the client does not print the lockout table to the
+log. Session D established that with a capture carrying its own control line, and I confirmed
+independently against Shara's 1.6 million lines — `dzlisttimers`, "Outstanding Instance Timers" and
+any `/dz` command appear zero times, from anyone, in any channel. The window is the only place the
+number exists, so a human has to read it once.
+
+---
+
+#### 12.1 What is done so far
+
+**Files pulled.** `samusmylove47-maker/EQLSLockouts` at `dbd15dc`, cloned directly — public, no
+credentials needed, nothing waited on. `docs/CANON.md` read first and in full, before any source.
+
+**Their suite passes**, run per-file as CANON instructs (`node --test test/` is broken on Node 24
+here): **build 8, grid 46, lockout 39 — 93 tests, zero failures.**
+
+**Their module runs on Shara's real corpus.** Folder scan across both log directories, one state
+per character, streamed with `readline`: **1,601,323 lines in 2.5 seconds.** That is the throughput
+D measured, reproduced on her data rather than taken on trust.
+
+**Working against `origin/master`, not my old branch.** Her published tree is 27 commits ahead of
+where I left it. I have taken a worktree at `764b16d` on a new branch `feat/lockouts`; **her
+checkout is untouched and still on her own branch, tree clean.** Baseline before I change anything:
+**62 suites green.**
+
+**A five-way audit is running** — the seven clauses verified by execution rather than by reading
+the header that claims them, the four inverted findings checked in the direction CANON states, the
+six parsing traps exercised with real inputs, the host's integration surface mapped on
+`origin/master`, and the uncertainty machinery checked for whether it survives being rendered.
+Each finding then goes to an adversarial pass whose job is to refute it. Results in the next update.
+
+---
+
+#### 12.2 Three things already established, ahead of the audit
+
+**CLAUSE 7 IS CLOSED, and closed better than I asked.** The Voidling set is bounded at 5,000
+distinct seconds, oldest dropped first — and the module states the *cost* of its own bound, which
+is the part I did not think to ask for: a refusal older than the 5,000th most recent Voidling second
+loses its positive control and degrades to `unknown`, never to a false lockout. Degrading in the
+safe direction, said out loud.
+
+**And a related finding of my own, from measuring rather than reading.** `state.events` is capped at
+5,000 and **is at that cap on Shara's corpus** — but I traced every reader and **nothing reads it.**
+It is written and never consulted; the projections run off `state.tasks`, `state.requests`,
+`state.kills` and `state.instances`. So the cap is harmless for correctness. It is not free, though:
+5,000 dead objects ride along in every `serialize()`, so a host that persists state writes a few
+hundred kilobytes of never-read data on every save. Worth dropping at the boundary. Measured
+alongside it: `requests` 12, `kills` 17, `grants` 3 — **nowhere near their caps on real data.**
+
+**What Shara would actually see today, measured not guessed.** Her corpus yields **3 distinct weekly
+tasks, each assigned exactly once.** A reset boundary is only measurable across a *re-assignment*,
+so `projectReset` returns `provenance: 'not recorded'` — correctly, and not as a cap artefact; I
+checked that the assignments are held in an unbounded structure and none were evicted. The period
+projection does better and reports a floor: **at least 8.768 days**, from a grant on 10 August still
+refused on 19 August with a Voidling present as positive control.
+
+So on her own data the tool is honest and thin. That is the design working, and it is also exactly
+why 12.0 is at the top of this report.
+
+---
+
+#### 12.3 One thing D has been blocked on that I can close immediately
+
+The last row of `docs/CANON.md`'s open-questions table reads:
+
+> | clause 2 and 4 amendments | **I have never received their content. Asked four times.** |
+
+**They are published and have been since 25 August** — `ENGINE-CONTRACT.md` at the root of this
+repo, live at
+`raw.githubusercontent.com/samusmylove47-maker/EQLSAuras/main/ENGINE-CONTRACT.md`. Clause 2 names
+`tick(now)` with the host owning the interval, so the clause reads as a pattern rather than a ban on
+anything time-based. Clause 4 binds only what crosses `serialize()`, IPC or a renderer boundary, and
+leaves private fields alone.
+
+Neither amendment changes anything they have built — their module satisfies both already, and
+clause 2 more strongly than asked. Recording it because being asked four times for something that
+exists is a routing failure on our side, not theirs, and because CANON should not carry an open
+question that is closed.
+
+---
+
+*Session C, 27 August. Next update when the audit returns.*
+
+---
+
 ## Standing: working with Shara
 
 Direct channel through 23 August. Findings and working code, never conditions. Her project, her
