@@ -1080,6 +1080,182 @@ question that is closed.
 
 ---
 
+### 13. Lockouts: integrated, running, and four defects found — 27 August
+
+*Supersedes item 12, which stands as the record of the first pass.*
+
+---
+
+#### 13.0 THE OWNER'S MEASUREMENT, STILL THE TOP ITEM
+
+Unchanged from 12.0 and still the only thing on this report someone else has to do. **Open Alt+Z,
+note the wall-clock minute you opened it and the remaining time on any one boss row. Twice.** That
+gives the reset instant by subtraction, and it is the single measurement that turns boundary-day
+cells from "depends on the reset hour" into an answer. 1 September is itself a reset day.
+
+It has become more concrete since 12.0: running the finished page against the live log produces
+**exactly one** `depends on the reset hour` cell today. One measurement retires it.
+
+---
+
+#### 13.1 It is built, and it renders
+
+Branch `feat/lockouts` off `origin/master` at `764b16d`, three commits. **Her checkout was never
+touched** — I worked in a separate worktree and hers is still on her own branch, tree clean.
+
+**63 suites, 972 cases green** — her 62 plus mine, all passing. But the number that matters is that
+**I ran it**. `tools/smoke-render.js` is new: it launches the real app, opens the page, and reports
+what actually rendered. Against the live log:
+
+```
+PROBE: visible=true rows=6 cells=25
+       states={"lockout-open":14,"lockout-completed":10,"lockout-conditional":1}
+       summary="10 done · 14 open · 1 depends on the reset hour · 0 unclear · 0 not looked"
+       scan="read 1 file(s), 1,525,057 lines in 2.3s"
+```
+
+Three distinct CSS classes matching three counts, 25 cells, no renderer errors. You were right that
+this is where the bugs are: **the first run of that probe returned `rows=0 cells=0`** and a green
+suite alongside it.
+
+**Detection is untouched, and I proved it with a control rather than an assertion.** Replaying
+1,521,971 lines on pristine `origin/master` and on my branch gives **identical** figures:
+124 buffs, 210,185 landings, 838 ally, 23 prompts, 91 unknown.
+
+**A note you should have: that is not the old baseline.** Mine was 129 / 211,546 / 840 / 27 / 91.
+The shift is entirely hers — the P0 detection rework in her 27 commits — and the direction is
+consistent with the rework being *more* precise, since ambiguous prompts fell too. **The baseline
+recorded in her README is now stale** and should be re-taken against master.
+
+---
+
+#### 13.2 Four defects, and the first one is mine
+
+**1. MINE, and it would have shipped silently.** I detected "did this line change anything" with
+`state.events.length !== before`. `events` is capped at 5,000 and trimmed push-then-shift, so once
+full **its length never changes again** — and a backfill of her corpus fills it exactly. Measured:
+after the scan, a new grant line leaves the length at 5,000 and my change event never fires again.
+**The live grid would have frozen at the moment the app finished loading**, which is the worst
+possible time for something to look like it is working. Now fingerprints the five collections the
+projections actually read; a regression test saturates the cap and fails if a real change is silent.
+
+**2. THEIRS, same shape, and they should know.** `lockoutEngine.js:55-61` — the optional adapter —
+uses that identical test. Measured by the audit: 5,200 accepted observations produced 5,000
+emissions, **200 missed**, arriving after about 17 days of persisted state. **Their core is
+unaffected**; the deliverable is sound and the adapter is the defect. `FOR-AURAS.md` should say
+"call the core directly" rather than offering it.
+
+**3. THEIRS, and it undercuts the feature's whole argument.** A coverage hole shorter than 24 h is
+marked `tolerated` and the cell still reads **open** — whose own `because` then says "coverage spans
+the period". The threshold is a documented judgement and a defensible one. The consequence is not:
+an `open` can sit on top of a 23-hour hole, and **their own page renders `coverageHoles`, which
+excludes exactly the tolerated ones**, so there it is invisible.
+
+Measured through this UI on the live log: **seven gaps, 54.9 hours in total, every one tolerated,
+sitting under fourteen confident "open" cells.**
+
+The page now says so above the grid — how many gaps, how many hours, how many tolerated, and that
+anything in a gap is not in the grid. A test asserts the UI reads `coverageGaps` and **not**
+`coverageHoles`. *An absence of evidence has to look like one*, and it was being lost at the last
+inch.
+
+**4. MINE, caught by my own test.** I mapped the renderer's state table to `uncertain` — which is
+what the core calls the *count* — while the state it sets is `unknown`. An unmapped state prints its
+raw key unstyled: the unmapped-name failure this tool is named for, arriving through the back door.
+The test now derives the state list from the core.
+
+---
+
+#### 13.3 The seven clauses, verified by execution
+
+Not by reading the header that claims them. Five audits, each then handed to an adversarial pass
+whose job was to refute it.
+
+| clause | verdict |
+|---|---|
+| 1 raw line in | **PASS.** Pre-stripped lines parse to null and increment `dropped.unstamped`; failure is loud, never a wrong event |
+| 2 clock never read | **PASS in substance.** Verified by replacing global `Date` with a trapping subclass over 312,149 real lines: zero violations. State SHA identical across five timezones spanning two calendar dates. *Grep caveat:* three `new Date(x)` calls exist, all with an argument — calendar arithmetic, not a clock read |
+| 3 one-second resolution | **PASS for projections.** 38 real same-second groups, 200 shuffles plus 104 exhaustive permutations: every projection identical. Raw `events`/`seen` ordering differs, with no projection consequence |
+| 4 JSON only | **PASS.** Structural walk over real state: no Map, Set, Date, function, undefined or non-finite anywhere |
+| 5 owns no file | **PASS, and strongly.** Runs inside a `vm` context with only `module`/`exports` — no `require`, no `process`, no `fs` |
+| 6 idempotence | **PARTIAL — see below** |
+| 7 bounded state | **FAIL as stated — see below** |
+
+**Clause 6 breaks at `MAX_SEEN`, and the guard meant to announce it is unreachable.** Feeding
+260,000 distinct observations twice: **159,999 accepted a second time**, with
+`dropped.beyondDedupeHorizon` reading **0**. `pruneSeen` discards the oldest half, so replayed
+observations stop being recognised. The warning at L1208 fires only on the single line where
+`seenCount === 200000` exactly, because `seenCount++` then prune halves it before the comparison.
+**Reachable at roughly 681 days** of accumulated per-character state at the measured 293.6
+observations/day — and state persists across restarts, so it accumulates rather than resetting.
+
+**Clause 7: five collections have no cap at all** — `grants`, `tasks`, `tasks[].assignments`,
+`spans`, `instances`, all of them read. Her real corpus is nowhere near (grants 3, tasks 3,
+instances 23, spans 12), so this is a principle failure rather than a live one. My clause 7 asked
+for *the bound stated*; four collections have one and five do not.
+
+**None of this blocks 1 September.** Everything above is either years away at real rates or already
+handled at the host boundary. It is written down because the clause exists to be checked, and
+checking it found things.
+
+---
+
+#### 13.4 What survived, and what I changed about the UI
+
+The four inverted findings are all implemented in CANON's direction, verified by execution — bare
+`- Group` is tier 0 and the rule is correctly limited to `Group` with `- Solo` excluded; nothing
+infers a lock from a kill timestamp; no six-day constant is used as fact; replay timers never reach
+a lockout cell.
+
+The six parsing traps all hold. `killer` is assigned and never read again anywhere in the module, so
+a raid member slain *by* a boss cannot score.
+
+**There are FIVE cell states, not four** — `completed`, `open`, `conditional`, `unknown`,
+`not_looked`. Worth correcting in the brief.
+
+The uncertainty is rendered rather than summarised: five states, five colours, five different words,
+`not_looked` washed out and italic with a tooltip saying outright it is not the same as open. No
+countdown, guarded by a test. The reset day carries its provenance (`stated`, owner, 23 Aug) and the
+reset hour renders as *never measured*. And the empty states now say **which** nothing they are —
+never scanned, no EverQuest folder, or scanned-and-found-nothing — because a page arguing that it
+names what it does not know cannot be vague about its own plumbing.
+
+---
+
+#### 13.5 Two findings about her published app, both independent of this work
+
+**Auto-detect cannot find EverQuest Legends.** This is why the grid was empty on the first real run.
+`CANDIDATE_PATHS` holds eight classic EverQuest locations and none is
+`C:\Users\Public\Daybreak Game Company\Installed Games\EverQuest Legends` — which is where it
+actually is, which `isValidEqFolder()` accepts happily, and whose Logs folder holds the files. So on
+a machine with EQL and no saved config, **a fresh install auto-detects nothing** and watches nothing
+until the user finds the folder picker themselves. For a just-published app named for that game, on
+its first weekend of strangers installing it, that seems worth knowing.
+
+Fixed in its **own separate commit** so she can take it or drop it independently of the lockout
+work. Additive and safe: `logService.init()` prefers a configured folder and only falls back to the
+list, so nobody already running is re-pointed.
+
+**Two duplicate element ids on master** — `widget-text-size-slider` and `widget-text-size-value`,
+each appearing twice in `index.html`. `getElementById` returns the first, so one of the two is
+unreachable. Pre-existing, not mine, not touched.
+
+---
+
+#### 13.6 One thing D has been blocked on, closed
+
+CANON's open-questions table still ends with *"clause 2 and 4 amendments — I have never received
+their content. Asked four times."* They have been published since 25 August in `ENGINE-CONTRACT.md`
+at this repo's root. Neither amendment changes anything they built. Flagged in 12.3 and repeated
+here because it is a routing failure on our side and it is still open on their end.
+
+---
+
+*Session C, 27 August. Branch `feat/lockouts`, three commits, nothing pushed. Her checkout untouched
+and clean.*
+
+---
+
 ## Standing: working with Shara
 
 Direct channel through 23 August. Findings and working code, never conditions. Her project, her
