@@ -231,9 +231,14 @@ filed under the previous month. **EverQuest Legends zero-pads.** It uses
 `strftime("%a %b %d %H:%M:%S %Y")`, not `ctime()`; the formats look alike and I reasoned from the
 wrong one, then wrote it up as fact.
 
-Measured afterwards over 28 real logs: **9,621,621 stamped lines, 1,957,073 of them on days 1–9, and
-the ORIGINAL pattern misread none of them.** The client's own line, byte for byte:
+Measured afterwards over every EQ log on this machine, **deduplicated by content hash** (67 files
+on disk, 34 distinct): **9,026,690 stamped lines, 1,381,716 of them on days 1–9, and the ORIGINAL
+pattern misread none of them.** The client's own line, byte for byte:
 `[Tue Aug 04 13:33:15 2026] Logging to 'eqlog.txt' is now *ON*.`
+
+**The first correction was itself over-counted** — "28 logs, 9,621,621 lines" globbed a tree holding
+worktree duplicates. Dedup by content hash before quoting a corpus figure here; twelve of those
+twenty-eight files were copies.
 
 I had written "no log on this machine covers a single-digit day". There were 1.96 million such lines
 in `C:\Users\Lindsey\Desktop\EQL Source` throughout — I checked the live log's folder, found only
@@ -409,6 +414,12 @@ would also carry 5,000 dead `events` objects.
 - **EverQuest Legends stamps with `strftime("%a %b %d %H:%M:%S %Y")`** — zero-padded day, one space,
   `Aug 04`. It is NOT `ctime()`, which right-aligns to `Aug  4`. The resemblance has now cost real
   time twice; `lockoutCore.js:211` repeats the ctime assumption as an aside.
+- **The client DOES pad other columns**, so "EQ never emits a double space" is wrong: `/who` output
+  for an AFK player has two spaces after the closing bracket (37 lines on disk). Only the day is
+  never space-padded.
+- **`C:\Users\Lindsey\Desktop` holds several trees of the same logs**, including
+  `.claude/worktrees/...` copies. 67 files, 34 distinct. **Deduplicate by content hash before
+  quoting any corpus total** — not doing so is how the first correction to (k) was itself wrong.
 - **Ten lines in 1,761,090 of her live log carry no stamp** (0.0006%) and every one is a
   continuation of a wrapped server broadcast. That is the baseline the splitter's readability alarm
   is set against.

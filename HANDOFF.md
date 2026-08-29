@@ -1394,13 +1394,22 @@ feature, silently, nine days in thirty.
 `strftime("%a %b %d %H:%M:%S %Y")`, whose `%d` is zero-padded by definition. The two formats look
 almost identical and I reasoned from the wrong one.
 
-**Measured, after the fact, on 28 real logs on this machine:**
+**Measured, after the fact, over every EverQuest log on this machine — deduplicated by content
+hash, 67 files on disk, 34 distinct, the rest worktree copies of each other:**
 
 ```
-stamped lines                       : 9,621,621
-lines on days 1-9                   : 1,957,073
-lines the ORIGINAL pattern misread  : 0
+stamped lines                       : 9,026,690
+lines on days 1-9                   : 1,381,716    (Aug 04 through Aug 09)
+unstamped lines                     :        50    (0.0006%)
+lines the ORIGINAL pattern misread  :         0
 ```
+
+**Those are the second set of numbers.** The first — "28 real logs, 9,621,621 lines, 1,957,073 on
+days 1–9" — counted duplicates, because I globbed a tree containing
+`.claude/worktrees/repo-docs-review-37a9c9/` copies of the same logs and did not check. **I
+corrected an unmeasured claim with an over-counted measurement, and committed it into source
+comments**, where it would have become the next thing somebody cited. Caught by an adversarial pass,
+not by me. Point 6 below.
 
 Byte level, from the client's own line: `[Tue Aug 04 13:33:15 2026] Logging to 'eqlog.txt' is now
 *ON*.` — `20 30 34`, space-zero-four.
@@ -1427,6 +1436,15 @@ Byte level, from the client's own line: `[Tue Aug 04 13:33:15 2026] Logging to '
    and worse: `[Sat Aug  9 14:38:35 2026]` — **9 August 2026 is a Sunday**, and the real log line at
    that exact second reads `[Sun Aug 09 14:38:35 2026]`. A real line, hand-edited into a form the
    game does not produce.)
+6. **Then I did it again in the correction.** Having been wrong for lack of measurement, I measured
+   — and reported a file count without checking the files were distinct. Twelve of twenty-eight were
+   duplicates, 336 MB of them. **The instinct to answer with a number is not the same as the
+   discipline of checking what the number counts**, and the second failure is the more embarrassing
+   because it happened while writing up the first.
+7. **One more overreach, in the retraction itself.** I wrote that EverQuest "does NOT" right-align
+   columns. It does — `/who` output for an AFK player carries two spaces after the closing bracket,
+   37 such lines on disk. What is true is narrower: it does not space-pad the **day**. The corrected
+   comment says that instead.
 
 ##### What was kept, and why
 
