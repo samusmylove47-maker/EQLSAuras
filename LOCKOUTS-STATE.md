@@ -17,7 +17,7 @@ A wiped temp directory does not lose it.
 |---|---|
 | branch | `feat/lockouts` |
 | based on | `origin/master` @ `764b16d` (her published build) |
-| head | `0258cff` (twelve commits) |
+| head | `6834d78` (thirteen commits) |
 | lives in | `C:\Users\Lindsey\EQ tracker\.git` — ref at `refs/heads/feat/lockouts` |
 | checked out at | a **temp** worktree under `…/scratchpad/integrate` — **this path may not survive** |
 | pushed | **nowhere.** No push access to `LoxyBee/EQLS-Auras`, and it must not go to the band repo |
@@ -360,6 +360,31 @@ by tests.
 **s. A NUL run longer than the search window stopped the feature for ever.** `firstStampMs` gave up
 at 2 MB; a writer keeping its offset across a truncation pads with the whole previous week — 147 MB
 here. Now steps over the run: 150 MB of padding, 580 ms, rotates.
+
+**t. THE CUT WAS ELEVEN HOURS OUT FROM THE GRID THAT READS IT.** The worst defect found in this
+work, and mine. The reset is Tuesday 11:00 and the rotation cut there — but `lockoutCore`'s period
+starts at the boundary **DAY**, midnight (`boundaryDayStart`, `lockoutCore.js:1686`), deliberately,
+because `RESET_RULE.hour` is `null`. So the rotation removed eleven hours the grid still counts, and
+to the grid that is a **gap** rather than an archive. `PERIOD_GAP_TOLERANCE_MS` is 24 h, so an
+11-hour gap is **tolerated** — and a tolerated gap leaves the cells reading `open`, not `not_looked`.
+
+A boss killed at 08:00 on a Tuesday was archived away and the grid then reported the raid available,
+with no hedge. **Confidently wrong, in the direction that sends her to re-clear a lockout she
+holds** — the exact failure the feature exists to prevent.
+
+*Verified against her real log, not a fixture:* simulating the rotation turned a 10.1 h tolerated gap
+into an 11.0 h one, `coverageSpansPeriod` still true, and **no cell changed** — 10 completed / 14
+open / 1 conditional either way. It bit nothing only because she has not raided between midnight and
+11:00 in the recorded weeks. Latent, not firing, and reachable by any Monday raid past midnight.
+
+**Fixed** by cutting at `rotationCutBefore()` — the boundary day's midnight — so the live log holds
+exactly the core's period. The archive is still *named* for the reset; the report carries both
+instants so they cannot be conflated again.
+
+**u. The rotation is now OFF by default.** It is the one thing in the app that modifies her game
+files on a timer, no rotation has ever run on a real machine, and (t) was found late. Her choice is
+persisted; an old settings file with no key does not count as consent. One line restores the old
+default once it has been watched working.
 
 ### Known limits, documented rather than fixed
 
