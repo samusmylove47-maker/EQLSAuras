@@ -1084,6 +1084,12 @@ question that is closed.
 
 *Supersedes item 12, which stands as the record of the first pass.*
 
+> **Operational detail lives in `LOCKOUTS-STATE.md` at this repo's root** — where the branch
+> physically is, how to restore the worktree if the temp path is gone, the verification commands and
+> their expected answers, and the full defect list. Written before a context compaction so the work
+> is recoverable by someone with no memory of doing it. This item is the reasoning; that file is the
+> map.
+
 ---
 
 #### 13.0 THE OWNER'S MEASUREMENT, STILL THE TOP ITEM
