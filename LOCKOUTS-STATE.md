@@ -225,19 +225,37 @@ none of them `C:\Users\Public\Daybreak Game Company\Installed Games\EverQuest Le
 `isValidEqFolder()` accepts and whose Logs folder holds the files. A fresh install watched nothing
 until the user found the picker. **Fixed in commit `c4ff4b0`**, additive and separate.
 
-**k. The first nine days of every month are filed under the wrong day.** `logSplitter.js`'s stamp
-pattern required exactly one space before the day. EQ's format is C's `ctime()`, which right-aligns
-the day in two columns — `Sep  1`, not `Sep 01`. `extractDateKey` returned null for all of them,
-`lastDateKey` kept its previous value, and **nine days in thirty were written into the previous
-month's file.** Nothing lost, filed wrongly, silently. **Fixed in commit `2bf1e1a`**, separate.
+**k. RETRACTED — the wrong-day filing never happened.** I reported that `logSplitter`'s stamp
+pattern rejected the space-padded day EverQuest writes, so the first nine days of every month were
+filed under the previous month. **EverQuest Legends zero-pads.** It uses
+`strftime("%a %b %d %H:%M:%S %Y")`, not `ctime()`; the formats look alike and I reasoned from the
+wrong one, then wrote it up as fact.
 
-*Not confirmed from the corpus* — no log on this machine covers a single-digit day (all 1.5M lines
-are the 19th to the 29th). Two things argue for it: ctime's format, and `lockoutCore.js:211`
-accepting both spellings deliberately with a comment saying classic EQ space-pads. Accepting both
-costs a zero-padded log nothing, so the change is harmless if that is wrong and fixes two bugs if it
-is right. **The second bug was in the rotation**, which reads that parser to decide whether a log
-predates the reset: a log whose head fell in the first nine days read as unstamped, which that code
-treats as do-not-touch — so it would never have rotated again. 1 September is one of those days.
+Measured afterwards over 28 real logs: **9,621,621 stamped lines, 1,957,073 of them on days 1–9, and
+the ORIGINAL pattern misread none of them.** The client's own line, byte for byte:
+`[Tue Aug 04 13:33:15 2026] Logging to 'eqlog.txt' is now *ON*.`
+
+I had written "no log on this machine covers a single-digit day". There were 1.96 million such lines
+in `C:\Users\Lindsey\Desktop\EQL Source` throughout — I checked the live log's folder, found only
+19–29 August, and reported the limit of my search as a fact about the world. **`HANDOFF.md` §14.4
+has the full account of how the claim was reached; it is the more useful half.**
+
+Commit `2bf1e1a` and its message are wrong about the mechanism and about the damage. The **change**
+is kept: zero disagreements over a million real lines, it costs nothing, and it is now commented as
+tolerance rather than a repair. `test/log-splitter.test.js` is kept too — the module having no suite
+at all is the one real finding, and it now tests the client's real format first.
+
+**Still open:** `lockoutCore.js:211`'s "classic EQ space-pads" is unsourced and I cited it as
+corroboration. Session D should be told — not to change the tolerance, which is right, but because
+the comment reads as a measurement and is being used as one.
+
+**l. The splitter counts what it cannot read.** Not a defect, the response to one. An unstamped line
+is filed under the day of the line before it, which is correct — EQ wraps server broadcasts onto
+continuation lines — and measured at **ten lines in 1,761,090 (0.0006%)**. That rarity makes the
+rate a sharp alarm: a pattern that stops matching fails on nearly every line at once. The splitter
+now raises once when a batch of 200+ lines is over 5% unreadable, and `logService` says so, naming
+the day those lines were filed under. Had this existed, the claim in (k) would have been settled in
+minutes instead of surviving into two documents.
 
 **j. Two duplicate element ids on master** — `widget-text-size-slider`, `widget-text-size-value`,
 each twice in `index.html`. `getElementById` returns the first, so one is unreachable. Pre-existing,
@@ -323,9 +341,9 @@ record lies.
    governs; nothing here is a condition.
 3. **Report (d), (e), (f) to Session D** — (d) is the one that matters to them soonest.
 4. Decide with her whether (g) and (h) get fixed, and by whom.
-5. **Tell her about (k)**, the splitter's wrong-day filing. It affects her *shipped* app, it is on
-   its own commit, and it cannot be confirmed from any log on this machine — a log from the first
-   nine days of any month would settle it in one grep.
+5. **~~Tell her about (k).~~ RETRACTED — there was no bug.** See (k). What is worth telling her is
+   the opposite: her splitter was fine, it now has a test suite it never had, and it will say so if
+   it ever stops being able to read the log.
 6. **The first rotation will look alarming and be correct.** Whenever it does fire, the live log
    goes to zero and the Lockouts page reads `not_looked` across the board until she plays. That is
    the honest answer for a period nothing has been observed in, but it is worth her expecting it.
@@ -382,8 +400,17 @@ would also carry 5,000 dead `events` objects.
   first rotation is not a startup stall on this hardware.
 - **Node on Windows ignores the `TZ` environment variable**, so no test here can exercise a
   non-Eastern timezone. Where that matters, the tests assert on the *source* instead.
-- **Her live log covers only 19–29 August** (1.5M lines, 143 MB) — so it cannot answer any question
-  about single-digit days, and it spans the boundary, which is why the real app currently refuses to
-  rotate it.
+- **Her live log covers only 19–29 August** (1.5M lines, 143 MB) — and it spans the boundary, which
+  is why the real app currently refuses to rotate it.
+- **THE OTHER LOGS ARE IN `C:\Users\Lindsey\Desktop\EQL Source`.** 28 files, 9.6M stamped lines,
+  4–19 August, including 1.96M lines on single-digit days. Not under the game folder and not under
+  either repo, so a search scoped to those misses them entirely — which is exactly the mistake
+  behind retracted defect (k). `find "C:/Users/Lindsey" -iname "eqlog*"` finds them.
+- **EverQuest Legends stamps with `strftime("%a %b %d %H:%M:%S %Y")`** — zero-padded day, one space,
+  `Aug 04`. It is NOT `ctime()`, which right-aligns to `Aug  4`. The resemblance has now cost real
+  time twice; `lockoutCore.js:211` repeats the ctime assumption as an aside.
+- **Ten lines in 1,761,090 of her live log carry no stamp** (0.0006%) and every one is a
+  continuation of a wrapped server broadcast. That is the baseline the splitter's readability alarm
+  is set against.
 
 *Session C, 28 August 2026. Rotation added 29 August.*

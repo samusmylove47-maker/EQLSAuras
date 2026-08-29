@@ -1380,23 +1380,73 @@ user would have passed the whole suite.
 
 ---
 
-#### 14.4 A bug in her shipped app, on its own commit
+#### 14.4 A bug in her shipped app — WRONG. There was no bug, and this is how I got there
 
-`logSplitter`'s timestamp pattern required exactly one space before the day. EQ's stamp is C's
-`ctime()`, which right-aligns the day in two columns: **`Sep  1`, not `Sep 01`**. Those lines parsed
-as unstamped, `lastDateKey` kept its previous value, and **the first nine days of every month were
-written into the previous month's file.** Nothing lost — filed under the wrong date, silently, in a
-feature that has shipped.
+**Retracted in full on 29 August, a few hours after writing it. The original claim is left below in
+outline because the way it was reached matters more than the claim did.**
 
-The same parser is what my rotation asks "does this log predate the reset". A log whose head fell in
-the first nine days read as unstamped, which that code treats as do-not-touch — **so it would never
-have rotated again. 1 September is one of those days.**
+I reported that `logSplitter`'s stamp pattern required one space before the day, that EverQuest's
+stamp is C's `ctime()` which right-aligns single-digit days as `Aug  4`, and that therefore **the
+first nine days of every month were being filed into the previous month's file** — in a shipped
+feature, silently, nine days in thirty.
 
-**I could not confirm it.** No log on this machine covers a single-digit day: all 1.5M lines are the
-19th to the 29th. Two things argue for it — ctime's format, and `lockoutCore.js:211` accepting both
-spellings *deliberately*, with a comment saying classic EQ space-pads. Accepting both costs a
-zero-padded log nothing. Asymmetric enough to act on and say so, rather than wait: harmless if the
-premise is wrong, fixes two bugs if it is right. **One log from early in any month settles it.**
+**None of that happened.** EverQuest Legends writes `Aug 04`: zero-padded, one space. It uses
+`strftime("%a %b %d %H:%M:%S %Y")`, whose `%d` is zero-padded by definition. The two formats look
+almost identical and I reasoned from the wrong one.
+
+**Measured, after the fact, on 28 real logs on this machine:**
+
+```
+stamped lines                       : 9,621,621
+lines on days 1-9                   : 1,957,073
+lines the ORIGINAL pattern misread  : 0
+```
+
+Byte level, from the client's own line: `[Tue Aug 04 13:33:15 2026] Logging to 'eqlog.txt' is now
+*ON*.` — `20 30 34`, space-zero-four.
+
+##### How I got there, because that is the reusable part
+
+1. **I asserted a fact I had not measured.** I wrote that EQ uses `ctime()`. I never checked. The
+   resemblance was enough for me, and it should not have been.
+2. **I said "this cannot be confirmed from the corpus" without doing the search.** I checked the
+   live log and its `Split/` folder, found only 19–29 August, and stopped. There were **1.96 million
+   single-digit-day lines** sitting in `C:\Users\Lindsey\Desktop\EQL Source` the entire time. A
+   `find` for `eqlog*` across the user profile would have found them in seconds. **"I could not
+   confirm it" was a claim about my search, and I presented it as a claim about the world.**
+3. **I mistook a single unsourced aside for corroboration.** `lockoutCore.js:211` reads: *"Day is
+   zero-padded in every line measured in our corpus, but classic EQ space-pads single-digit days,
+   so both are accepted."* The measured half agrees with the truth. I quoted the **unmeasured**
+   half as independent support — and then cited it in two documents and two commit messages, so one
+   unsourced aside became, by repetition, a settled fact with three sources.
+4. **I built the asymmetry argument to excuse not checking.** "Harmless if wrong, fixes a bug if
+   right" is true, and it is a reason to make the change — it is not a reason to *describe a bug
+   that occurred*. I used a sound argument about the fix to license an unsound claim about history.
+5. **My tests passed vacuously.** Fixtures used `[Tue Sep  1 ...]`, a string this client never
+   emits. Green, and evidence of nothing. (Session D's `lockout.test.js:165` has the same problem
+   and worse: `[Sat Aug  9 14:38:35 2026]` — **9 August 2026 is a Sunday**, and the real log line at
+   that exact second reads `[Sun Aug 09 14:38:35 2026]`. A real line, hand-edited into a form the
+   game does not produce.)
+
+##### What was kept, and why
+
+- **The widened pattern stays.** Zero disagreements over 1.04M real lines; it costs nothing and now
+  carries a comment saying plainly that it is tolerance, not a repair.
+- **`test/log-splitter.test.js` stays** — the module had no suite at all, which is the one real
+  finding here. It now tests the format the client actually writes *first*, with the ctime form
+  kept and labelled as tolerance.
+- **The readability alarm stays**, and is the honest lesson. The reason a false claim survived long
+  enough to reach two documents is that **nothing was counting**. Had the pattern really stopped
+  matching, every line of the 1st would have gone into the 31st's file without a word. The splitter
+  now counts what it cannot read and says so above 5% of a 200-line batch — against a measured
+  baseline of 0.0006% (ten lines in 1,761,090, all wrapped server broadcasts).
+
+##### What is still open
+
+`lockoutCore.js:211`'s "classic EQ space-pads" remains unsourced. It may well be true of a 1999-era
+or emulated client — but that is not what this app reads, and it should not be cited as evidence
+about this one. **Session D should be told**, not to change the code (the tolerance is right) but
+because the comment is being read as a measurement, including by me.
 
 ---
 
