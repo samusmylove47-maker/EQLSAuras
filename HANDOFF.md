@@ -1262,6 +1262,183 @@ and clean.*
 
 ---
 
+### 14. The log rotates itself at the reset — and the feature nearly shipped a confident lie — 29 August
+
+*Follows 13. The lockout integration is unchanged; this is the piece that was missing from it.*
+
+---
+
+#### 14.0 The measurement arrived, and it closed the top item
+
+Item 13.0 has stood at the top of two reports: **the owner's ten-second Alt+Z reading**. She did it.
+Two readings, 10.84 hours apart — 11:20:00 with 2d 23h 40m 12s remaining, and 00:29:50 with
+3d 10h 30m 28s. They land **six seconds from each other**, both within eighteen seconds of a clean
+**11:00:00 on Tuesday 1 September**. Her third screenshot showed all thirty-six rows carrying the
+same remaining time, which is what establishes that **all the locks share one reset** rather than
+each running its own — a thing I had been treating as an assumption.
+
+So the reset is Tuesday 11:00, measured rather than typed. It is **EDT by her instruction** and
+needs confirming once daylight saving ends; if it proves an hour out, that is a one-line fix at the
+time, and she said so explicitly.
+
+---
+
+#### 14.1 Her design, which is better than the one I would have written
+
+She did not ask for a cleverer parser. She said: *every Tuesday, after the first login past 11 AM,
+back up the live log and clear it — the game makes a fresh one.*
+
+That is the whole uncertainty problem solved by construction. If the live log is archived and
+emptied at the reset, everything in it belongs to the current period **because there is nothing else
+in the file**. No inferring a lockout from a kill timestamp, no boundary arithmetic per kill, no
+reset hour to be uncertain about. Every competitor tool infers; this doesn't have to.
+
+It is also reusing what she already built — `logService.archiveNow()` already copies-then-truncates,
+and truncation rather than deletion is already the right answer because EverQuest holds the file
+open. I reused that mechanism rather than inventing a second one.
+
+**Built, 50 tests, all 64 suites green, detection unmoved** (replay over 1,521,971 lines gives
+124 / 210,185 / 838, identical to master). Commit `725e3ea`, with the splitter fix on its own at
+`2bf1e1a`.
+
+---
+
+#### 14.2 Five defects. Three are mine. One of them was the worst kind
+
+I ran five independent attackers at it plus a mutation pass, because this is the one feature in the
+app that **modifies the user's game files on a schedule without asking each time**.
+
+**1. MINE, and it is the failure this whole tool exists to prevent.** My first guard checked the
+log's *first* line against the boundary. That catches a log which is entirely current. It does not
+catch the ordinary one — starting before the reset, carrying on past it — which was archived whole.
+The grid reads the live log and **never** the Archive folder.
+
+Measured end to end: three bosses killed on a Tuesday night, a rotation later that evening, and
+afterwards the grid read **open for all three, with no uncertainty markers at all**. A control with
+the feature switched off gave `conditional`, which is honest.
+
+> The feature took a correct, humble answer and turned it into a confident wrong one — telling the
+> player to go re-clear three raids they were locked out of.
+
+That is precisely the failure mode named in the brief, arriving through the feature meant to remove
+it. It now refuses any log holding both weeks and says so on the card.
+
+**2. MINE.** A failed attempt left its archive on disk — and the archive filename is the only record
+of whether a week was done, so **the failure marked the week complete**. Four routes, all
+demonstrated: the log grew during the copy; the truncate threw EPERM on a read-only log; the disk
+filled mid-copy, leaving **100 bytes of a 1,060-byte log as that week's permanent archive**; a
+directory sitting at the archive path. In every case the next check said "already done" and
+`lastError` read `null`. A failure now removes what it left and the next check retries.
+
+**3. MINE, and it would have fired on this machine within the minute.** `logWatcher` opens the log
+**at the end** and emits nothing for what is already in it — so at launch nothing had ever been
+heard, and "seconds since the last line" was vacuously enormous. Every log read as quiet, including
+one the game was writing to flat out. Her own Archive-log warning is about exactly that moment.
+
+**Launching =Auras that afternoon would have emptied a live 143 MB log mid-session.** Nothing would
+have been lost — it copies first — but it is the thing she warned about, done automatically, on a
+machine where EverQuest was running. The clock now starts at launch, so silence has to be observed
+rather than assumed.
+
+**4.** Rotating every character's log renews every mtime, and the watcher follows the newest file.
+Emptying a logged-out mule's log *after* the played one **drags the tailer onto the mule** — and
+that feed is shared by buffs, damage, ability groups and the memorize diagnostic, so the loss is not
+confined to lockouts. Measured: eight raid lines, all eight gone. The watched log is now rotated
+last. Each file is also judged on its own mtime, because a boxed second account writes to a log the
+tailer never sees at all.
+
+**5. Found by running it, not by the suite.** I held the real app open for ninety-five seconds. A
+check had certainly happened; the card was blank. The commonest outcome of all — *the game is
+writing right now* — returned before recording anything, so **working-and-waiting looked exactly
+like dead.** Every exit now records itself, and the card says which state it is in. On the live log
+it currently reads:
+
+```
+Waiting for a quiet moment - the game is writing to the log right now.
+```
+
+---
+
+#### 14.3 Two of my own tests proved nothing, and mutation testing is what said so
+
+Both had been green the whole time.
+
+- **The daylight-saving test never crossed a daylight-saving change.** It sampled 28 October and
+  3 November — neither look-back spans the 1 November transition. Three mutations that replace
+  calendar arithmetic with fixed 24-hour days survived it. Rewritten to straddle the change in both
+  directions, and it now also pins the fact that a fall-back week is **169 real hours** and a
+  spring-forward week **167** — which looks like a bug to anyone who checks, and is the correct
+  answer for a wall-clock reset.
+- **The copy-before-truncate test passed against code that truncated first.** It forced its failure
+  by putting a *file* where `Archive/` had to go, so `mkdirSync` threw a line above the truncate and
+  the log survived for a reason with nothing to do with ordering. Now the copy itself fails.
+
+Nine guards were each broken deliberately and confirmed to fail the right test by name. Two
+survivors from the first pass — the off switch and the quiet gate — had **no test at all**: the off
+state was only ever reached through a stubbed settings loader, so a toggle that silently ignored the
+user would have passed the whole suite.
+
+---
+
+#### 14.4 A bug in her shipped app, on its own commit
+
+`logSplitter`'s timestamp pattern required exactly one space before the day. EQ's stamp is C's
+`ctime()`, which right-aligns the day in two columns: **`Sep  1`, not `Sep 01`**. Those lines parsed
+as unstamped, `lastDateKey` kept its previous value, and **the first nine days of every month were
+written into the previous month's file.** Nothing lost — filed under the wrong date, silently, in a
+feature that has shipped.
+
+The same parser is what my rotation asks "does this log predate the reset". A log whose head fell in
+the first nine days read as unstamped, which that code treats as do-not-touch — **so it would never
+have rotated again. 1 September is one of those days.**
+
+**I could not confirm it.** No log on this machine covers a single-digit day: all 1.5M lines are the
+19th to the 29th. Two things argue for it — ctime's format, and `lockoutCore.js:211` accepting both
+spellings *deliberately*, with a comment saying classic EQ space-pads. Accepting both costs a
+zero-padded log nothing. Asymmetric enough to act on and say so, rather than wait: harmless if the
+premise is wrong, fixes two bugs if it is right. **One log from early in any month settles it.**
+
+---
+
+#### 14.5 What it does not do, said on the card rather than in a comment
+
+The first copy I wrote claimed the rotation *"lets the Lockouts page say what you have killed this
+week without guessing"*. That is an overclaim and an attacker caught it: `lockoutCore`'s
+`RESET_RULE` still carries `hour: null`, so boundary-day cells read *depends on the reset hour*
+after a perfectly timed rotation. The card now says what is true and no more:
+
+- the reset is Tuesday 11:00 **by your computer's clock** — undisclosed before, and wrong by the
+  offset for anyone not on the server's clock;
+- it archives **every** character's log, where the button beside it does only the watched one;
+- it will **not** archive a log you have already played on since the reset, and why;
+- archived weeks stay on disk but **the Lockouts page will not count them** — "nothing is deleted"
+  was true of the file and false of what the tool can see.
+
+---
+
+#### 14.6 What I did not do, deliberately
+
+**I did not let it rotate her live log.** Today's boundary is 25 August; her log spans it, so the
+guard refuses — and I established that by reading the first and last stamps *before* letting the app
+run a single check against a real folder. Verified after every run: the log grew normally, no
+`Archive/` was created. The smoke tool holds for 22 seconds against a 60-second check for the same
+reason.
+
+**I did not split a spanning log.** Archiving the old part and writing the new part back would make
+the by-construction claim true in every case, and it means writing into a file the game holds open.
+Refusing is the conservative choice: it degrades to the behaviour the app already ships, which is
+the rule when this feature and her existing behaviour conflict.
+
+Four limits are written down rather than fixed, because each needs a wrong clock, a timezone change
+mid-session, a pre-existing junction, or a write inside a 100-microsecond window: they are in
+`LOCKOUTS-STATE.md` §5 with what each costs.
+
+---
+
+*Session C, 29 August. Branch `feat/lockouts`, five commits, nothing pushed. Her checkout untouched
+and clean.*
+
+---
 ## Standing: working with Shara
 
 Direct channel through 23 August. Findings and working code, never conditions. Her project, her
