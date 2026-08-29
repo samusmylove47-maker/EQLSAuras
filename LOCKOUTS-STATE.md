@@ -17,7 +17,7 @@ A wiped temp directory does not lose it.
 |---|---|
 | branch | `feat/lockouts` |
 | based on | `origin/master` @ `764b16d` (her published build) |
-| head | `725e3ea` |
+| head | `0258cff` (twelve commits) |
 | lives in | `C:\Users\Lindsey\EQ tracker\.git` — ref at `refs/heads/feat/lockouts` |
 | checked out at | a **temp** worktree under `…/scratchpad/integrate` — **this path may not survive** |
 | pushed | **nowhere.** No push access to `LoxyBee/EQLS-Auras`, and it must not go to the band repo |
@@ -82,7 +82,7 @@ is additive. That was deliberate — the app is published and people have instal
 ## 3. HOW TO VERIFY IT, AND WHAT THE ANSWERS SHOULD BE
 
 ```
-node test/run.js                              -> all 64 suites, 1,022 cases   (hers: 62)
+node test/run.js                              -> all 65 suites               (hers: 62)
 node tools/smoke-render.js                    -> renderer ERRORS 0, and a PROBE line
 EQLS_SMOKE=rotation EQLS_SMOKE_HOLD_MS=95000 \
   node tools/smoke-render.js                  -> the rotation card, after a real check
@@ -319,6 +319,48 @@ record lies.
   then holds both weeks and (l) refuses it. They sit at the app's existing behaviour, and the card
   tells them so rather than looking broken.
 
+### Defects found by the ship-readiness audit, and fixed — 29 August
+
+Six audits plus two judges, run against the finished feature. **Every one of these is mine.**
+
+**m. The readability alarm could not fire during play.** The ratio needs 200 lines and I required
+them within one batch — one poll, one second. Measured across 177,399 seconds of her real play:
+median 6 lines a second, p99 60, **peak 182**. A live batch never reaches 200, so the alarm could
+only ever fire on a startup backfill, and a format breaking mid-session was 100% unreadable and
+silent. The window now accumulates across batches.
+
+**n. It named the wrong day, and reached nobody.** `_checkReadability` read `lastDateKeySeen` two
+statements before it is assigned, so it reported the previous batch's day or the word `null`. And
+the alarm went only to a `console.warn` the owner cannot open, with `getStatus()` having no caller
+anywhere in `src/`. **A counter nobody reads is not an improvement on not counting.** Now goes to
+`debugLog` and rides the settings payload the Setup page already reads.
+
+**o. The watcher anchor only worked when the watched log was rotated.** Sorting it last does
+nothing for a SKIPPED file, which never gets a new mtime — and the ordinary multi-box case is
+exactly that: hers straddles the reset and is refused, a mule's rotates and takes the newest mtime,
+and the tailer follows it. Lines lost to buffs and the damage meter, not just lockouts. Then the fix
+was wrong a second way, caught by running the test six times: `Date` is millisecond-precision and
+the filesystem is finer, so stamping "now" landed *behind* a file truncated in the same
+millisecond — **one run in three**. Now takes the newest rotated mtime and adds a millisecond.
+
+**p. The host reintroduced the blank card.** The module records every exit; then the host grew two
+guards that return before calling it. Same defect one level up. Both now call `noteHostSkip`.
+
+**q. The manual Archive button did not tell the grid.** Pressed during a scan it lost **300,001 of
+600,002 lines** while the service reported done with no errors. Degrades toward `not_looked` rather
+than a false `open`, so the important property held — but silently. It now rebuilds the grid.
+
+**r. Three sentences the app contradicted itself with.** The gap line said "N of them short enough
+that the cells above still read open" under a summary saying **0 open** — the guaranteed state of
+the page for the first days after this ships. The open tooltip claimed "the logs cover the whole
+period" while the line below it said 68 of 113 hours were unobserved. And the Setup card asserted
+the reset hour while the Lockouts page said it had never been measured. All three fixed and pinned
+by tests.
+
+**s. A NUL run longer than the search window stopped the feature for ever.** `firstStampMs` gave up
+at 2 MB; a writer keeping its offset across a truncation pads with the whole previous week — 147 MB
+here. Now steps over the run: 150 MB of padding, 580 ms, rotates.
+
 ### Known limits, documented rather than fixed
 
 - **A wrong clock that later corrects can mark a week done that was not.** An RTC running a week
@@ -331,6 +373,23 @@ record lies.
 - **~100 µs between the copy completing and the truncate** is closed by a re-stat but not by a
   lock. Measured exposure at real write rates: one to thirteen bytes, and only if the game writes in
   that window while writing nothing during the 1–72 ms copy.
+- **WHICH FILE-HANDLE MODE EVERQUEST USES IS UNMEASURED, and cannot be settled from this machine.**
+  An append handle survives an external truncation cleanly; a handle keeping its own offset pads the
+  file with NULs. `Logs/Archive` **does not exist** here — the manual archive has never been run —
+  so no truncation has ever happened to these logs, and **the absence of NUL bytes in the corpus is
+  not evidence either way.** I briefly presented it as if it were. Defect (s) means either answer is
+  now survivable.
+- **Nothing prunes `Archive/`.** At her measured ~94 MB a week, eighteen weeks is ~1.7 GB, on top of
+  `Split/` holding the same content again. No warning, and the Lockouts page cannot read any of it.
+- **The rotation discards last week's context along with last week's lines.** A kill whose
+  instance zone-in line was written before the reset, and whose kill lands after it, loses the tier
+  the zone-in established — the grid then reads `open` for every tier rather than `completed` for
+  the right one. Under-reports rather than over-reports, which is the safe direction, but it is a
+  real consequence of the by-construction approach.
+- **A pre-existing defect worth knowing, unchanged from master:** if `splitProgress.json` is lost,
+  corrupt, truncated or zero-length, `store.js` returns defaults and the splitter re-splits from
+  zero — measured at **every line exactly 2.00×**. Same on `764b16d`. It is defect (g) wearing a
+  different hat.
 
 ---
 
