@@ -10,3 +10,5 @@ eqlwa custom timers.mp4
 # Scratch
 _work/
 _out/
+# git bundles handed over alongside a branch - portable copies, not repo content
+*.bundle
