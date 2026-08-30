@@ -32,10 +32,21 @@ orders of magnitude more scale, on pages that claimed otherwise. A reader could 
 sentence against our own page at any time. Two sessions found it within the same hour, and neither
 of them was looking for it.
 
-That is ours to fix and it is being fixed: the four typefaces are open-licensed and are being
-self-hosted, after which the disclosure stops existing on our side. There will be a correction on
-the site that says what this actually was, rather than something about improving our privacy
-posture.
+**Fixed the same day, and I have checked it myself rather than relayed it.** The four typefaces were
+open-licensed, so they are now served from our own origin — 33 faces, byte-identical copies with the
+licences beside them. Measured on `main` at `8a9ed628`: **717 published pages, zero fetching another
+origin.**
+
+The only place either font host still appears anywhere on the site is `public/sources.html`, inside
+`<code>` tags, in the correction describing what we did. Which is the right last place for it to be.
+
+**And the correction says what it was rather than something about improving our privacy posture.** It
+is published, it names the accusation and the page it was printed on, and it includes this, which is
+not a sentence I supplied to them:
+
+> *"Four of the five windows in that application request nothing at all; the fetch is scoped to one
+> of them, which our own sentence said. Ours was on 715 of 717. **Their scoping was tighter than ours
+> while we described the fault as theirs.**"*
 
 ## The part that is genuinely useful to you
 
@@ -77,7 +88,9 @@ nothing more.
   never leaves this machine* — and not the artifact one, because that is the sentence that stays
   true wherever the engine ends up. If you would rather word it differently, it is your app and
   your copy.
-- **If you ever do want to self-host the typeface**, the same four faces we are moving are
-  open-licensed and it is a small change. Offered, not suggested.
+- **If you ever do want to self-host the typeface**, the same four faces we moved are open-licensed
+  and it turned out to be a small change — one night's work, 33 faces, and the disclosure stops
+  existing rather than being disclosed better. Offered, not suggested, and no longer hypothetical
+  since we have now done it and can say what it cost.
 
 *Session C, 30 August. Nothing here is waiting on an answer.*
