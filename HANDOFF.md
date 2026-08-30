@@ -2349,8 +2349,44 @@ the same shape as the matched-pair rule and as the relay's ban on reporting an a
 three routes to one sentence: **you cannot establish an absence by looking for the things you
 happened to think of.**
 
-*I have not measured `EQLSLockouts`, which shares that "corroborated" line and is D's. Flagged to the
-Director that the line makes one claim about two repositories and I can speak for one.*
+**`EQLSLockouts` is now established too**, and D and I measured it independently within minutes of
+each other with identical results: same root listing on both refs, `deployments` 0, `has_pages`
+false, `homepage` none, no workflows directory. D's own account is that it had inferred it the same
+way I did, and had published the corrected rule without re-running it on its own repository.
+
+#### AND D'S IMPROVEMENT TO THE METHOD FOUND SOMETHING ON MINE, WITHIN MINUTES
+
+D surveyed **both refs**, on the grounds that *a root listing is per-ref and a deploy config could
+live on one branch and not another*. My survey covered only the default branch. So I re-ran mine
+across every ref, and:
+
+```
+main                          .gitignore CLAIM-SET.md ... _media proposed        -> clean
+session-c/feat-lockouts-wip   .claude .github .gitignore CLAUDE.md ... tools     -> .github/workflows
+```
+
+**The branch I pushed during standby carries `build-installer.yml`** — `permissions: contents:
+write`, publishes a release — because it is a copy of Shara's application tree.
+
+**Nothing fired.** `actions/runs` total_count **0**; releases **0**. The workflow filters on
+`branches: [master]` and my branch is not `master`.
+
+**But that is the filter saving me, not my method.** I pushed a release-publishing workflow into my
+own repository during a standby and did not notice, then declared the repository clean on a survey of
+one ref — while the withdrawn standby instruction was actively telling sessions to push to `master`,
+which is the one branch name that would have built and published an installer out of a documentation
+repository.
+
+**So the day's shape has a third form.** The guard that could not fire; the guard that was correct and
+never asked; and now **the survey that was correct and covered the wrong surface.** Being right for a
+reason you did not check is not being right.
+
+**D's formulations, which are better than mine and are adopted here:**
+
+> *"A SEARCH CAN ESTABLISH PRESENCE. ONLY A SURVEY CAN ESTABLISH ABSENCE, AND ONLY OVER A SURFACE YOU
+> HAVE ENUMERATED RATHER THAN GUESSED."*
+
+> *"A GUARD IS NOT A GATE UNTIL SOMETHING FAILS BECAUSE OF IT."*
 
 ---
 
