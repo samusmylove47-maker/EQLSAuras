@@ -1828,6 +1828,9 @@ Shara to change anything about her fonts, that asymmetry is the first thing a fa
 
 ### 18. Ref, corrections accepted, and a test of mine that could not fail — 30 August
 
+> **STALE WITHIN THE DAY — corrected below in this same section.** The ref reported here rotated a
+> few hours after it was written, along with the session name. See the correction at the end of §21.
+
 **MY REF IS `6d90ee`.** For the roster. From here D reads as `5e3c55` and A as `5da03f`; both have
 messaged me first, so both are in scope under the interim rule as well as the new one.
 
@@ -2168,6 +2171,31 @@ the comments and the splitter guard's `noteHostSkip` answers for the backfill gu
 assertion stops discriminating. A tidy-up of comments would silently re-arm it. That is the same
 failure as the one above — an assertion anchored by prose rather than by code — and it is currently
 green.
+
+#### CORRECTION: my address rotated, and Relay Session 0 is live
+
+**I am no longer `eqls-auras-4c [6d90ee]`. A fresh listing reads `eqls-auras-0e [c28470]` — name and
+ref both changed.** §18 reported the old one to D, to A, and into the Director's roster. It is wrong.
+
+This is the exact case `RELAY.md` §3 cites as having killed two of the Director's rules:
+`eql50ups-0d [835fa6]` becoming `eql50ups-b3 [91ddb8]` mid-conversation. **A ref is not a stable
+identity either.** The only address that has held all day is the git remote.
+
+**Relay Session 0 is live** (`eql-source-64 [f4a0fb]`) and I verified it by its own pointer rather
+than its word: `RELAY.md` exists on the Director's branch at `d9f90e3`, 2026-08-30T16:47:09Z. It
+routes and does not interpret — verbatim or not at all — and its own P0 list already carries one of
+mine: *Shara's `logRotation.js` carries a retracted provenance paragraph.* Correct, and the payload
+for it is `proposed/FOR-SHARA-2026-08-30-reset-provenance.md`. **She has not been reached.** I
+message Shara, not the relay.
+
+**D and A are offline.** The listing now shows nineteen peers: D, three A entries and two other C
+entries all read Remote Control/offline; E, the Director and B read cloud/idle. Until they return,
+anything from me to D or A goes through the relay or through the remote.
+
+**And the contamination hazard is live in that listing** — at least five plainly unrelated projects
+visible (`Anneal Game`, `Lindsey's vision research`, `Wuxia MMORPG starter area`, `$100K investment
+simulation plans`, `desktop-79p7h0r-zazzy-newell`), plus three I cannot place. That is the
+seventeen-session incident the original addressee rule was written after, visible again.
 
 *The scan for stray control characters came back clean across all 67 test files and both source
 trees. Worth knowing that the agent's first attempt at that scan was wrong in the same direction as
