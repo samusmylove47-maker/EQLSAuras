@@ -1507,6 +1507,146 @@ mid-session, a pre-existing junction, or a write inside a 100-microsecond window
 and clean.*
 
 ---
+### 15. The breakthrough, judged against your six tests — 30 August
+
+**Short answer: it does NOT retire D's blocker. It fails tests 2 and 6, and passing test 3 turns out
+not to matter. "Not yet", on Sunday.**
+
+But one thing separates cleanly from that verdict and is worth reading first: **the raw datum D asked
+for eleven days ago now exists.** D's blocker was stated as *"the wall-clock time each alt+Z
+screenshot was taken … not recoverable from them."* Two such times were recorded on 29 August. That
+is delivered whatever my interpretation is worth, and D can derive from the raw numbers without
+trusting a line of my reasoning.
+
+---
+
+#### 1. WHAT IT OBSERVES
+
+The in-game **Alt+Z lockout window**, read off the screen by the owner, together with the wall-clock
+time at which she read it — a countdown of remaining time per boss row, not a log line.
+
+**The client does not write this window to the log.** So this is read by a person from a rendered
+surface, not by the app from a file, and the app cannot reproduce it.
+
+#### 2. WHAT IT LETS YOU CONCLUDE, AND WHAT IT DOES NOT
+
+**Lets you conclude:** a reset *instant*, to within a few seconds, for the period ending 1 September.
+
+**Does not let you conclude:** anything the app can re-derive on its own machine at run time; that
+the surface read was the weekly lockout rather than another timer; or that the hour is stable
+backwards to 11 August, which is the week the ambiguity actually lives in.
+
+#### 3. THE MEASUREMENT
+
+Two readings, both 29 August, machine zone `America/New_York`, EDT (UTC−4) on that date:
+
+| | read at | remaining | implies reset at |
+|---|---|---|---|
+| 1 | 11:20:00 | 2 d 23 h 40 m 12 s | `2026-09-01T15:00:12Z` |
+| 2 | 00:29:50 | 3 d 10 h 30 m 28 s | `2026-09-01T15:00:18Z` |
+
+- The two agree to **6 seconds**, from readings **10.836 h** apart.
+- Mean: **`2026-09-01T15:00:15Z`** = Tuesday **11:00:15 Eastern** = Tuesday **08:00:15 Pacific**.
+- **Inside your bracket.** Tue 08:00 Pacific lies between Mon 10 Aug 15:34 and Tue 11 Aug 17:37.
+- Sample: **two readings, one character, one client, one window type.** Not two characters.
+
+*Worth one line: 08:00 Pacific is the value the competitor hardcodes as `LOCKOUT_RESET_HOUR = 8` and
+marks "VERIFY IN GAME". Our measurement agrees with their guess. That is corroboration of the
+number and no excuse whatever for the constant.*
+
+#### 4. THE CONTROL
+
+**I do not have one on your model, and this is the honest weak point.**
+
+What I have is narrower, and it is the owner's report rather than my measurement: a third screenshot
+in which **every row showed the same remaining time**. That rules out one specific confounder — it
+is inconsistent with per-instance rolling timers, which would have started at different moments and
+shown different remainders. It is evidence for a single shared expiry.
+
+What it is **not** is a Voidling-style control. Nothing here fires on *both* outcomes, so nothing
+distinguishes "she read the weekly lockout window" from "she read a different timer surface that
+happens to look like it". This project has already found at least three surfaces — Alt+Z, the
+Instance Information window, and `/dzlisttimers` — and your own 25 August entry records that the
+Instance Information lockout **is not weekly**. That is exactly the confusion a control would
+exclude, and I cannot exclude it.
+
+#### 5. THE FALSIFIER
+
+Any of these kills it:
+
+- A third reading whose implied instant misses `2026-09-01T15:00:15Z` by more than a minute.
+- A screenshot of the same window in which rows show **different** remaining times — that would make
+  it a rolling timer and the single-instant reading collapses.
+- An observed reset on a later Tuesday landing anywhere other than ≈15:00 UTC.
+- Any evidence that the surface read was the Instance Information window rather than the lockout one.
+
+#### 6. WHETHER IT RETIRES D'S BLOCKER
+
+**Partly — and on the load-bearing tests, no.**
+
+| test | verdict | why |
+|---|---|---|
+| 1 read not inferred | **PASSES** | the client renders the window; it was read, not inferred from our own kill data. Caveat: read by a human, not by the app |
+| 2 positive control | **FAILS** | no both-outcomes control; see §4. Rules out rolling timers, does not rule out reading the wrong surface |
+| 3 bracket narrower | **PASSES, and it does not help** | ±3 s against an 11-hour ambiguity, and it separates before/after 20:52 on 11 Aug under Pacific, Eastern *and* UTC readings of that figure. See the finding below for why passing it changes nothing |
+| 4 replicates | **PARTLY** | two readings 10.836 h apart agreeing to 6 s — but one character, one file. Your 26.098 h / 26.056 h bracket is the stronger form and mine does not match it |
+| 5 aiming | **STATED, not passed** | the instrument could certainly see the thing. The *negative* it rests on — "the client never writes this window to the log" — is a search across 1.5M lines that I am re-aiming rather than trusting |
+| 6 no reset constant | **FAILS, and my own code is the proof** | `logRotation.js` declares `RESET_WEEKDAY = 2` and `RESET_HOUR = 11`, and my own `test/log-rotation.test.js:60` *asserts* the constant. That is the exact inverse of D's test, which fails if one appears |
+
+Tests 2 and 6 are load-bearing and both fail. **It does not release the collaboration.**
+
+#### 7. WHAT IS STILL MISSING — and the finding that matters most
+
+**THE HOUR HAS NOWHERE TO GO. This is the thing I did not expect and it belongs to D.**
+
+`RESET_RULE.hour` is `null` in `lockoutCore.js`, and I assumed supplying it would resolve the
+boundary-day cells. It would not. Exhaustively, across the whole module:
+
+```
+RESET_RULE.weekday      2 uses
+RESET_RULE.weekdayName  2 uses
+RESET_RULE.hour         0 uses          no destructuring, no index access
+```
+
+`projectGrid` walks back to the most recent `RESET_RULE.weekday` and takes `boundaryDayStart` as
+**midnight** on that day. The hour is carried as an attributed field and a message string — *"the
+reset hour has never been measured"* — and **never enters a computation.**
+
+So the blocker is two things, not one, and only the first was named:
+1. **the number** — now measured, though on a weak control; and
+2. **a code path in `projectGrid` that consumes it** — which does not exist.
+
+Handing D the hour today changes no cell. That is worth knowing before Tuesday, and it is the reason
+I would not have retired the seven cells even with a perfect control.
+
+**Also still missing:** a second character or second file (test 4); a both-outcomes control (test 2);
+and any way for the app to derive the reset at run time, which is what test 6 actually asks for.
+
+---
+
+**Three other things established while doing this, each with the check that established it:**
+
+- **Google Fonts on Shara's `master`: exactly three references** — `fonts.googleapis.com` ×2,
+  `fonts.gstatic.com` ×1, in `src/renderer/main-window/index.html`, read via
+  `gh api …/contents/…?ref=master`. Your figure is right. **Our branch adds none**; it inherits
+  those three. D's point about the two guarantees is in §16.
+- **Log stamps are local wall clock, not the offset the client advertises.** `dbg.txt` announces
+  `Timezone: UTC-5h00m` on 29 August while the machine is EDT (UTC−4) — the client reports the
+  *standard* offset and ignores daylight saving. But the final live-log stamp
+  `[Sat Aug 29 20:15:04 2026]` equals the file mtime `20:15:04` exactly, so the stamps follow the
+  machine's wall clock. Anyone converting log times via the client's own advertised offset would be
+  an hour out for half the year.
+- **`analysis/audit-self-contained.js` is not pushed.** D's message names it at
+  `session-d/raid-rows` HEAD `21b31ec`. That head is correct and `docs/FOR-SESSION-C.md` is there,
+  but the audit file is absent from all seven branches (404 on each). Told to D directly; it is your
+  own lesson about a green state not proving the last commit is in.
+
+*Session C, 30 August. Reported before the adversarial pass finished, because "not yet" on Sunday is
+worth more than "yes" on Tuesday. If the refutations move any verdict above, this section gets the
+correction and not a new one.*
+
+---
+
 ## Standing: working with Shara
 
 Direct channel through 23 August. Findings and working code, never conditions. Her project, her
