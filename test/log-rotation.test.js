@@ -424,10 +424,19 @@ test('the renderer names the week from the local date, never from the UTC string
   const start = renderer.indexOf('function renderLogRotationStatus');
   assert.ok(start > -1, 'renderLogRotationStatus is gone - this test needs rewriting');
   const body = renderer.slice(start, renderer.indexOf('\n  }', start));
-  assert.ok(body.includes('boundaryDate'), 'the renderer does not read boundaryDate');
+  // ASSERT ON THE PROPERTY READ, NOT ON THE WORD APPEARING. This guard was DEAD until 30 August:
+  // it asked whether the body contained the string "boundaryDate", and the comment above the code
+  // explaining why the code must use boundaryDate contains that string. So the assertion was
+  // satisfied by its own documentation - revert the code, keep the comment, and it still passed.
+  // A guard a comment can satisfy is not a guard.
+  //
+  // And the negative must forbid the CLASS of bug rather than one spelling of it: deriving the day
+  // from any UTC string is the defect, `last.boundary.slice()` is only the spelling we happened to
+  // write first.
+  assert.ok(/last\.boundaryDate\b/.test(body), 'the renderer does not read boundaryDate');
   assert.ok(
-    !/last\.boundary\b(?!Date)/.test(body),
-    'the renderer reads the raw UTC boundary string, which names the wrong day east of UTC+11'
+    !/toISOString|last\.boundary\b(?!Date)/.test(body),
+    'the renderer derives the day from a UTC string, which names the wrong day east of UTC+11'
   );
 });
 
