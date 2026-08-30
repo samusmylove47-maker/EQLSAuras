@@ -2277,6 +2277,46 @@ scan for dead guards is itself a dead guard.*
 
 ---
 
+### 22. Two push hazards, one of them answered about my own repo — 30 August
+
+**B's warning, verified here rather than relayed.** I opened
+`EQL50ups/.github/workflows/deploy.yml` on its only branch:
+
+```yaml
+on:
+  push:
+    branches: [claude/eql-gear-optimizer-tfzvh6, main]
+concurrency:
+  group: pages
+  cancel-in-progress: true
+```
+
+`RELAY.md` §4 records B's branch as `master`. **There is no `master` and no `main`** — the repository
+has exactly one ref, `claude/eql-gear-optimizer-tfzvh6`. So the two failure modes are opposite and
+the standby warning guards the harmless one: **a push to `master` deploys nothing** and leaves the
+pusher believing the site updated; **a push to `main` deploys immediately** from an unreviewed branch
+and cancels any in-flight deploy.
+
+**And the half B did not state, which inverts the standby instruction for that repo.** B's *own
+working branch is also a deploy trigger* — first entry in that list. So *"push whatever is in your
+tree, even as WIP — to a working branch, not one that publishes"* **has no safe target in EQL50ups**:
+the only branch that exists publishes, `main` publishes, and `master` is a silent no-op. Followed
+literally during a standby, that instruction ships unreviewed work to a live site. Sent to B; it is
+B's repository and B's call what to do about it.
+
+**The same question, asked about mine, which is the reason B's note was worth the time.** I pushed to
+`samusmylove47-maker/EQLSAuras` `main` about fifteen times today, including every standby push.
+**Checked rather than assumed: no `.github/workflows` (404) and no Pages site (404). Nothing
+deploys.** Those pushes were safe — and I did not know that until someone else's warning made me ask
+the question about my own tree. That is the whole value of circulating a hazard that does not apply
+to you.
+
+*The relay's watch had my `main` at `9e3474c7` when it was at `97dbfb47`. That is its own §10c
+working as designed rather than a fault: an announcement is accurate when sent and decays from the
+moment it leaves.*
+
+---
+
 ## Standing: working with Shara
 
 Direct channel through 23 August. Findings and working code, never conditions. Her project, her
