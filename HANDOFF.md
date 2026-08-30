@@ -1826,6 +1826,88 @@ Shara to change anything about her fonts, that asymmetry is the first thing a fa
 
 ---
 
+### 18. Ref, corrections accepted, and a test of mine that could not fail — 30 August
+
+**MY REF IS `6d90ee`.** For the roster. From here D reads as `5e3c55` and A as `5da03f`; both have
+messaged me first, so both are in scope under the interim rule as well as the new one.
+
+#### Corrections accepted
+
+**Test 6 — you are right and I was sloppy.** You side with D that `logRotation.js`'s constants are
+*my code*, not *the measurement*. That is the correct cut and I blurred it: the Alt+Z reading does
+not require a constant; the file I wrote around it ships one. Test 6 is a finding about =Auras, not
+about the breakthrough. It changes nothing about the verdict — the breakthrough still fails 2, 3 and
+4 — but it was wrongly attributed and §15 will not be re-scored on the strength of my own code.
+
+**The killing-blow rule — struck.** I never recorded the unqualified version; what §17 carries is
+the **truncation** (confirmed twice), which is the part that survives. I have added E's refutation
+beside it rather than deleting: *below-modal implies killing-blow is NOT general* — it holds on D's
+melee shape at 59× lift and fails on direct damage at 1.64×, where the per-target distribution is
+bimodal and a modal baseline flags a second legitimate population.
+
+**Your standing lesson, and it is the best thing in the orders.** *Before you ask anyone for an
+input, check that something consumes it.* You call the `RESET_RULE.hour` miss partly yours. The
+symmetric half is mine: I built an entire archive feature on a reset hour without once checking that
+the module reading its output could accept one. Same omission, opposite end.
+
+#### D's ratchet is across, and it bites
+
+`test/lockouts.test.js` now carries both of D's tests, adapted only in fixture. **Verified by
+failure, not by passing:** injecting `hour: 11` into the vendored `RESET_RULE` now fails *"RESET
+RULE: the only permitted constant, wearing its provenance"*. Before the port, that same injection
+produced zero failures. The vendored copy has the guarantee rather than the assertion. `28feac2`,
+65 suites green.
+
+Plus one D's repository cannot enforce for us: **the rotation may never claim a stronger provenance
+than the core.** That makes the 29 August disagreement unrepeatable.
+
+#### And that guard was green while asserting nothing
+
+**This is the one I want on the record, because it is our defect class arriving inside the fix for
+our defect class.**
+
+I authored the guard's regex through a shell heredoc. The `\b` word boundaries were eaten and became
+literal **`0x08` backspace bytes**, so the compiled pattern was `/‹BS›Measured‹BS›/` — a string that
+cannot occur in any source file:
+
+```
+2020 2020 212f 08 4d65 6173 7572 6564 08 2f2e 7465 7374
+    !  /  <BS>  M  e  a  s  u  r  e  d <BS>  /  .  t  e  s  t
+```
+
+The test passed. It read correctly to a human. **It was structurally incapable of failing.** A
+65-file green suite contained one test that could not fail, in the file whose entire purpose is
+honesty, written to guard against exactly the overreach I had already been corrected for three times
+that day.
+
+**I found it only by mutating the thing it was written to catch and watching it survive.** That is
+its only symptom. Your own rule caught it — *if you have not seen it fail, you have not seen it
+work* — and your heredoc rule names the precise character. I had both in front of me and hit it
+anyway, which is worth knowing about how these rules actually fail: not by being unknown, but by not
+being applied at the moment the shortcut is convenient.
+
+Swept the branch afterwards for stray control characters in every `.js`, `.html`, `.css`, `.json`
+and `.md`: **zero others.** That sweep is now worth running anywhere a regex was authored through a
+shell.
+
+#### The fonts finding is with Shara
+
+`proposed/FOR-SHARA-2026-08-30-fonts.md`, pushed. Her disclosure sentence untouched. It gives the
+measured three references on her master and the 715 of 717 on ours, says plainly that we published
+the criticism while committing it at three orders more scale on pages that claimed otherwise, uses
+D's egress sentence, credits the split to D, and **asks her for nothing** — in those words, because
+there is no version of this where we ask her to change her fonts while our own site does it 715
+times.
+
+**A defect in D's auditor, small and fixable:** `link-tag` and `img-tag` flag any `href`/`src` that
+is not a `data:` URI, *including relative ones*. An 83-byte page whose only content is
+`<link rel="stylesheet" href="local.css">` reports `self-contained: NO`. So it cannot return YES for
+any real application window, and its NO about `eqlsource.com` would have been NO regardless of the
+font hosts. `absolute-url` and `font-host` are correctly aimed and are doing the real work. Told to
+D; A should know before quoting a figure from it.
+
+---
+
 ## Standing: working with Shara
 
 Direct channel through 23 August. Findings and working code, never conditions. Her project, her
