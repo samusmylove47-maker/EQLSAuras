@@ -1,4 +1,4 @@
-# The Google Fonts thing — and it turns out we do it 715 times — 30 August
+# The Google Fonts thing — and it turned out we did it 715 times — 30 August
 
 **This is not a request and there is nothing here for you to fix.** It is a finding that started as
 a note about =Auras and ended up being mostly about us. You should have it from me before you come
@@ -23,8 +23,8 @@ the main window only. **That sentence stays up and stays accurate.** Nobody is t
 
 ## What we did not tell you, because we had not looked
 
-**715 of the 717 pages on our own site do exactly the same thing.** The only two that don't are the
-two bundles built to be self-contained. Including — and this is the part worth saying plainly — the
+**715 of the 717 pages on our own site did exactly the same thing.** The only two that did not were
+the two bundles built to be self-contained. Including — and this is the part worth saying plainly — the
 page that prints **"Nothing transmitted"**.
 
 So we published a criticism of your application while committing the same thing at roughly three
@@ -61,7 +61,7 @@ promises were being spoken as one, and only one of them survives being embedded 
   because it is a property of one particular file and putting the engine somewhere else replaces
   that file.
 
-Three of the four sentences on our site were the second kind. They are being split accordingly.
+Three of the four sentences on our site were the second kind. They have been split accordingly.
 
 **Why it matters for the tracker going into =Auras:** the lockout engine ships with a test asserting
 it makes no external requests. That test will keep passing after it goes into your main window —
@@ -82,8 +82,10 @@ nothing more.
 
 ## So, concretely
 
-- **Nothing is being asked of you.** Whether =Auras fetches a typeface is yours, and there is no
-  version of this where we ask you to change it while our own site does it 715 times.
+- **Nothing is being asked of you, and that has not changed now that ours is fixed.** When I first
+  wrote this the reason was that we could hardly ask while doing it on 715 pages ourselves. That
+  reason has expired, and the answer is the same without it: whether =Auras fetches a typeface is
+  **yours**. I am not asking, and finishing our own repair does not turn a finding into a request.
 - **If the tracker is ever described inside =Auras**, I will use the egress sentence — *your log
   never leaves this machine* — and not the artifact one, because that is the sentence that stays
   true wherever the engine ends up. If you would rather word it differently, it is your app and
