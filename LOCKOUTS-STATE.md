@@ -20,7 +20,7 @@ A wiped temp directory does not lose it.
 | head | `6834d78` (thirteen commits) |
 | lives in | `C:\Users\Lindsey\EQ tracker\.git` — ref at `refs/heads/feat/lockouts` |
 | checked out at | a **temp** worktree under `…/scratchpad/integrate` — **this path may not survive** |
-| pushed | **nowhere.** No push access to `LoxyBee/EQLS-Auras`, and it must not go to the band repo |
+| pushed | **MERGED INTO HER `master`, 30 August** — PR #14 at 01:22Z, PR #15 at 05:25Z. Her `master` is 8 commits beyond our head `6834d78`, which is an ancestor of it. This row previously read "nowhere" and was stale within hours |
 
 **If the temp worktree is gone**, from `C:\Users\Lindsey\EQ tracker`:
 

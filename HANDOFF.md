@@ -2007,6 +2007,68 @@ catching these is the same one every time: ask what consumes the thing before sa
 
 ---
 
+### 20. STANDBY — 30 August, power cut inbound
+
+**Correction to the standby note first: I am NOT mid ratchet-port. It is finished, committed and
+verified.** `28feac2` on `feat/lockouts`, and injecting `hour: 11` into the vendored `RESET_RULE`
+now fails the ported test where before the port it produced zero failures. Nothing is half-applied
+and both trees are clean.
+
+#### What I was doing
+
+Reading a delegated result I had not opened, and it turned out to matter more than what I was
+working on. **Shara has merged the lockout work into her `master`** — PR #14 at `01:22Z`, PR #15 at
+`05:25Z` — and then built on it. Her `master` is **8 commits beyond** our head `6834d78`, which is an
+ancestor of it.
+
+#### The next concrete step, and it is the only thing I would not want dropped
+
+**`proposed/FOR-SHARA-2026-08-30-reset-provenance.md` is written and pushed. Someone needs to make
+sure she sees it.**
+
+Her shipped `master` carries **my** retracted paragraph, verbatim, at `src/main/logRotation.js:24`,
+`:28` and `:42` — *"THE RESET, MEASURED RATHER THAN TYPED … a measurement, not a constant somebody
+typed."* I withdrew that today. She has built an Eastern reset setting on top of it.
+
+The number may well be right. The claim that anyone measured it is not: those two Alt+Z readings are
+**object 2, the six-day rolling instance lockout** — `518,285 − 3,485 = 514,800`, D's own figure from
+that same window — and 4, 5, 6 and 7 day periods all fit the same two readings to the same six
+seconds.
+
+**Her design is better than mine and that goes with it.** She made the hour an *option*
+(`resetWeekday` / `resetHour` / `boundaryCivil`, gated on `hourKnown`, `RESET_RULE` as fallback) and
+left `RESET_RULE.hour` as `null`. So she solved the gap I had reported as open — the hour had nowhere
+to go — without breaking D's anti-constant rule. That deserves saying to her before the correction
+does.
+
+#### Held in my head and not in a file
+
+- **A workflow was in flight and will die with the power**: pair-testing all 19 source-scanning
+  assertions in the suite, one agent per test file, looking for more guards that cannot fail. It
+  found nothing yet. **Do not re-run it blind** — the finding that prompted it is already recorded in
+  §18, and the method is: mutate what each assertion protects, confirm red, restore.
+- **My two commits are not in her tree.** `28feac2` (D's ratchet + my provenance guard) and `c3d0a0f`
+  (the retraction in the code comment). Both matter to what she just shipped. The branch is at
+  `C:\Users\Lindsey\EQ tracker`, `feat/lockouts`, and also pushed to
+  `samusmylove47-maker/EQLSAuras` as **`session-c/feat-lockouts-wip`** so a session with no access to
+  that disk can still read it.
+- **A's fonts work is done** on `claude/self-host-fonts-and-split-the-claim`, pushed. Zero pages
+  fetch another origin; `df49a58` reads YES after, NO before.
+- **Use `df49a58`, never `fbd0932`.** The earlier auditor could not return YES for any page with a
+  local stylesheet, so any NO from it means nothing. I verified that with an 83-byte page.
+- **Four of five =Auras renderers are self-contained**, overlay included — §19. That measures A's
+  band sentence rather than asserting it.
+
+#### Open, not started
+
+`EXCHANGE.md` exists in **neither** repository — 404 on every branch both sides. Onboarding Shara to
+our systems: still nobody has started it. Session E's offer is held to **Wednesday 2 September** and
+must not reach her before then.
+
+*Session C, going quiet. Both trees clean, nothing half-applied.*
+
+---
+
 ## Standing: working with Shara
 
 Direct channel through 23 August. Findings and working code, never conditions. Her project, her
