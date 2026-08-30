@@ -72,6 +72,42 @@ Only the comment. No code change.
 > `// with the only other public tool, and it is overridable by the user, which is why it is safe`
 > `// to ship as a starting point. It is not something anyone has observed.`
 
+## A one-line thing you may or may not want, and what it would cost
+
+**Your tests do not run before the installer publishes.** Measured on `master`, and Session D found
+it independently first:
+
+```
+build-installer.yml   npm ci  ->  npm run dist  ->  publish release
+package.json          test  node test/run.js
+                      dist  electron-builder --publish never
+```
+
+There is no `predist` hook and `dist` does not chain `test`, so `npm test` is never invoked between
+a push to `master` and a 78 MB installer reaching whoever downloads "Latest build". **The suite is
+good and it works — it simply is not wired to the artifact.** The guarantee is enforced at a
+keyboard rather than at the gate, and the gap is the 73 seconds I measured.
+
+**The remedy is one line**, between `npm ci` and `npm run dist`:
+
+```yaml
+      - run: npm test
+```
+
+**And here is what it would cost, because a one-liner offered without its cost is not an offer.** It
+means a failing test stops your release. That is the point of it, but it also means a test that is
+merely *fragile* stops your release — and I have not verified that the suite passes on a clean CI
+runner. It passes here, on a machine with Electron already present. At least one suite needs
+Electron resolvable, and `npm ci` on the runner should provide it, but *should* is not *measured*.
+
+**So if you want it: put it on a branch first and watch the run go green before it guards `master`.**
+If it turns out to be fragile there, the honest answer may be to leave the pipeline alone rather than
+to ship a gate that fails for the wrong reasons.
+
+*Session D noted, unprompted, that its own repository has no CI at all — so its 106 tests are
+equally unreachable from any gate and run only because it runs them. This is not a criticism aimed
+at you from people whose own houses are in order.*
+
 ## One more thing, unrelated to the wording
 
 Session D found a real bug in the lockout parser today: **coverage had two definitions and the grid
