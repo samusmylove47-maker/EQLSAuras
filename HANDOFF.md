@@ -1509,8 +1509,19 @@ and clean.*
 ---
 ### 15. The breakthrough, judged against your six tests — 30 August
 
-**Short answer: it does NOT retire D's blocker. It fails tests 2 and 6, and passing test 3 turns out
-not to matter. "Not yet", on Sunday.**
+> **CORRECTED THE SAME DAY, AND THE CORRECTION IS WORSE THAN THE ORIGINAL.** I reported this before
+> the adversarial pass finished and said the section would take the correction rather than spawn a
+> new one. It has. **Four of my six verdicts were too generous and one of my two "passes" is now a
+> fail.** The verdict table below is the corrected one; what I first sent to D is superseded and D
+> has been told.
+>
+> **The measurement measures something. It does not measure what I said it did.** An expiry instant
+> at `2026-09-01T15:00:15Z ± 3 s` survives, for *whatever those thirty-six rows were*. The sentence
+> "the raid lockout **resets** Tuesday 11:00 Eastern" does not survive: nothing observed establishes
+> a **reset**, a **weekly period**, or a **Tuesday boundary**. That is the third time this session I
+> have turned a real measurement into a claim wider than it, and the pattern is the finding.
+
+**Short answer: it does NOT retire D's blocker. It fails tests 2, 3, 4 and 6. "Not yet", on Sunday.**
 
 But one thing separates cleanly from that verdict and is worth reading first: **the raw datum D asked
 for eleven days ago now exists.** D's blocker was stated as *"the wall-clock time each alt+Z
@@ -1558,10 +1569,25 @@ number and no excuse whatever for the constant.*
 
 **I do not have one on your model, and this is the honest weak point.**
 
-What I have is narrower, and it is the owner's report rather than my measurement: a third screenshot
-in which **every row showed the same remaining time**. That rules out one specific confounder — it
-is inconsistent with per-instance rolling timers, which would have started at different moments and
-shown different remainders. It is evidence for a single shared expiry.
+What I offered was a third screenshot in which **every row showed the same remaining time**, on the
+argument that it excludes per-instance rolling timers. **That argument is wrong twice over.**
+
+**It excludes a hypothesis nobody proposed.** `lockoutCore.js:903` records `commonOrigin: true` — 14
+locks earned across kills spanning 6,133 s rendered **one value with zero spread**. Rolling timers
+with a common origin look exactly like a shared boundary. The control cannot touch the hypothesis
+that actually competes.
+
+**And it contradicts the module's own record of the same window.** `lockoutCore.js:795-804`
+documents that window as **28 rows at `5d:23h:58m:5s` plus 8 rows at `0d:0h:58m`** — 28 + 8 = **36**,
+which is the row count I cited as corroboration. Both cannot be true of one surface: either the
+"all thirty-six the same" report is imprecise, or it is a different surface whose 36 is a
+coincidence. **The control is not weak. It is internally inconsistent with the module it is meant to
+support**, and the owner holds the screenshots that settle which.
+
+**Worse, the row count points the other way.** 28 + 8 is the signature of the *instance-lockout*
+window — object 2 in that file's own heading, **"THREE DIFFERENT OBJECTS. DO NOT MERGE THEM"** —
+described there as *"A SIX-DAY ROLLING TIMER from when it is taken. There is no weekday and no
+boundary."* A player in that zone's General chat on 25 August says flatly: `alt+z is instances`.
 
 What it is **not** is a Voidling-style control. Nothing here fires on *both* outcomes, so nothing
 distinguishes "she read the weekly lockout window" from "she read a different timer surface that
@@ -1586,14 +1612,21 @@ Any of these kills it:
 
 | test | verdict | why |
 |---|---|---|
-| 1 read not inferred | **PASSES** | the client renders the window; it was read, not inferred from our own kill data. Caveat: read by a human, not by the app |
-| 2 positive control | **FAILS** | no both-outcomes control; see §4. Rules out rolling timers, does not rule out reading the wrong surface |
-| 3 bracket narrower | **PASSES, and it does not help** | ±3 s against an 11-hour ambiguity, and it separates before/after 20:52 on 11 Aug under Pacific, Eastern *and* UTC readings of that figure. See the finding below for why passing it changes nothing |
-| 4 replicates | **PARTLY** | two readings 10.836 h apart agreeing to 6 s — but one character, one file. Your 26.098 h / 26.056 h bracket is the stronger form and mine does not match it |
-| 5 aiming | **STATED, not passed** | the instrument could certainly see the thing. The *negative* it rests on — "the client never writes this window to the log" — is a search across 1.5M lines that I am re-aiming rather than trusting |
-| 6 no reset constant | **FAILS, and my own code is the proof** | `logRotation.js` declares `RESET_WEEKDAY = 2` and `RESET_HOUR = 11`, and my own `test/log-rotation.test.js:60` *asserts* the constant. That is the exact inverse of D's test, which fails if one appears |
+| 1 read not inferred | **PARTLY** *(was: passes)* | read off a client-rendered window, yes — but **nothing records which window**, and the 36 rows match the instance-lockout surface's own 28 + 8. A read of an unidentified object. Hand-transcribed, with a one-sided latency: +12 s and +18 s past the hour, never negative |
+| 2 positive control | **FAILS** | and worse than I said — see §4. The control excludes a hypothesis nobody proposed and contradicts the module's own record of the same window |
+| 3 bracket narrower | **FAILS** *(was: passes)* | the ±3 s is a bracket on **1 September**. Carrying it to 11 August needs a weekly recurrence, and sweeping the period shows **P = 4, 5, 6 and 7 days are all self-consistent to the same 6 s** — only 3 days is excluded. P = 6 d puts the anchor on **Wednesday** 26 August. There is no established period to carry it back with |
+| 4 replicates | **FAILS** *(was: partly)* | two readings of **one monotonically decreasing counter** extrapolate to the same zero *by construction*. The 6 s over 39,010 s measures only clock drift — 154 ppm. Recomputing the whole thing under EST gives **the same 6 s spread**, so the agreement is literally zero evidence about the frame |
+| 5 aiming | **PARTLY** | the log half improved: my "zero hits in 1.5M lines" was **false as stated** — 1,836,844 lines, `lockout` 24 hits, `replay timer` 17; re-aimed at duration-shaped tokens it is a genuine zero. The temporal half fails: **there is no 11 August data on this machine** (log starts 19 Aug), and at the one boundary the corpus spans she was selling to a merchant in Rivervale |
+| 6 no reset constant | **FAILS** | `logRotation.js:42-44` declares both constants under the comment "Measured", while `lockoutCore.js:821` calls the same 2 `provenance: 'stated' // NOT 'measured'`. Two files in one app disagreeing about one number's provenance. And my `test/log-rotation.test.js:60` *asserts* them — **the ratchet is installed backwards** |
 
-Tests 2 and 6 are load-bearing and both fail. **It does not release the collaboration.**
+**Four of the six fail; three of those are load-bearing.** It does not release the collaboration.
+
+**And test 3 was never the binding constraint anyway.** Executed against a copy of the core, Tuesday
+kills at 00:01, 07:59, 08:01, 17:52, 20:52 and 23:58 **all return `conditional`** — the hour never
+changes the state. Separately: kills after 20:52 on 11 August are already **3.25 h later than the
+latest instant your own bracket permits** (Tue 17:37), so every reset your bracket allows *already*
+puts them post-reset, with an hour of timezone slack either way. The seven cells were never waiting
+on this number.
 
 #### 7. WHAT IS STILL MISSING — and the finding that matters most
 
@@ -1726,6 +1759,70 @@ ships is Shara's, and this goes to her as a fact, not a condition.
 could run its check on our renderer and get its answer rather than my own. It is not pushed — 404 on
 all seven branches, at a head that is otherwise exactly as D described. So the three above are my
 count, by a different method than D's. Told to D directly.*
+
+---
+
+### 17. Two findings that belong to D, and Session E's offer held to Wednesday — 30 August
+
+#### The anti-constant guard does not exist in the vendored copy
+
+**This is D's, it is the project's signature failure again, and it is the most useful thing the
+adversarial pass produced.**
+
+`lockoutCore.js:774-776` states, in the vendored module: *"a hardcoded reset day is forbidden and a
+test fails if one appears."* D says the same in its own words: *"my module ships none and a test
+fails if one appears."*
+
+**Executed, on a disposable copy:** injecting `hour: 11` and `provenance: 'measured'` into
+`RESET_RULE` produced **zero** new failures — identical to baseline. Setting `RESET_HOUR = null` in
+my own file produced **five**. The guard runs backwards from the direction everyone believes.
+
+The cause is vendoring. `test/lockouts.test.js:5` records that the core *"has its own 93 tests in its
+own repo"*; **23 came across.** The anti-constant test was not among them. So the doctrine is
+enforced in D's repository and merely *asserted* in ours — a check whose scope is narrower than the
+claim it appears to defend, which is the fourth instance this month and the first one inside a
+module rather than a page.
+
+**Seven citations in the vendored file also dangle**: `docs/EVIDENCE.md` (cited four times),
+`analysis/derive.js` and `analysis/findings.json` exist nowhere in this worktree. They are real in
+D's repo. A reader of the vendored copy cannot reach the evidence it rests on.
+
+*This is not a criticism of the module.* It is honest about the hour it does not have, and its
+`provenance: 'stated' // NOT 'measured'` is more careful than my own file, which labels the same
+number "Measured". **Two files in one app disagree about the provenance of one number, and mine is
+the wrong one.**
+
+#### What I sent D, and the correction that followed it
+
+I sent D a verdict scoring test 3 as passing. **That was wrong and D has the correction.** Four of
+my six verdicts were too generous; §15 carries the corrected table. The part of that message that
+stands is the finding that `RESET_RULE.hour` has zero uses, and the raw wall-clock datum.
+
+#### Session E — the gap engine. Offer received, held until Wednesday 2 September
+
+Recorded so it is not lost, and **not raised with Shara this week** per your instruction. E offers a
+single pure function: log lines in, a small JSON of live DPS plus one gap line out. No DOM, no
+fetch, no dependency on E's tree, so it drops into her tailer and the presentation is entirely hers.
+
+E's framing — *"EQLS Auras is hers; I am supplying a component, not a feature"* — is the same
+posture this whole lane is supposed to hold, and it is better stated than I have managed. **The
+lockout integration and the Tuesday release own this week.** It goes to her on Wednesday, as an
+offer she is free to refuse, and it loses nothing by waiting.
+
+E is cloud and cannot reply, so anything for it goes through the owner or sits here. **One thing for
+E, then:** if that function reads damage lines, the killing-blow truncation applies to it — the
+client reports damage *applied*, capped at remaining hit points, so a distribution built from raw
+lines carries a spurious low tail. E found it; D reproduced it on our corpus. It affects
+distributions only, not totals. E will know this; it is here so the record does.
+
+#### Carried from A, and A is right about the asymmetry
+
+A reports that all 715 pages of the site preconnect to the Google font hosts — **including the page
+that prints "Nothing transmitted"** — while the Auras band discloses that Auras does exactly that.
+A raised it rather than acting on it, which is correct, and I agree with the conclusion: if we ask
+Shara to change anything about her fonts, that asymmetry is the first thing a fair reading turns up.
+
+**I am not asking her to change anything.** What goes to her is D's egress sentence, as a fact.
 
 ---
 

@@ -273,10 +273,21 @@ untouched.
 Commit `725e3ea`. `src/main/logRotation.js`, wired in `main.js`, switch on the Setup page's
 Archive log card.
 
-**The boundary is Tuesday 11:00 local, and it is a measurement.** Two Alt+Z readings 10.84 hours
-apart landed six seconds from each other and both within eighteen seconds of 11:00:00 on Tuesday
-1 September — and every row of that window showed the same remaining time, which is what
-establishes that all the locks share one reset rather than each running its own. Local wall clock,
+**RETRACTED 30 August. It is an EXPIRY, not an established boundary, and the surface it was read
+from is not identified.** What survives: an expiry instant at `2026-09-01T15:00:15Z ± 3 s` for
+whatever the thirty-six rows in that window were. What does not: that it is a *reset*, that the
+period is *weekly*, or that the boundary is *Tuesday*.
+
+Sweeping the period against the same two readings, **4, 5, 6 and 7 days are all self-consistent to
+the same six seconds** — only three days is excluded — and six days puts the anchor on a
+**Wednesday**. Worse, `lockoutCore.js:795-804` records that window as **28 rows plus 8 rows** — the
+signature of the *instance-lockout* surface, which that file's own heading calls object 2 of
+**"THREE DIFFERENT OBJECTS. DO NOT MERGE THEM"** and describes as *"A SIX-DAY ROLLING TIMER … There
+is no weekday and no boundary."* And "all rows the same" excludes nothing: `commonOrigin: true` in
+that same file records 14 locks across 6,133 s rendering one value with zero spread.
+
+`HANDOFF.md` §15 carries the corrected scoring. **The rotation ships OFF by default, which is now
+doing more work than it was when I turned it off.** Local wall clock,
 deliberately, so the 1 November change is a non-event. Correct for a player whose machine is on the
 server's clock and wrong by the offset for anyone else; the module header says so.
 
