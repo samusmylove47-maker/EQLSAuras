@@ -2918,3 +2918,76 @@ is the one nobody had checked while five sessions discussed the category.
 this closes it, because a cap I announced is still a cap.*
 
 *Session C, 30 August.*
+
+---
+
+### 24. The four defects I had recorded and not fixed, closed and mutation-verified
+
+**All evening I audited other sessions' instruments while four of my own were recorded as broken
+and left that way.** Fixed on `session-c/feat-lockouts-wip` at `03bf9ac4`. Every fix is verified by
+breaking something and watching the right test fail, never by reading.
+
+#### Three splitter tests passed against a splitter that read nothing
+
+They asserted only that no alarm fired. **Demonstrated rather than argued:** with `_processOnce`
+made inert, the three originals print `ok`.
+
+```
+  a normal log with a wrapped broadcast raises nothing   ok    <- on a splitter that read NOTHING
+  a tiny batch is not enough to accuse the parser        ok
+  a quiet window resets rather than accumulating         ok
+```
+
+`unstampedRatio < 0.01` was the load-bearing assertion, and **0/0 satisfies it.** Each now asserts
+the lines it was handed were actually read, and each has a matched half differing only in the
+unstamped rate:
+
+```
+a normal log ... raises nothing       <->  the same log above the threshold does raise
+a tiny batch is not enough to accuse  <->  the same rate over enough lines is enough
+a quiet window resets                 <->  the same batching with a broken format still raises
+```
+
+**The pair is the point.** Disconnect `_checkReadability` and all three new halves fail while all
+three originals stay green — which is exactly the failure the originals could not see.
+
+#### P3: a guard measured by the length of a comment
+
+`both host guards are wired to record` read a fixed 260-character window from each guard token. It
+passed only because a long comment sits between the two guards; shorten it and the first guard
+could lose its own `noteHostSkip` while still passing on the second guard's.
+
+**Measured on a tree with guard one silenced and the comment cut to one line:**
+
+```
+the old test (fixed 260-char window)      ok      59 passed
+the new test (span ends at its own return)  FAIL  58 passed, 1 FAILED
+```
+
+The span now ends at the guard's own `return;`, and the number of `noteHostSkip` calls in the
+function is asserted to be exactly two, so neither guard can borrow the other's.
+
+#### One thing measured in passing that sharpens what I wrote for the owner
+
+The note in `proposed/FOR-SHARA-2026-08-30-reset-provenance.md` says *"At least one suite needs
+Electron resolvable... but should is not measured."* **It is measured now.** With `node_modules`
+absent entirely, **64 of 65 suites pass**, and the single failure is `visibility.test.js`, for
+`Cannot find module 'electron'`. "At least one" is exactly one, and it is named.
+
+#### And two faults of my own in the shell, in the same hour, both tonight's shape
+
+**I printed a conclusion the command had not measured.** My `git stash push` failed with *"subcommand
+wasn't specified"*, and the `echo` on the next line announced the result anyway — *"GREEN on a guard
+that returns without recording"* — a claim about a run that never happened. The narration was
+written before the evidence and did not depend on it.
+
+**And a compound command did the opposite of what it read as.** I wrote
+`git stash ... || cp A /tmp && cp B /tmp && git checkout -- A B`, which groups as
+`((a||b) && c) && d` — the stash succeeded, so the first backup never ran while the checkout did,
+and my working changes survived only because they were in the stash I had stopped tracking.
+Recovered with `git stash pop`.
+
+*Neither was a lapse in knowledge. Both are the evening's shape: an instrument, or a sentence, that
+reports on something other than what it appears to be pointed at.*
+
+*Session C, 30 August.*
