@@ -1,0 +1,155 @@
+--- a/test/log-rotation.test.js
++++ b/test/log-rotation.test.js
+@@ -62,24 +62,37 @@
+   assert.equal(RESET_HOUR, 11);
+ });
+ 
++// THESE ASSERTIONS ONLY HELD ON A MACHINE ALREADY IN EASTERN, and CI runners are UTC. The reset is
++// an Eastern wall-clock time resolved to an absolute instant (easternReset.js), so building inputs
++// with local `new Date(y, m, d, h, mi)` and reading them back with `getHours()` measured the
++// MACHINE's zone rather than the reset's. Rewritten to the convention already used in
++// eastern-reset.test.js: "these tests do not fake a zone - they check the ABSOLUTE INSTANTS the
++// helper returns, which is what every consumer actually compares against."
++// EDT is -4, so 11:00 Eastern is 15:00Z; EST is -5, so it is 16:00Z. Both appear below.
+ test('the boundary is the most recent Tuesday 11:00 at or before now', () => {
+-  const at = (y, m, d, h, mi) => resetBoundaryBefore(new Date(y, m, d, h, mi, 0));
+-  const key = (b) => boundaryKey(b) + ' ' + b.getHours() + ':00';
+-  assert.equal(key(at(2026, 7, 29, 11, 20)), '2026-08-25 11:00', 'Saturday looks back to Tuesday');
+-  assert.equal(key(at(2026, 8, 2, 3, 0)), '2026-09-01 11:00', 'Wednesday looks back one day');
+-  assert.equal(key(at(2026, 8, 7, 23, 59)), '2026-09-01 11:00', 'the Monday before the next reset');
++  const at = (y, m, d, h, mi) => resetBoundaryBefore(new Date(Date.UTC(y, m, d, h, mi, 0)));
++  const iso = (b) => b.toISOString();
++  // Saturday 29 August, 11:20 Eastern.
++  assert.equal(iso(at(2026, 7, 29, 15, 20)), '2026-08-25T15:00:00.000Z', 'Saturday looks back to Tuesday');
++  // Wednesday 2 September, 03:00 Eastern.
++  assert.equal(iso(at(2026, 8, 2, 7, 0)), '2026-09-01T15:00:00.000Z', 'Wednesday looks back one day');
++  // Monday 7 September, 23:59 Eastern.
++  assert.equal(iso(at(2026, 8, 8, 3, 59)), '2026-09-01T15:00:00.000Z', 'the Monday before the next reset');
+ });
+ 
+ // The hour matters as much as the day, and this is the case a weekday-only rule gets wrong.
+ test('Tuesday BEFORE 11:00 still belongs to last week', () => {
+-  const before = resetBoundaryBefore(new Date(2026, 8, 1, 10, 59, 0));
+-  const after = resetBoundaryBefore(new Date(2026, 8, 1, 11, 1, 0));
+-  assert.equal(boundaryKey(before), '2026-08-25', 'a Tuesday morning is still the old period');
+-  assert.equal(boundaryKey(after), '2026-09-01');
++  const before = resetBoundaryBefore(new Date(Date.UTC(2026, 8, 1, 14, 59, 0))); // 10:59 Eastern
++  const after = resetBoundaryBefore(new Date(Date.UTC(2026, 8, 1, 15, 1, 0)));   // 11:01 Eastern
++  assert.equal(before.toISOString(), '2026-08-25T15:00:00.000Z', 'a Tuesday morning is still the old period');
++  assert.equal(after.toISOString(), '2026-09-01T15:00:00.000Z');
+ });
+ 
+ test('11:00:00 exactly belongs to the new week', () => {
+-  assert.equal(boundaryKey(resetBoundaryBefore(new Date(2026, 8, 1, 11, 0, 0))), '2026-09-01');
++  assert.equal(
++    resetBoundaryBefore(new Date(Date.UTC(2026, 8, 1, 15, 0, 0))).toISOString(),
++    '2026-09-01T15:00:00.000Z'
++  );
+ });
+ 
+ // Local wall clock, so the daylight-saving change on 1 November is a non-event: the boundary stays
+@@ -90,25 +103,28 @@
+   // back none), so neither look-back ever crossed the 1 November transition it was named for -
+   // and three mutations that replaced the calendar arithmetic with fixed 24-hour days survived it.
+   // The look-back has to STRADDLE the change for the test to mean anything.
+-  const at = (y, m, d, h, mi) => resetBoundaryBefore(new Date(y, m, d, h, mi, 0));
+-  const shows = (b) => boundaryKey(b) + ' ' + b.getHours() + ':' + String(b.getMinutes()).padStart(2, '0');
++  const at = (y, m, d, h, mi) => resetBoundaryBefore(new Date(Date.UTC(y, m, d, h, mi, 0)));
++  const shows = (b) => b.toISOString();
+ 
+-  // Monday 2 November, looking back past Sunday 1 November's fall-back to Tuesday 27 October.
+-  assert.equal(shows(at(2026, 10, 2, 9, 0)), '2026-10-27 11:00');
+-  // Tuesday 3 November before the reset hour: still the week that opened before the change.
+-  assert.equal(shows(at(2026, 10, 3, 10, 0)), '2026-10-27 11:00');
++  // Monday 2 November, 09:00 Eastern (EST, -5), looking back past Sunday 1 November's fall-back to
++  // Tuesday 27 October, which was still EDT (-4) - so the boundary is 15:00Z, not 16:00Z.
++  assert.equal(shows(at(2026, 10, 2, 14, 0)), '2026-10-27T15:00:00.000Z');
++  // Tuesday 3 November, 10:00 Eastern: still the week that opened before the change.
++  assert.equal(shows(at(2026, 10, 3, 15, 0)), '2026-10-27T15:00:00.000Z');
+   // Tuesday 3 November after it: the new week, still at 11:00 as the clock on the wall reads.
+-  assert.equal(shows(at(2026, 10, 3, 11, 30)), '2026-11-03 11:00');
++  // Tuesday 3 November, 11:30 Eastern: the new week, still 11:00 as the wall clock reads - but
++  // now in EST, so 16:00Z. That the Z value MOVED while the wall clock did not is the whole point.
++  assert.equal(shows(at(2026, 10, 3, 16, 30)), '2026-11-03T16:00:00.000Z');
+ 
+   // And the spring-forward direction: Monday 9 March looking back past Sunday 8 March.
+-  assert.equal(shows(at(2026, 2, 9, 9, 0)), '2026-03-03 11:00');
+-  assert.equal(shows(at(2026, 2, 10, 12, 0)), '2026-03-10 11:00');
++  assert.equal(shows(at(2026, 2, 9, 13, 0)), '2026-03-03T16:00:00.000Z');
++  assert.equal(shows(at(2026, 2, 10, 16, 0)), '2026-03-10T15:00:00.000Z');
+ 
+   // The wall clock is what is held fixed, so a week containing a transition is not 168 real hours.
+   // Stated here because it looks like a bug to anyone who checks, and it is the correct answer.
+-  const fallBack = at(2026, 10, 3, 12, 0) - at(2026, 9, 27, 12, 0);
++  const fallBack = at(2026, 10, 3, 17, 0) - at(2026, 9, 27, 16, 0);
+   assert.equal(fallBack / 3600000, 169, 'a fall-back week is 169 real hours, and that is right');
+-  const springFwd = at(2026, 2, 10, 12, 0) - at(2026, 2, 3, 12, 0);
++  const springFwd = at(2026, 2, 10, 16, 0) - at(2026, 2, 3, 17, 0);
+   assert.equal(springFwd / 3600000, 167, 'a spring-forward week is 167 real hours, and that is right');
+ });
+ 
+@@ -677,9 +693,8 @@
+ // rotation therefore agree on where the week begins, and a kill before 11:00 on a Tuesday is last
+ // week's to both - so archiving it is correct, not the defect it once was.
+ test('the cut is the reset instant, and a pre-reset Tuesday kill is last week', () => {
+-  const cut = rotationCutBefore(new Date(2026, 8, 2, 12, 0, 0));
+-  assert.equal(cut.getHours(), RESET_HOUR, 'the cut is at the reset hour');
+-  assert.equal(boundaryKey(cut), '2026-09-01', 'on the boundary day');
++  const cut = rotationCutBefore(new Date(Date.UTC(2026, 8, 2, 16, 0, 0))); // Wed 2 Sep, 12:00 Eastern
++  assert.equal(cut.toISOString(), '2026-09-01T15:00:00.000Z', 'the cut is at the reset hour, Eastern');
+ 
+   // Last week, then a raid at 08:12 on the Tuesday morning - before the 11:00 reset. Both the grid
+   // and the rotation treat that as last week's, so the file is entirely rotatable.
+@@ -695,12 +710,28 @@
+ // A kill AFTER the reset hour on the Tuesday is this week's - the file straddles the boundary and
+ // must not be rotated.
+ test('a post-reset Tuesday kill keeps the file this week', () => {
++  // THE STAMP IS THE PLAYER'S LOCAL WALL CLOCK - that is what EverQuest writes and what
++  // logSplitter parses back. A hardcoded '14:30' is 14:30 in whatever zone the test happens to run
++  // in, which only lands after an 11:00 EASTERN reset on an Eastern machine; on a UTC runner it is
++  // 10:30 Eastern and the file rotates, failing this test for a reason that has nothing to do with
++  // the behaviour it describes. So derive the stamp from the boundary the module actually
++  // computed. The relationship under test - a kill AFTER the reset - then holds in every zone.
++  const now = new Date(Date.UTC(2026, 8, 2, 16, 0, 0)); // Wednesday 2 September, 12:00 Eastern
++  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
++  const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
++  const p2 = (n) => String(n).padStart(2, '0');
++  const stamp = (d) => '[' + DOW[d.getDay()] + ' ' + MON[d.getMonth()] + ' ' + p2(d.getDate()) +
++    ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes()) + ':' + p2(d.getSeconds()) +
++    ' ' + d.getFullYear() + ']';
++  const afterReset = new Date(rotationCutBefore(now).getTime() + 3.5 * 3600000);
++  const beforeReset = new Date(rotationCutBefore(now).getTime() - 38 * 3600000);
++
+   const dir = tempLogs({
+     'eqlog_Avenrae_rivervale.txt':
+-      '[Sun Aug 30 21:00:00 2026] You have slain Lady Vox!\n' +
+-      '[Tue Sep 01 14:30:00 2026] You have slain Lord Nagafen!\n',
++      stamp(beforeReset) + ' You have slain Lady Vox!\n' +
++      stamp(afterReset) + ' You have slain Lord Nagafen!\n',
+   });
+-  const r = svc(dir).rotateIfDue(new Date(2026, 8, 2, 12, 0, 0));
++  const r = svc(dir).rotateIfDue(now);
+   assert.equal(r.rotated.length, 0, 'a kill after 11:00 Tuesday is this week');
+   assert.deepEqual(r.skippedSpansBoundary, ['eqlog_Avenrae_rivervale.txt']);
+ });
+@@ -724,7 +755,7 @@
+   assert.equal(r.boundaryDate, '2026-09-01');
+   assert.ok(r.rotated[0].archivedTo.endsWith('_week_2026-09-01.txt'));
+   assert.equal(r.boundary, r.cut, 'a known reset hour means the cut and the reset are one instant');
+-  assert.equal(new Date(r.boundary).getHours(), RESET_HOUR);
++  assert.equal(new Date(r.boundary).toISOString(), '2026-09-01T15:00:00.000Z');
+ });
+ 
+ // The user's setting reaches the boundary maths.
+@@ -732,9 +763,8 @@
+   const s = new LogRotationService({ loadJson: () => ({}), saveJson: () => {} });
+   s.setResetRule({ weekday: 4, hour: 6 }); // Thursday 06:00
+   assert.deepEqual(s.getStatus().resetRule, { weekday: 4, hour: 6 });
+-  const b = resetBoundaryBefore(new Date(2026, 8, 5, 12, 0, 0), s.resetRule); // Sat 5 Sep
+-  assert.equal(boundaryKey(b), '2026-09-03', 'looks back to Thursday');
+-  assert.equal(b.getHours(), 6);
++  const b = resetBoundaryBefore(new Date(Date.UTC(2026, 8, 5, 16, 0, 0)), s.resetRule); // Sat 5 Sep, 12:00 Eastern
++  assert.equal(b.toISOString(), '2026-09-03T10:00:00.000Z', 'looks back to Thursday 06:00 Eastern');
+ });
+ 
+ // ---------------------------------------------------------------------------
