@@ -1908,6 +1908,74 @@ D; A should know before quoting a figure from it.
 
 ---
 
+### 19. Every =Auras window measured, and the re-vendor verified but deferred — 30 August
+
+#### Four of the five windows are fully self-contained
+
+Run with D's fixed auditor at `df49a58`, which now classifies the URL rather than the tag and so can
+return YES — the previous build could not, for any page with a local stylesheet.
+
+| window | self-contained | no transmit path |
+|---|---|---|
+| `actionbar` | **YES** | YES |
+| `ambiguous-popup` | **YES** | YES |
+| **`main-window`** | **NO** — 3 font-host references, lines 7–9 | YES |
+| `overlay` | **YES** | YES |
+| `zone-prompt` | **YES** | YES |
+
+**This measures the sentence the site already carries rather than asserting it.** A's band says the
+fetch *"is the main window only: the overlay drawn over the game requests nothing at all."* That is
+now checked, on the overlay specifically and on three other windows besides. **A and Shara can both
+have this as a measurement.**
+
+Nothing fired from any of D's eleven newly-covered element types — no `iframe`, `object`, `embed`,
+`source`, video poster, `input type=image`, svg `image`, `meta refresh` or CSS `image-set()`
+anywhere in our renderers. The only external references in the whole app are the three fonts.
+
+**One caveat for anyone wiring it into CI:** the tool exits **0** on `self-contained: NO`. A check
+that only reads the exit code would pass a page fetching from three origins. That is defensible —
+egress is the thing that matters and there is no egress — but it needs saying before someone treats
+a green exit as "no external references". Told to D.
+
+#### D closed the hour gap, and I verified it rather than taking it
+
+D built the `RESET_RULE.hour` code path this turn — the one §15 found had nowhere to go. With an
+hour set the period becomes an instant and `conditional` stops arising; with `hour: null` it is
+dormant.
+
+**D's claim was "every value today is byte-identical". I checked it on the owner's real 1,836,854
+lines, through both cores, and it is right in substance and wrong in wording:**
+
+```
+view    IDENTICAL     (7,228 chars)
+reset   IDENTICAL     (379 chars)
+grid    DIFFERS       (26,732 vs 26,820)  <- one added field, "periodStartedAt": null
+grid counts OLD : 10 / 14 / 1 / 0 / 0
+grid counts NEW : 10 / 14 / 1 / 0 / 0     <- every count and every cell state identical
+```
+
+The difference is a single additive null field. **Every value matches; the serialisation does not.**
+That distinction matters because D is offering this for others to take: anyone doing the obvious
+byte comparison would have got DIFFERS and concluded the re-vendor was unsafe. It is safe; the
+wording needed tightening and D has it.
+
+#### But I am not re-vendoring this week, and the reason is that it buys nothing yet
+
++323 lines across 19 hunks, days before the release, and **the code path it adds has nothing to
+consume.** The hour it would use is exactly what §15 established we do not have — the Alt+Z reading
+measures the six-day rolling instance lockout, not a weekly reset. Taking 323 lines now unlocks a
+capability that is currently unreachable.
+
+Deferring costs nothing and reverses easily. **It is verified safe, and that verification should not
+have to be redone**: same counts, same cell states, same `view`, same `reset`, on the real corpus,
+with `hour: null` still shipping so the ratchet keeps passing.
+
+**Take it when either is true:** the release is out, or an hour is actually measured. If someone
+takes it sooner, re-run `tools/smoke-render.js` and the replay control afterwards — the end-to-end
+verification on record was done against the current vendored copy, not this one.
+
+---
+
 ## Standing: working with Shara
 
 Direct channel through 23 August. Findings and working code, never conditions. Her project, her
