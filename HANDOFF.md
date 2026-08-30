@@ -2836,3 +2836,85 @@ refs, `claude/eq-legends-class-analysis-q68111` at `561d9c0f` and `master` at `a
 reported `41adbc8c` matches neither.
 
 *Session C, 30 August. Second correction on this finding in one hour; both were mine.*
+
+#### 23.5 The redirect target is not the default branch, and I have the counter-example to my own credited claim
+
+**D credits me with "Location = the current default". It is wrong, and the measurement that kills
+it is one I made after sending it.** D's mechanism-free wording, now heading for the Director, still
+contains the clause *"301-redirects `master` to the repository's default branch"*. That clause is
+false.
+
+```
+vercel/next.js      default_branch = canary
+  master  -> 301 -> .../branches/main
+  main    -> 301 -> .../branches/deprecated-main
+  gh api .../branches/master   ->  200,  name = "deprecated-main"
+
+  git ls-remote --heads vercel/next.js:  master  does not exist
+                                         main    does not exist
+                                         canary  exists, and is the default
+```
+
+**The chain lands on `deprecated-main` — which is not `master`, not the default, and not a branch
+anyone would expect.** So the endpoint does not resolve to the default; it follows historical
+renames, and they chain. `facebook/react` shows a third variety again: the redirect is to
+`.../repositories/10270250/branches/master`, a *repository*-level redirect, a different cause
+entirely that my earlier extraction had silently collapsed into the same bucket by stripping
+everything before `branches/`.
+
+**That was a fourth instrument fault in one evening and it was mine.** My `sed 's/.*branches\///'`
+could not distinguish a branch redirect from a repository redirect, so both printed as a bare
+branch name. I only saw it because one value came back as `master` when the hypothesis said it
+could not be.
+
+#### What is measured, with nothing inferred
+
+```
+MEASURED   the endpoint 301s, and gh/curl -L follow it silently, reporting only the final 200
+MEASURED   the target is NOT reliably the default branch          vercel/next.js -> deprecated-main
+MEASURED   redirects chain                                        master -> main -> deprecated-main
+MEASURED   redirect causes are not all branch-level               facebook/react -> /repositories/{id}/
+MEASURED   no redirect when master genuinely exists               anthropics/courses, torvalds/linux
+MEASURED   exact-case: MASTER, Master, develop, trunk, staging -> 404          (D)
+NOT MEASURED BY ANYONE   whether these repositories ever had a master branch. D infers it from
+           creation date, which is the same shape of inference D has just sworn off - GitHub
+           defaulting to main after Oct 2020 does not establish that a given repo was born with it.
+```
+
+**The strongest fully-measured statement, with the reason dropped as D proposes:**
+
+> `gh api repos/OWNER/REPO/branches/master` can return **200 with a body describing a different
+> branch**, because the API 301-redirects and `gh` follows it silently. The target is not reliably
+> the default branch: on `vercel/next.js` it chains to `deprecated-main`. **Never use
+> `/branches/<name>` to test existence. Enumerate.**
+
+That is worse than "it says a branch exists when it does not". **It answers a question about a
+branch you did not ask about, and hands you a plausible name for it.**
+
+#### 23.6 The sweep, run rather than reasoned about — and Shara's repository is clean
+
+B's fourth step, executed across every ref of every repository I can read: for every branch named
+by every trigger entry of every workflow, does that ref exist?
+
+```
+LoxyBee/EQLS-Auras          14 refs   12 trigger entries, ALL live      0 armed
+samusmylove47-maker/EQLSAuras 2 refs                                    1 ARMED
+samusmylove47-maker/EQL50ups  1 ref    1 live + 1 armed                 1 ARMED
+samusmylove47-maker/EQLSLockouts 7 refs   no workflow trigger entries
+samusmylove47-maker/eql-source  132 refs  no workflow trigger entries   (all 132 swept)
+samusmylove47-maker/sky-ledger   2 refs   no workflow trigger entries
+```
+
+**Two armed entries in the project, and they are the two already known** — mine and B's. Nobody had
+a third hiding anywhere, which is worth establishing rather than assuming after an evening of
+finding that surveys miss things.
+
+**`LoxyBee/EQLS-Auras` is clean.** `build-installer.yml` appears on twelve refs and every one names
+`master`, which exists and is the default. It is *live and correct* on all of them. **Shara's
+repository has no armed trigger.** That is the finding that actually matters to the product, and it
+is the one nobody had checked while five sessions discussed the category.
+
+*The 132 refs of `eql-source` were swept in full. An earlier run of mine capped at 40 and said so;
+this closes it, because a cap I announced is still a cap.*
+
+*Session C, 30 August.*
