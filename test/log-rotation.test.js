@@ -912,12 +912,22 @@ test('both host guards are wired to record, not just to return', () => {
   const main = fs.readFileSync(path.join(__dirname, '..', 'src', 'main', 'main.js'), 'utf8');
   const start = main.indexOf('function runLogRotation');
   const body = main.slice(start, main.indexOf('\n}', start));
+  // NOT A FIXED-WIDTH WINDOW. This read `body.slice(at, at + 260)`, and 260 characters from
+  // `backfillState` only fails to reach the SECOND guard's noteHostSkip because a long comment
+  // block happens to sit between them. Delete that comment and the first guard could lose its own
+  // recording call while still passing, on the strength of the other guard's. The span below ends
+  // at the guard's own `return;`, so it cannot borrow from its neighbour at any comment length.
+  assert.equal(
+    (body.match(/noteHostSkip/g) || []).length, 2,
+    'there are not exactly two host skip records - one guard is silent or one is doubled'
+  );
   for (const guard of ['backfillState', 'bytesBehind']) {
     const at = body.indexOf(guard);
     assert.ok(at > -1, `the ${guard} guard is gone`);
-    const window = body.slice(at, at + 260);
+    const ret = body.indexOf('return;', at);
+    assert.ok(ret > -1, `the ${guard} guard does not return, so it does not guard anything`);
     assert.ok(
-      /noteHostSkip/.test(window),
+      /noteHostSkip/.test(body.slice(at, ret)),
       `the ${guard} guard returns without recording, so the card says nothing while it waits`
     );
   }

@@ -247,6 +247,38 @@ test('a quiet window resets rather than accumulating forever', async () => {
   s.stop();
   assert.deepEqual(alarms, [], 'a normal log with a few broadcasts tripped the alarm');
   assert.equal(s.getStatus().formatAlarm, null);
+  // The quiet verdict has to be over work actually done: five batches of a hundred, plus the
+  // three broadcasts and the line the file started with.
+  const st = s.getStatus();
+  assert.equal(st.stampedLines, 501, 'the splitter did not read the five batches');
+  assert.equal(st.unstampedLines, 3, 'the splitter did not see the three broadcasts');
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+// THE MATCHED HALF: the identical batching, differing ONLY in the unstamped rate. Without it, the
+// test above is equally satisfied by a splitter that never judges a window at all - which is the
+// exact failure it was written to catch, one level up.
+test('the same batching with a broken format still raises, so the reset is not a mute', async () => {
+  const { dir, file } = tempLog('[Tue Sep 15 09:00:00 2026] first\n');
+  const s = new LogSplitter(store());
+  const alarms = [];
+  s.setOnFormatAlarm((a) => alarms.push(a));
+  s.attachToFile(file);
+  await settle(s);
+
+  for (let batch = 0; batch < 5 && !alarms.length; batch += 1) {
+    let chunk = '';
+    for (let i = 0; i < 100; i += 1) {
+      chunk += `[Tue Sep 15 10:00:00 2026] good ${batch}.${i}\n`;
+      if (i % 5 === 0) chunk += 'We apologize for the disruption in gameplay.\n';
+    }
+    fs.appendFileSync(file, chunk);
+    s._processOnce();
+    await settle(s);
+  }
+  s.stop();
+  assert.equal(alarms.length, 1, 'THE WINDOW RESET IS SWALLOWING A REAL FORMAT BREAK');
+  assert.ok(alarms[0].ratio >= 0.05, 'the reported ratio does not describe what happened');
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
@@ -329,18 +361,59 @@ test('a normal log with a wrapped broadcast in it raises nothing', async () => {
   const { s } = await split(lines.join('\n') + '\n', { onAlarm: (a) => alarms.push(a) });
   assert.deepEqual(alarms, [], 'it cried wolf on an ordinary log');
   assert.equal(s.getStatus().formatAlarm, null);
-  assert.ok(s.getStatus().unstampedRatio < 0.01);
+  // PROOF OF WORK, and it is the whole reason this line exists. unstampedRatio is 0 when nothing
+  // was read at all, so `< 0.01` was satisfied by a splitter that had done nothing whatsoever.
+  // These two say the quiet verdict was reached over the lines we actually handed it.
+  const st = s.getStatus();
+  assert.equal(st.stampedLines, 500, 'the splitter did not read the log it was given');
+  assert.equal(st.unstampedLines, 3, 'the splitter did not see the three continuation lines');
+  assert.ok(st.unstampedRatio < 0.01);
+});
+
+// THE MATCHED HALF OF THE PAIR ABOVE. Same generator, same batch shape, same assertions inverted -
+// the ONLY difference is how many unstamped lines go in. Without this, every assertion in the test
+// above is satisfied by a splitter whose alarm is disconnected.
+test('the same log with the unstamped rate above the threshold does raise', async () => {
+  const alarms = [];
+  const lines = [];
+  for (let i = 0; i < 500; i += 1) lines.push(`[Tue Sep 15 09:${String(i % 60).padStart(2, '0')}:00 2026] line ${i}`);
+  // 40 unstamped in 540 is 7.4%, above the 5% threshold. Three was 0.6%, below it.
+  for (let i = 0; i < 40; i += 1) lines.splice(100 + i * 3, 0, 'We apologize for the disruption in gameplay.');
+  const { s } = await split(lines.join('\n') + '\n', { onAlarm: (a) => alarms.push(a) });
+  assert.equal(alarms.length, 1, 'A BROKEN FORMAT WENT UNANNOUNCED - the alarm cannot fire at all');
+  assert.ok(alarms[0].ratio >= 0.05, 'the reported ratio does not describe what happened');
+  assert.ok(s.getStatus().formatAlarm, 'the alarm fired but the status does not carry it');
 });
 
 // A handful of broadcast lines in a very quiet batch is not evidence of anything.
 test('a tiny batch is not enough to accuse the parser', async () => {
   const alarms = [];
-  await split(
+  const { s } = await split(
     'We apologize for the disruption in gameplay.\n' +
     '[Tue Sep 15 09:00:00 2026] You have slain Lady Vox!\n',
     { onAlarm: (a) => alarms.push(a) }
   );
   assert.deepEqual(alarms, [], 'two lines were treated as a format change');
+  // Half of this batch is unstamped - a 50% rate, ten times the threshold. It stays quiet ONLY
+  // because two lines is below the minimum. Saying so is what separates this from a dead alarm.
+  const st = s.getStatus();
+  assert.equal(st.stampedLines + st.unstampedLines, 2, 'the splitter did not read the two lines');
+  assert.ok(st.unstampedRatio >= 0.5, 'the ratio is not the thing being tolerated here');
+});
+
+// THE MATCHED HALF: the same 50% unstamped rate, differing ONLY in being long enough to judge.
+// This is what makes the test above a statement about the minimum rather than about the alarm.
+test('the same rate over enough lines is enough to accuse the parser', async () => {
+  const alarms = [];
+  let body = '';
+  for (let i = 0; i < 150; i += 1) {
+    body += 'We apologize for the disruption in gameplay.\n';
+    body += `[Tue Sep 15 09:00:00 2026] You have slain Lady Vox ${i}!\n`;
+  }
+  const { s } = await split(body, { onAlarm: (a) => alarms.push(a) });
+  assert.equal(alarms.length, 1, 'THE MINIMUM-LINES GATE IS SWALLOWING REAL BREAKAGE');
+  assert.ok(alarms[0].total >= 200, 'it judged on fewer lines than the stated minimum');
+  assert.ok(s.getStatus().formatAlarm, 'the alarm fired but the status does not carry it');
 });
 
 test('it reports how much of the log it could actually read', async () => {
