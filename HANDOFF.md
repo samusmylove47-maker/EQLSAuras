@@ -2069,6 +2069,87 @@ must not reach her before then.
 
 ---
 
+### 21. The pair-test sweep found a second dead guard, and a class of three more — 30 August
+
+**Salvaged at standby.** Three of four agents completed before the power cut; the judge did not. Raw
+output is committed at `proposed/SALVAGE-pair-test-guards-2026-08-30.md` — this is the summary, and
+**it is worth reading before anyone re-runs anything.**
+
+The sweep was prompted by D's measurement of its own check, which passed in three incompatible
+worlds. I ran the same instrument over every source-scanning assertion in our suite: mutate what each
+one protects, confirm the suite goes red, restore.
+
+#### A SECOND DEAD GUARD, and it is not one I suspected
+
+`test/log-rotation.test.js:419` — **"the renderer names the week from the local date, never from the
+UTC string"**. Both of its source assertions survive **the exact defect the test is named for.**
+
+The mechanism is different from the backspace one and, if anything, more insidious:
+
+```
+MUTATION:  src/renderer/main-window/main-window.js:4339
+  -   `week of ${last.boundaryDate}.`;
+  +   `week of ${String(last.boundary).slice(0, 10)}.`;      <- the bug it exists to catch
+```
+
+The test asserts `body.includes('boundaryDate')`. After the mutation, **the only surviving occurrence
+of `boundaryDate` in the scanned body is the comment I wrote above the code explaining why the code
+must use it.** The assertion is satisfied by its own documentation. Revert the code, keep the
+comment, and the guard still says everything is fine.
+
+**A guard that a comment can satisfy is not a guard.** One line fixes it: strip comments from `body`
+before asserting, exactly as the sibling test at `rotation writes nothing outside the logs folder`
+already does.
+
+23 of the other 25 mutations went red.
+
+#### THREE TESTS THAT PASS AGAINST A COMPLETELY INERT SPLITTER
+
+Making `_processOnce` return immediately — so the splitter reads nothing at all — turns 10 tests red
+and leaves these three green:
+
+- `a normal log with a wrapped broadcast in it raises nothing`
+- `a tiny batch is not enough to accuse the parser`
+- `a quiet window resets rather than accumulating forever`
+
+All three are **negative-only**: they assert `alarms` is empty, `formatAlarm` is null, and
+`unstampedRatio < 0.01` — and **`0/0` satisfies the last one**. They are not strictly dead, since
+other mutations do redden them, but **none of them proves its fixture was ever read.** They would
+pass identically on a working splitter and on one that does nothing.
+
+That is D's three-worlds shape exactly, in our tree, in the tests I wrote today.
+
+**The model to copy is already in the same file**, and it is one line: `a splitter that is turned off
+never holds up the rotation` carries `assert.ok(s.bytesBehind() > 0, 'the fixture did not create a
+backlog')` and is the only one of that group that survives inertness for an honest reason. Each of
+the three needs its equivalent — e.g. `assert.equal(s.getStatus().stampedLines, 500)`.
+
+#### One coverage gap, and one clean file
+
+`setIsQuietFn(() => Date.now() - lastLogLineAt > 10000)` mutated to `> 0` — making every log read as
+quiet the instant a line lands — **nothing in the suite objects.** A gap rather than a dead assert,
+but it is the guard that stops a rotation firing mid-fight.
+
+`test/lockouts.test.js`: **no dead guards. 33 of 33 source-scanning assertions go red.** Two scope
+holes in one regex — the one that *was* dead this morning. It is now live for the canonical form,
+but its window reads wider than it is: it matches a capital `Measured` on the declaration line rather
+than a claim shape, so `provenance: 'measured'` in lower case would slip past. Narrowness, not death.
+
+#### What this run actually established
+
+**Two dead or unproven guards in one afternoon's work, found by an instrument I only built because a
+peer measured their own check and told me.** Neither had any symptom. Both read correctly. One was
+satisfied by its own comment; three more would pass against a component that does nothing.
+
+The count that matters: of the 19 source-scanning assertions, **33 assertion-level mutations went red
+in `lockouts`, 23 of 25 in `rotation`, and one guard in `rotation` is dead.** The splitter's three
+negative-only tests are the class most likely to hide the next one.
+
+*Nothing here is fixed yet — the power went before I could. Each fix is one line and they are named
+above.*
+
+---
+
 ## Standing: working with Shara
 
 Direct channel through 23 August. Findings and working code, never conditions. Her project, her
