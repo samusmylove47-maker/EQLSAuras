@@ -1,8 +1,17 @@
 # The comment I gave you about the reset is wrong — 30 August
 
-**Your setting is fine. The paragraph justifying it is mine, and I retracted it today.** You have
-shipped it in `master`, so you should have this quickly. Nothing here needs doing tonight and none of
-it is a request.
+**Your setting is fine. The paragraph justifying it is mine, and I retracted it today.** Nothing
+here needs doing tonight and none of it is a request.
+
+**One thing I did not know when I first wrote this, and it is why I am not sitting on it.** It is not
+only in `master` — it is in the **published installer**. `.github/workflows/build-installer.yml`
+triggers on every push to `master`, and the `latest-dev` asset `EQLS-Auras-Setup.exe` rebuilt at
+**18:51:07Z**, seventy-three seconds after your PR #20 merge at 18:49:54Z. So anyone who downloads
+"Latest build" gets a copy of the paragraph.
+
+**To be exact about what that does and does not mean:** the *code* is fine and behaves correctly.
+What ships is a wrong **explanation** of where a number came from. Nobody is misled by the app; a
+person reading the source is.
 
 ---
 
