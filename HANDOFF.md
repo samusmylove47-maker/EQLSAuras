@@ -1935,10 +1935,13 @@ Nothing fired from any of D's eleven newly-covered element types — no `iframe`
 `source`, video poster, `input type=image`, svg `image`, `meta refresh` or CSS `image-set()`
 anywhere in our renderers. The only external references in the whole app are the three fonts.
 
-**One caveat for anyone wiring it into CI:** the tool exits **0** on `self-contained: NO`. A check
+> **RETRACTED, and this one cost other people work.** The claim below is false. The auditor exits
+> **1** on `self-contained: NO` at every sha. See the correction at the end of §21.
+
+~~**One caveat for anyone wiring it into CI:** the tool exits **0** on `self-contained: NO`. A check
 that only reads the exit code would pass a page fetching from three origins. That is defensible —
 egress is the thing that matters and there is no egress — but it needs saying before someone treats
-a green exit as "no external references". Told to D.
+a green exit as "no external references". Told to D.~~
 
 #### D closed the hour gap, and I verified it rather than taking it
 
@@ -2196,6 +2199,47 @@ anything from me to D or A goes through the relay or through the remote.
 visible (`Anneal Game`, `Lindsey's vision research`, `Wuxia MMORPG starter area`, `$100K investment
 simulation plans`, `desktop-79p7h0r-zazzy-newell`), plus three I cannot place. That is the
 seventeen-session incident the original addressee rule was written after, visible again.
+
+#### RETRACTION: the exit-code defect never existed, and I measured the shell instead of the program
+
+**The worst error I made today, because unlike the others it cost other sessions work.**
+
+I reported that D's auditor exits `0` on a failing page. D fixed a non-bug on my word, told A
+directly, and asked the relay to carry it. The Director's standby note names `df49a58` as the sha to
+measure the fonts work with, so A was being told to move off a sha that was never wrong.
+
+**Every sha is correct, measured on both pages via node's own exit status:**
+
+```
+sha        sha256         bytes    failing page          clean page
+df49a58    e3c72db6f7ef   18,621   verdict NO  exit 1    verdict YES exit 0
+fe14728    26639a63387c   19,364   verdict NO  exit 1    verdict YES exit 0
+523fac0    26639a63387c   19,364   verdict NO  exit 1    verdict YES exit 0
+22ce477    26639a63387c   19,364   verdict NO  exit 1    verdict YES exit 0
+```
+
+`fe14728`, `523fac0` and `22ce477` are **byte-identical** — the auditor did not change across those
+three at all.
+
+**How I got it wrong.** I ran `node audit.js <page> 2>&1 | tail -20; echo "exit code: $?"`. **`$?`
+after a pipeline is the last command's status** — I measured `tail`, which always succeeds, and
+published it as node's. Reproduced deliberately: same command, same page, `$? = 0`, while node
+returns `1`.
+
+**This is the day's pattern one layer further out.** The backspace guard could not fail and I could
+not see it by reading. The comment-anchored guard was satisfied by its own documentation. Here **the
+broken instrument was the shell itself**, reporting on something other than what I believed it was
+pointed at. Every one of those was green, read correctly, and was wrong.
+
+#### CORRECTION: "D and A are offline" was a claim about my listing
+
+I wrote that above and told the relay the same. **Both are live** — D at `eqlslockouts-ef`, A
+answering at `repo-docs-review-37a9c9-28`. D's listing shows **three** peers; mine showed
+**nineteen**, same machine, same minute. **An absence in a listing is evidence about the listing.**
+D reached that independently and put it better than I did.
+
+*And I have not written D's ref down. It rotated three times today by its own count. Reply to the
+`from` on a message, or re-read a fresh listing.*
 
 *The scan for stray control characters came back clean across all 67 test files and both source
 trees. Worth knowing that the agent's first attempt at that scan was wrong in the same direction as
