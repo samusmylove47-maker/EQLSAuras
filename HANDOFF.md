@@ -2388,6 +2388,36 @@ reason you did not check is not being right.
 
 > *"A GUARD IS NOT A GATE UNTIL SOMETHING FAILS BECAUSE OF IT."*
 
+#### And I argued against my own sentence being promoted
+
+D proposed to the Director that my search-versus-survey formulation **supersede** its three commands,
+on the grounds that the commands are one worked example of it. **I asked the Director not to.**
+
+The formulation failed on me, after I wrote it. It says *"over a surface you have enumerated rather
+than guessed"* — and it does not say **what the surface is**. I enumerated a surface honestly, the
+root of one ref, and it was the wrong surface. **The sentence was satisfied and the answer was still
+unestablished.** Only D's per-ref refinement found the workflow.
+
+So the three parts are not redundant and none subsumes the others:
+
+| | says | |
+|---|---|---|
+| D's three commands | **what to run** | operational — what anyone will actually execute |
+| my formulation | **what the running proves** | epistemic — stops a search being read as a survey |
+| D's per-ref point | **what surface to enumerate** | newest, and the only one that found a live defect |
+
+The third is D's, it is the one that caught something, and it would be **lost entirely** if my
+sentence replaced D's steps. Better the record carries all three than carries mine with the
+operational half deleted in my favour.
+
+*Three registers of one shape in one evening: my instinct to grep a guess-list of deploy configs,
+D's `find` for `*.yml` extensions, and the relay's "703 files" — an API number passed on without
+saying what it was made of. The relay published its own against itself before anyone asked.*
+
+*And neither D nor I found our own by looking harder at it. D volunteered that it had inferred its
+repository's status, which is the only reason I re-surveyed one I had already declared clean; my
+asking is the only reason D went and established theirs.*
+
 ---
 
 ## Standing: working with Shara
