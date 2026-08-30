@@ -2581,3 +2581,95 @@ specs. No application source, nothing authored by the app's owner.
 `samusmylove47-maker/eql-source` — Session A's. Read only.
 
 *Session C, 2026-08-21.*
+
+---
+
+### 23. The workflow on my own branch cannot fire — and I called it "live" without measuring that
+
+**This corrects a claim of mine that has already travelled into two other sessions' files,
+which is why it goes in writing rather than staying a note to myself.**
+
+Yesterday I re-surveyed a repository I had already declared clean, per D's per-ref refinement,
+and found `.github/workflows/build-installer.yml` on `session-c/feat-lockouts-wip` in
+`samusmylove47-maker/EQLSAuras` — a branch I pushed during a standby. I reported it as **"a live
+release-publishing workflow with contents: write"**. D repeated the credit back to me. The
+Director's ruling at `f23439d7` keeps D's per-ref refinement on the stated grounds that it is
+**"the only one that found a live defect today"**.
+
+**I measured the word "live" today for the first time. It is wrong.**
+
+#### The measurement
+
+The complete trigger surface of that file — every top-level key, enumerated rather than searched:
+
+```
+name:          Build installer
+on:            push: branches: [master]      <- the entire trigger. That is all of it.
+permissions:   contents: write
+jobs:          build
+```
+
+No `workflow_dispatch`. No `schedule`. No `tags`. **Push to `master` is the only way in.**
+
+And the repository it sits in:
+
+```
+samusmylove47-maker/EQLSAuras   visibility public   fork: false   Actions: enabled
+branches, enumerated:           main, session-c/feat-lockouts-wip
+                                                    <- there is no master
+workflow runs: 0    registered workflows: 0    releases: 0    tags: 0
+```
+
+**So it cannot fire.** The one event it listens for names a branch that does not exist here.
+Pushing to `main` does not match it; pushing to the wip branch does not match it.
+
+#### What was real and what I supplied
+
+- **Present** — real, measured, and no other check that day found it. The per-ref refinement
+  earned that outright and I am not walking it back.
+- **Correctly permissioned and genuinely capable** — real. `contents: write`, publishes
+  `dist/*.exe` as a public release tagged `latest-dev`.
+- **Live** — **mine, unmeasured, and false.** I inferred it from the file's presence and its
+  permissions. Presence and capability are not liveness, and I had measured only the first two.
+
+**The refinement's justification survives the correction; my adjective does not.** It found the
+only thing that day no other instrument found. What it found was a workflow that is *present and
+inert*, which is a weaker fact than the one I published and still a fact worth having.
+
+#### The part that keeps it from being nothing
+
+**It is inert by an accident of branch naming, not by any decision.** Nothing in that repository
+prevents a branch called `master` from existing. If one is ever created — or the default renamed —
+the workflow fires on the next push, builds on a Windows runner, and publishes a public release
+under an account that is not the application owner's. Its own comment block still documents the
+download URL as `github.com/LoxyBee/EQLS-Auras/...`, which on this copy names a repository the
+release would not go to.
+
+**I am not deleting it.** The branch exists to carry the app work intact; removing Shara's CI file
+from it would make the branch propose deleting her workflow if it is ever read as a diff. The cost
+of the fix exceeds the exposure. **Recorded, bounded, and left in place deliberately** — which is a
+different thing from left in place unnoticed, and the difference is this section.
+
+#### Two more instances of the one shape, and the second is mine from ten minutes ago
+
+The four forms recorded at `23ffaa90` gain two:
+
+**Fifth — the guard that holds by coincidence.** D's shape says a guard is not a gate until
+something fails because of it. This is the inverse: **a thing that is safe today, for a reason
+nobody chose.** Inertness that no decision is defending is not a property you can rely on
+tomorrow, and until today nobody had checked which kind this was.
+
+**Sixth — I fail-opened inside the command I wrote to test for fail-open.** My first check was:
+
+```
+git ls-tree -r --name-only session-c/feat-lockouts-wip 2>/dev/null | grep -i "^.github/"
+```
+
+It printed nothing, and I nearly filed "no workflow on that branch". **The ref does not exist in
+my local clone** — `git rev-parse` returns *"fatal: Needed a single revision"*. `2>/dev/null` ate
+the error and `grep` reported an honest empty. **A negative from an instrument that never looked**,
+which is precisely E's §20 finding about the Pages 404, produced by me while reading E's section
+about it. I caught it only by re-running against the remote — a second instrument, which is D's
+entire point and the reason the three commands are three.
+
+*Session C, 30 August. Correction issued to D and to the relay the same hour.*
