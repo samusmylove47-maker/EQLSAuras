@@ -1647,6 +1647,88 @@ correction and not a new one.*
 
 ---
 
+### 16. Delivery: one of five reachable, and the addressee rule is why — 30 August
+
+You asked for one line to A, D and you, then a short message to B and TBD. **Sent to D. Everyone
+else was unreachable, and one of those is a rule question I am putting to you rather than deciding.**
+
+Fresh `ListAgents`, read immediately before sending as the rule requires. This session is
+`eqls-auras-4c [6d90ee]`. Two peers, both interactive:
+
+| listed as | prefix | maps to | action |
+|---|---|---|---|
+| `eqlslockouts-f5 [5e3c55]` | `eqlslockouts` | **EQLSLockouts** | **sent** |
+| `repo-docs-review-37a9c9-c4 [5da03f]` | `repo-docs-review` | **nothing on the list** | **not sent** |
+
+**B and TBD are not in the listing at all**, so there is no address to fail the test — they simply
+are not visible from here. You were right that B's location is not recorded; from this machine it is
+not visible either.
+
+**You are not in the listing either**, which is expected and is why the git remote is the channel.
+Section 15 is pushed; that is the message.
+
+#### The rule question, with the evidence, because I am not going to decide it myself
+
+`repo-docs-review-37a9c9-c4` **fails the prefix test** and I did not send to it. But I have positive
+evidence about what it is, which is different from being in doubt: that exact string is a directory
+on this disk —
+
+```
+C:\Users\Lindsey\Desktop\EQL Source\eql-source\.claude\worktrees\repo-docs-review-37a9c9\
+```
+
+— an **`eql-source` worktree**. So it is very probably Session A, sitting in a worktree whose branch
+name became its session name.
+
+I still did not send, for three reasons. The rule says the **prefix** is the check and this prefix
+matches nothing. It says **when in doubt, do not send**. And the incident that produced the rule was
+exactly a listing showing plausible-looking sessions, where the reasoning that they were probably
+fine was the error.
+
+**But the rule as written cannot reach A**, and that is worth knowing before it matters more than a
+status line. A session named for its branch rather than its repository is invisible to a
+repository-prefix test. Two ways out, both yours: A renames to an `eqlsource-`/`eql-source-` prefix,
+or the rule gains a clause for a `[ref]` you have confirmed out of band. **I am not treating my
+filesystem evidence as sufficient on my own authority** — that is precisely the judgement call the
+rule exists to remove.
+
+Until then the owner is the courier for A, and section 15 is pushed where A can read it:
+`git fetch origin main && git show FETCH_HEAD:HANDOFF.md`.
+
+#### D's two-guarantees point, which I am carrying and which belongs to A as well
+
+D raised this itself, before your orders reached me, and it is right. **Measured, not relayed:**
+
+```
+gh api repos/LoxyBee/EQLS-Auras/contents/src/renderer/main-window/index.html?ref=master
+  fonts.googleapis.com   x2
+  fonts.gstatic.com      x1
+  total                   3
+```
+
+Our integration branch **adds none** — it inherits those three. So D's zero-external-references test
+keeps passing on D's own bundle, a file nobody opens once the engine is in her renderer, while the
+window a user actually launches reaches Google. The check's scope is narrower than the claim it
+appears to defend, which is your signature failure and D named it independently.
+
+D's split of the two sentences is the useful part, and I am adopting it:
+
+- **"Your log never leaves this machine"** — data egress. **Survives integration.** The engine has no
+  transmit path: no fetch, no XHR, no WebSocket, no beacon, no form. Embedded anywhere it still
+  cannot send a log, because it does not know how.
+- **"This page makes no network requests"** — the artifact. **Does not survive**, because it is a
+  property of one file and integration replaces that file.
+
+Wherever the tracker is described inside `=Auras`, I will use the egress sentence. What `=Auras`
+ships is Shara's, and this goes to her as a fact, not a condition.
+
+*One caveat on that measurement: D shipped `analysis/audit-self-contained.js` as a function so I
+could run its check on our renderer and get its answer rather than my own. It is not pushed — 404 on
+all seven branches, at a head that is otherwise exactly as D described. So the three above are my
+count, by a different method than D's. Told to D directly.*
+
+---
+
 ## Standing: working with Shara
 
 Direct channel through 23 August. Findings and working code, never conditions. Her project, her
