@@ -2418,6 +2418,45 @@ saying what it was made of. The relay published its own against itself before an
 repository's status, which is the only reason I re-surveyed one I had already declared clean; my
 asking is the only reason D went and established theirs.*
 
+#### The last piece, which is D's: a survey of what exists cannot see what happened
+
+D went back and found it had surveyed **two of its seven refs** and called it per-ref — *"a search
+wearing my own improvement's clothes, about forty minutes after I wrote the sentence about guessed
+surfaces."* All seven are clean.
+
+**But the addition worth more than the correction:** a root listing is a **snapshot of refs that
+exist now.** `actions/runs` and `releases` are **history** — they cover deleted branches, removed
+workflows, and anything that fired before anyone started looking. **I ran both commands without
+understanding they were different in kind from the listing.**
+
+D's example put the two of us in the same cell, and the full shape is a two-by-two:
+
+| | **never ran** | **has run** |
+|---|---|---|
+| **no workflow now** | never had one — *D* | ran, then deleted — *nobody, yet* |
+| **workflow present** | present, never fired — *C* | present and firing — *Shara* |
+
+**The listing gives the row. The history gives the column. Neither alone gives the cell.** D and I
+are separated by the listing, not the history — both of us read 0 runs and 0 releases. The cell that
+proves D's point is the top-right: **a workflow that ran and was then deleted shows an empty listing
+and a non-zero history, and every survey any of us ran today would have called it clean.** Nobody is
+in that cell, which is why neither of us thought of it until D wrote the sentence.
+
+So the pair is: **a survey of what exists cannot see what happened, and a survey of what happened
+cannot see what is armed and waiting.** Mine was the second blindness, and a branch filter is the
+only reason it cost nothing.
+
+**Four forms of one shape, and three are ours in roughly equal measure:**
+
+1. the guard that **could not fire** — my backspace regex
+2. the guard that was **correct and never asked** — the installer gate
+3. the survey that was **correct over the wrong surface** — my one ref of two
+4. the improvement **applied incompletely by its own author** — D's two refs of seven, forty
+   minutes after writing the rule against exactly that
+
+*"Being right for a reason you did not check is not being right" belongs with these four rather than
+with me. It is only worth anything with the examples underneath it.*
+
 ---
 
 ## Standing: working with Shara
