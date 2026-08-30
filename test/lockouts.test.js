@@ -33,6 +33,81 @@ function tempLogs(files) {
 }
 
 // ---------------------------------------------------------------------------
+// The anti-constant ratchet, carried across from Session D's repository
+// ---------------------------------------------------------------------------
+
+// WHY THESE ARE HERE, AND IT IS THE POINT OF THE WHOLE FILE.
+//
+// `lockoutCore.js` states, in the vendored source: "a hardcoded reset day is forbidden and a test
+// fails if one appears." Session D says the same in its own words. IN THIS COPY THAT WAS NOT TRUE.
+//
+// Measured on 30 August, on a disposable copy: injecting `hour: 11` and `provenance: 'measured'`
+// into RESET_RULE produced ZERO new failures here, and SIX in D's own repository. The doctrine was
+// enforced there and merely ASSERTED here, because vendoring brought 23 of its 93 tests across and
+// the two that are the ratchet were not among them.
+//
+// That is this project's signature failure — a check whose scope is narrower than the claim it
+// appears to defend — arriving inside a module rather than a page. D named the two tests; they are
+// carried over verbatim in substance, with the fixture adapted to this suite's helpers.
+//
+// The rule they enforce: the reset rule may live in exactly ONE place, wearing its provenance, and
+// nowhere else. `hour` stays `null` because the owner gave a day and not an hour, and inventing one
+// is the failure mode the competitor ships.
+
+test('RESET RULE: the only permitted constant, wearing its provenance', () => {
+  assert.equal(core.RESET_RULE.weekday, 2);
+  assert.equal(core.RESET_RULE.weekdayName, 'Tuesday');
+  assert.equal(core.RESET_RULE.hour, null, 'the owner gave a day, not an hour - do not invent one');
+  assert.equal(core.RESET_RULE.provenance, 'stated', 'NOT measured; we did not observe this');
+  assert.match(core.RESET_RULE.source, /owner/);
+  assert.equal(core.RESET_RULE.measuredBracketContainsRule, true);
+});
+
+test('NO RESET CONSTANT ANYWHERE EXCEPT RESET_RULE', () => {
+  // The rule may live in exactly one place. Everywhere else it stays forbidden — a weekday leaking
+  // into a projection is a calendar assumption escaping into an answer.
+  const NOW = { year: 2026, month: 8, day: 14, hour: 12, minute: 0, second: 0 };
+  const state = core.applyLines(core.createState('Avenrae'), [
+    ASSIGN('Lord Nagafen'),
+    T('You have slain Lord Nagafen!'),
+  ]);
+
+  const reset = core.projectReset(state);
+  assert.ok(!('weekday' in reset), 'projectReset must not emit a weekday');
+  assert.equal(reset.value, null, 'projectReset never resolves to an instant');
+
+  const view = core.project(state, NOW);
+  assert.ok(
+    !/resetWeekday|resetHour|LOCKOUT_RESET/.test(JSON.stringify(view)),
+    'the per-boss view carries no reset constant'
+  );
+
+  const grid = core.projectGrid(state, NOW);
+  const withoutRule = JSON.stringify({ ...grid, resetRule: null });
+  assert.ok(!/"weekday"/.test(withoutRule), 'a weekday may appear only inside resetRule');
+});
+
+// OUR OWN half of the ratchet, which D's repository cannot enforce for us: the rotation ships a
+// reset constant of its own, and it must never claim a provenance the core does not have. The two
+// files disagreed about the same number on 29 August — logRotation said "Measured" while the core
+// said "stated, NOT measured" — and this is what stops that recurring silently.
+test('the rotation never claims a stronger provenance than the core', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'src', 'main', 'logRotation.js'), 'utf8');
+  // The COMMENT ON THE DECLARATION, not the whole header - the header quotes the retracted wording
+  // in order to retract it, and a search over the file catches its own correction. Aim narrow.
+  const lines = src.split(/\r?\n/);
+  const at = lines.findIndex((l) => /^const RESET_WEEKDAY/.test(l));
+  assert.ok(at > 0, 'RESET_WEEKDAY is gone - this test needs rewriting');
+  const decl = lines.slice(Math.max(0, at - 3), at).join(' ');
+  assert.ok(
+    !/(^|[^a-zA-Z])Measured([^a-zA-Z]|$)/.test(decl),
+    'logRotation claims its reset weekday is measured; lockoutCore records the same number as '
+      + "provenance 'stated', NOT measured. The core is right and this file was wrong once already."
+  );
+  assert.equal(core.RESET_RULE.provenance, 'stated', 'if the core ever measures it, revisit this');
+});
+
+// ---------------------------------------------------------------------------
 // The vendored core is not edited
 // ---------------------------------------------------------------------------
 
