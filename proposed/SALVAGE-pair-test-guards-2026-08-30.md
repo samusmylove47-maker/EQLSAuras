@@ -228,3 +228,168 @@ Neither hole is a dead guard — the assertion does fail on the exact regression
 
 ### Method note
 One mutation I ran was invalid and I re-ran it. Reformatting `open: {\n text: 'open',` to `open: { text: 'open',` came back GREEN — but the anchor string `open: {` was still present, so nothing was actually removed. Corrected to `open:{`, which removes the anchor, and it went RED. A GREEN from a mutation that did not mutate is the same trap as a green from a check that cannot fire.
+===== agent a2fb1eccaa62bf04b =====
+All three reports check out against the real tree on every claim I could test independently. Here is the synthesis.
+
+---
+
+# Dead guards across the three suites
+
+**Two guards are dead, three are latently dead, and the denominator in the brief was wrong in a way that matters.**
+
+## Ranked findings
+
+### 1. `test/log-rotation.test.js:419` — "the renderer names the week from the local date, never from the UTC string" — **DEAD, and it is the highest-reliance guard in the three files**
+
+**Mutation that should have tripped it and did not** (`src/renderer/main-window/main-window.js:4339`):
+
+```
+-        `week of ${last.boundaryDate}.`;
++        `week of ${new Date(last.at).toISOString().slice(0, 10)}.`;
+```
+→ **GREEN, 59 passed.** That is the wrong-day bug written out in full.
+
+**I verified the mechanism directly, without relying on the report's run.** Slicing the body the test slices:
+
+```
+body length 2846
+line  5:     // `boundaryDate` is the LOCAL calendar day of the reset. `boundary` beside it is a UTC string,
+line 21:         `week of ${last.boundaryDate}.`;
+--- includes boundaryDate: true
+--- negative regex passes: true
+```
+
+`assert.ok(body.includes('boundaryDate'))` is satisfied by **the comment explaining the guard**. Delete the code and the documentation answers for it. The sibling negative, `!/last\.boundary\b(?!Date)/`, pins one spelling; B4 spells the same defect a different way and walks through.
+
+Why this ranks first: the test's own header says **"THIS MACHINE CANNOT DEMONSTRATE THAT"** — Eastern time collapses the two answers and Node on Windows ignores `TZ`, so there is no behavioural test possible. This source-scan is the *only* thing standing between users east of UTC+11 and a card naming the wrong day, on a rotation feature that just shipped (`604528d`).
+
+**One-line revival** — strip comments before scanning, reusing the `codeOnly` idiom already in `test/lockouts.test.js:120`:
+```js
+const body = renderer.slice(start, renderer.indexOf('\n  }', start)).split('\n').filter((l) => !l.trim().startsWith('//')).join('\n');
+```
+That one line reddens B4, B2 and B3 — the whole class, not one spelling.
+
+### 2. `test/log-splitter.test.js:219` — `/formatAlarm/.test(renderer)` — **DEAD against deletion**
+
+```
+- const alarm = state.split.formatAlarm;
++ // TODO: we used to read state.split.formatAlarm here. Removed for now.
++ const alarm = null;
+```
+→ **GREEN, 17 passed.** The alarm display is fully severed and the guard says nothing.
+
+**Verified**: `formatAlarm` occurs in `main-window.js` exactly once, at line 665. One code use, whole-file regex, no comment stripping — a comment mentioning the word is indistinguishable from a read of it. Live for a rename, blind to deletion, and deletion-with-a-note is how this actually regresses.
+
+**One-line revival**:
+```js
+assert.ok(/state\.split\.formatAlarm/.test(renderer.split('\n').filter((l) => !l.trim().startsWith('//')).join('\n')), 'nothing in the renderer reads the alarm');
+```
+
+### 3. `test/lockouts.test.js:102-106` — the provenance ratchet — **ALIVE but blind in the two most natural places**
+
+This is the guard that was found dead this morning (the `\b` → 0x08 backspace bug). It now fails on the exact 29-August regression. Two holes remain, both verified by me against source:
+
+**Hole A — the declaration line is excluded.** `lines.slice(Math.max(0, at - 3), at)` scans lines 60-62; the constant is line 63.
+```js
+const RESET_WEEKDAY = 2; // Measured across the owner's corpus; provenance: measured.
+```
+→ **GREEN, 26 passed.** A trailing comment on the constant is the most natural place to write a provenance claim, and it is the one place not scanned.
+
+**Hole B — case-sensitive.** `/(^|[^a-zA-Z])Measured([^a-zA-Z]|$)/` — lowercase `measured` → **GREEN**.
+
+This ranks third rather than lower because the claim it defends *is* in a shipped document: the retraction, and the honest comment "STATED, not measured — see the retraction in the header". The lockouts agent is right that this is narrowness, not death — but the fix cannot be a naive `/i`, because the honest comment contains "not measured" and would false-fire.
+
+**One-line revival** (both holes at once):
+```js
+const decl = lines.slice(Math.max(0, at - 3), at + 1).join(' ').replace(/\bnot measured\b/gi, '');
+```
+then add `i` to the existing regex.
+
+### 4. `src/main/logSplitter.js:276` — the alarm's "once" is unbacked — **coverage hole, no source-scan involved**
+
+```
+- if (this.formatAlarm) return;
+```
+→ **GREEN, 17 passed**, while a subprocess probe shows behaviour changes (2nd unreadable batch: 1 alarm → 2). `assert.equal(alarms.length, 1, 'the alarm did not fire exactly once')` tests *at least* once: one test runs a single `_processOnce`, the other `break`s on the first alarm. The word "once" in the test name, the comment and the failure message is decoration.
+
+**One-line revival**: a second `await s._processOnce()` before the existing `assert.equal(alarms.length, 1)`.
+
+### 5. `src/main/logSplitter.js:180` — `bytesBehind()`'s `!this.filePath` guard — **masked, not tested**
+
+```
+- if (!this.enabled || !this.filePath) return 0;
++ if (!this.enabled) return 0;
+```
+→ **GREEN.** `fs.statSync(null)` throws into `catch { return 0; }` — two independent paths to the same observable. The splitter agent proved it is masking rather than inertness with a matched pair (guard gone **plus** `catch { return 42 }` → RED; guard intact plus `catch { return 42 }` → **GREEN**, so nothing exercises the catch arm at all).
+
+This one has **no honest one-liner**. The minimal fix changes semantics: return `null` when unattached, `0` on error, and assert `=== null`. Worth saying plainly rather than papering over.
+
+### 6-9. Latent — green today, dead after the next reformat
+
+| Guard | What kills it | One-line revival |
+|---|---|---|
+| `log-splitter.test.js:224` `debugLog(` in `main.slice(start, start + 900)` | The handler is **409 chars**; 491 chars of the window are unrelated code (I measured: exactly 1 `debugLog(` in the window, all of it inside the handler). Adding any logging call below the handler's `});` → **GREEN** | `const handler = main.slice(start, main.indexOf('\n});', start));` |
+| `log-rotation.test.js:902` H1's 260-char window | Deleting six *comment* lines lets the splitter guard's `noteHostSkip` fall into the backfill guard's window and answer for it → **GREEN**. A comment trim re-arms the bug | bound the window by the guard's closing brace, not a char count |
+| `log-rotation.test.js:1080` `!/userData/` | `app.paths['user' + 'Data']` reaches userData past both asserts. Inverted risk too: it strips only whole-line `//`, so a *trailing* comment saying `userData` false-**fires** it | strip trailing comments as well as whole-line ones |
+| `log-splitter.test.js` three negative-only tests | Pass against a completely inert splitter (`alarms` empty, `formatAlarm` null, `0/0 < 0.01`). Not dead — M8/M9 redden them — but no positive control proves the fixture was read | `assert.equal(s.getStatus().stampedLines, 500);` in each |
+
+---
+
+## (a) How many of the 19 are demonstrably alive?
+
+**The brief's "19" is a count of source-scanning *tests*, not assertions, and the current tree has 21.** I recounted mechanically — tests that assert on text read from a file under `src/`:
+
+| File | Source-scanning tests |
+|---|---|
+| `test/log-rotation.test.js` | 10 (L118, 419, 443, 463, 482, 497, 514, 902, 919, 1080) |
+| `test/lockouts.test.js` | 10 (L94, 116, 324, 341, 361, 378, 394, **447, 462, 477**) |
+| `test/log-splitter.test.js` | 1 (L207) |
+| **Total** | **21** |
+
+**Answer: 19 of 21 are demonstrably alive.** Dead or compromised: rotation L419 (both substantive asserts incapable of failing; only its `start > -1` anchor is live) and splitter L207 (its `formatAlarm` assert). At assertion level: roughly 62 source-scanning assertions, of which **3 are demonstrably incapable of failing against the defect they name**, plus 2 scope holes on lockouts L94.
+
+**The brief's undercount is itself a finding.** Both agents were told "nine tests" and both found a tenth. In `log-rotation.test.js` the tenth was the dead one. The guard left off the audit list was the guard that had never been audited — which is the same failure the audit exists to catch, one level up.
+
+And the scope was short in a second direction: **eight other test files scan `src/` and were never in anyone's brief** — `renderer-wiring.test.js` (9 scans), `visibility.test.js` (4), `share-code-chat.test.js` (3), `detection.test.js` (2), `resist-flash.test.js` (2), plus `example-library`, `roster-migration`, `spell-effects`. None has been mutation-tested.
+
+## (b) The pattern — and it is worth more than the individual findings
+
+**The heredoc pattern is closed. There is a second pattern, and it is bigger.**
+
+On the known one: the lockouts agent scanned all 67 `test/` files plus `src/main` and `src/renderer/main-window` for stray C0 bytes — **zero hits**. One instance, remediated, no siblings. (Its first attempt used `od -c | grep` and "found" hits in all 67 files, because `od -c` prints ordinary `a`/`f`/`v` letters; it caught and redid this. A bad scanner producing confident hits is the same error class as a check that cannot fire, and it is to its credit that it said so.)
+
+**The second pattern: THE GUARD'S SEARCH WINDOW INCLUDES THE PROSE THAT EXPLAINS THE GUARD.** A positive source-scan for an identifier cannot tell code from commentary, and this codebase comments *heavily*, in prose that names the exact identifier the test protects. The better the comment, the deader the guard. Its cause is the house voice.
+
+I did not take this on faith — I wrote a scanner that looks for positive identifier scans whose identifier also appears in a comment in the scanned file and is used at most once in real code, and ran it across all eleven `src/`-scanning test files. It re-derived the rotation finding from a completely different direction:
+
+```
+### test/log-rotation.test.js
+  src/renderer/main-window/main-window.js   id=boundaryDate   codeUses=1
+### test/share-code-chat.test.js
+  src/main/widgetStore.js   id=importCode              codeUses=1
+  src/main/widgetStore.js   id=applyCodeToSelfBuffs    codeUses=1
+```
+
+The `share-code-chat` pair (`test/share-code-chat.test.js:208`) is the **inverse** failure — they are negatives (`!block.includes('importCode')`), so a comment in range makes the test false-**fire** rather than silently pass. Same coupling, opposite symptom. Rotation's P1 `userData` assert has exactly this inverted risk too.
+
+So the pattern has **two symptoms from one cause**, and it predicts mechanically: *every `X.includes('id')` or `/id/.test(X)` over source text where `id` also appears in a comment in the scanned file.* That is a grep, not a guess.
+
+**A third pattern, subordinate to it: scope defined by layout rather than by syntax.** `main.slice(start, start + 900)` (491 chars of slack), `RENDERER.slice(at, at + 400)`, `lines.slice(at - 3, at)`, the 260-char windows, `renderer.slice(start, indexOf('\n  }'))`. Every one is a character count or a line count standing in for a scope the parser could have given exactly. These are the guards that die to a reformat, a comment trim, or an inserted logging call — with no test file touched, so nobody will look. Note that lockouts L94 is the one place someone anticipated the comment problem ("**Aim narrow**") — and aiming narrow by line count is what put the declaration line outside the window.
+
+**A fourth, thinner: keying on a spelling instead of a defect class.** `!/last\.boundary\b(?!Date)/` catches one way to write the UTC bug; case-sensitive `/Measured/` keys on capitalisation rather than on the claim. Both are positives-in-disguise: they assert the absence of one string, not the absence of the thing.
+
+---
+
+## Credibility of the three reports
+
+I treated these as claims, not results, and checked what was checkable.
+
+**splitter — strongest.** Shows exact diffs, exact failing test names *with failure messages* (`FAIL a format that breaks during play... / 0 !== 1`), and matched pairs on its own findings (F1 confirmed as masking, not inertness, by two opposed mutations). I verified its two load-bearing measurements exactly: handler body 409 chars of a 900-char window, and `formatAlarm` occurring once in the renderer at line 665. Both correct to the character. Its one unshown claim is the F3 probe (1 alarm vs 2) — given as a summary table without the probe output. **Its report is truncated mid-sentence** at lines 110/111 ("Not dead, just") — those two verdicts are unfinished.
+
+**rotation — its finding is verified, its 22 REDs are not shown.** The GREEN finding is exhaustively evidenced (three reduced mutations, hand-evaluated asserts, the offending comment line quoted) and **I confirmed the mechanism independently against the live source**. Its 22 RED runs are a table of verdicts with no failing test names — trust those at the level of "an agent that found and proved a real dead guard reported them".
+
+**lockouts — its two GREENs are verified, its "33/33" is representative-only.** I confirmed both holes structurally in source: the slice genuinely excludes line 63, and the regex genuinely has a capital M. Its RED table gives one representative mutation per test, not per-assertion mutation text, so "33/33 assertions" is asserted beyond what is shown. It does name failing test names for the ratchet injections. It self-reports catching itself running a non-mutation (`open: {` reformat that left the anchor intact, GREEN) and re-running it correctly — **a green from a mutation that did not mutate is the same trap as a green from a check that cannot fire**, and the report is more trustworthy for saying so.
+
+No agent cross-checked another's tree. All three re-hashed the shared `integrate` tree as unmodified at the end, and my reads confirm it is intact.
+
+**Housekeeping hazard, restated because three agents left it live:** working copies at `...\scratchpad\mutwork\integrate`, `...\scratchpad\workD`, and `...\scratchpad\splitmut\integrate` each contain a **junction to `C:\Users\Lindsey\EQ tracker\node_modules`**. A recursive delete follows it. `rmdir` the junction first, or leave the copies alone. My own scanner is read-only at `...\scratchpad\commentscan.js`; I created no copies and modified nothing.

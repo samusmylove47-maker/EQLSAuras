@@ -2145,8 +2145,34 @@ The count that matters: of the 19 source-scanning assertions, **33 assertion-lev
 in `lockouts`, 23 of 25 in `rotation`, and one guard in `rotation` is dead.** The splitter's three
 negative-only tests are the class most likely to hide the next one.
 
-*Nothing here is fixed yet — the power went before I could. Each fix is one line and they are named
-above.*
+#### The dead guard is FIXED and verified; the rest are not
+
+`086c15d` on `feat/lockouts`, pushed to `samusmylove47-maker/EQLSAuras` as
+`session-c/feat-lockouts-wip`. It now asserts the property is **read** rather than the word
+appearing, and forbids the **class** of bug rather than one spelling. Verified against all three
+mutations the sweep used:
+
+```
+B4  new Date(last.at).toISOString().slice(0,10)   GREEN -> RED
+B2  stops reading boundaryDate at all             GREEN -> RED
+B3  last.boundary.slice(0, 10)                    RED   -> RED
+```
+
+All 65 suites pass. **The other three fixes are not done** — the splitter's negative-only tests and
+the quiet-window coverage gap. Each is one line and named above.
+
+**And one more the judge surfaced that is worth more than the fixes: `P3`.** The test
+`both host guards are wired to record, not just to return` passes today only because a six-line
+comment block physically separates the two guards inside its 260-character search window. **Delete
+the comments and the splitter guard's `noteHostSkip` answers for the backfill guard's**, and the
+assertion stops discriminating. A tidy-up of comments would silently re-arm it. That is the same
+failure as the one above — an assertion anchored by prose rather than by code — and it is currently
+green.
+
+*The scan for stray control characters came back clean across all 67 test files and both source
+trees. Worth knowing that the agent's first attempt at that scan was wrong in the same direction as
+the bug it hunted: `od -c` prints literal `a`/`f`/`v` letters, so it "found" hits everywhere. A bad
+scan for dead guards is itself a dead guard.*
 
 ---
 
