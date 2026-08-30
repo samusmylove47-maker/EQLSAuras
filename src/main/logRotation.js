@@ -21,11 +21,30 @@
 // `logWatcher` already handles the result (`stat.size < offset` resets the offset to 0), verified
 // by simulating a rotation against the real watcher while it was running.
 //
-// THE RESET, MEASURED RATHER THAN TYPED. Tuesday, 11:00, local wall clock. Two Alt+Z readings
-// 10.84 hours apart landed 6 seconds from each other and both within 18 seconds of a clean
-// 11:00:00 on Tuesday 1 September 2026 - and every row of that window showed the same remaining
-// time, which is what establishes that all the locks share one reset rather than each running its
-// own. That is a measurement, not a constant somebody typed.
+// THE RESET. Tuesday, 11:00, local wall clock - AND THE PROVENANCE OF THAT IS WEAKER THAN THIS
+// FILE ORIGINALLY CLAIMED. Read the next paragraph before trusting the number.
+//
+// This comment used to read "MEASURED RATHER THAN TYPED", on two Alt+Z readings 10.84 h apart that
+// landed 6 seconds from each other at 11:00 on Tuesday 1 September 2026. RETRACTED 30 August. What
+// those readings establish is an EXPIRY INSTANT for whatever the window's thirty-six rows were.
+// They do not establish a reset, a weekly period, or a Tuesday boundary:
+//
+//   - Sweep the period against the same two readings and 4, 5, 6 AND 7 DAYS are all self-consistent
+//     to the same 6 seconds. Only 3 days is excluded. Six days puts the anchor on a WEDNESDAY.
+//   - Two readings of one monotonically decreasing counter extrapolate to the same zero BY
+//     CONSTRUCTION. The 6-second agreement measures clock drift - 154 ppm - and nothing else.
+//   - The 36 rows match `lockoutCore.js:795-804`, which records that window as 28 rows plus 8 rows
+//     and calls it object 2 of "THREE DIFFERENT OBJECTS. DO NOT MERGE THEM" - a six-day ROLLING
+//     timer with, in its own words, "no weekday and no boundary".
+//   - "Every row showed the same time" excludes nothing: `commonOrigin: true` in that same file
+//     records 14 locks across 6,133 s of kills rendering one value with zero spread.
+//
+// `lockoutCore.js:821` labels the same weekday `provenance: 'stated'` with the comment
+// "NOT 'measured'. We did not observe this." THAT FILE IS RIGHT AND THIS ONE WAS WRONG.
+//
+// The number stays because the feature needs one and nothing better exists. It ships DISABLED by
+// default, which is doing more work than it was when that default was chosen. HANDOFF.md section 15
+// carries the scoring; LOCKOUTS-STATE.md section 5 carries the retraction.
 //
 // TIME ZONE, stated because it is an assumption and not a measurement. The reading came from a
 // machine running Eastern time. Working in LOCAL WALL CLOCK means the boundary self-adjusts across
@@ -39,7 +58,8 @@ const fs = require('fs');
 const path = require('path');
 const { extractTimestampMs } = require('./logSplitter');
 
-// 0 = Sunday, so 2 = Tuesday. Measured; see the header.
+// 0 = Sunday, so 2 = Tuesday. STATED, not measured - see the retraction in the header, and
+// lockoutCore.js:821, which labels the same number honestly and which this file contradicted.
 const RESET_WEEKDAY = 2;
 const RESET_HOUR = 11;
 
