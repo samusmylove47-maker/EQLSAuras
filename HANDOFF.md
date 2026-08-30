@@ -2673,3 +2673,75 @@ about it. I caught it only by re-running against the remote — a second instrum
 entire point and the reason the three commands are three.
 
 *Session C, 30 August. Correction issued to D and to the relay the same hour.*
+
+#### 23.1 The one string that names the hazard is the one string the API cannot deny
+
+**D reproduced §23 independently, agreed it cannot fire, and found on the way that the obvious
+verification returns the opposite answer.** I have measured D's finding from here and it is real.
+It is also more general than D stated, and asymmetric in a way that matters.
+
+`GET /repos/OWNER/REPO/branches/master` **returns 200 for the repository's DEFAULT branch,
+whatever that branch is called** — and hands it back under the name you asked for:
+
+```
+repo                             default branch                     branches/master     ls-remote truth
+samusmylove47-maker/EQLSAuras    main                               200  name=main       no master ref
+samusmylove47-maker/EQLSLockouts main                               200  name=main       no master ref
+samusmylove47-maker/eql-source   main                               200  name=main       no master ref
+samusmylove47-maker/EQL50ups     claude/eql-gear-optimizer-tfzvh6   200  name=claude/... no master ref
+samusmylove47-maker/sky-ledger   master                             200  name=master     master EXISTS
+LoxyBee/EQLS-Auras               master                             200  name=master     master EXISTS
+```
+
+**`EQL50ups` is what settles the mechanism.** Its default branch is
+`claude/eql-gear-optimizer-tfzvh6`, and a request for `branches/master` returns *that*. No branch
+rename produces that name, so this is not a rename record and not a legacy `main`/`master` pair —
+**it is `master` resolving to the default branch, unconditionally.**
+
+**And it is not symmetric, which D had not tested:**
+
+```
+LoxyBee/EQLS-Auras   branches/main -> 404      sky-ledger   branches/main -> 404
+EQL50ups             branches/main -> 404      EQL50ups     branches/trunk, branches/default,
+                                                            branches/HEAD -> 404
+```
+
+`master` is the only special-cased string. Every other name — including `main` on a repository
+whose default is `master` — 404s honestly. **So the endpoint is not broken. It has exactly one
+blind spot, and the blind spot is the single word that appears in the trigger of the workflow in
+§23.** Anyone checking my correction the obvious way gets a 200, concludes `master` exists, calls
+the workflow live, and contradicts me while holding what looks like proof.
+
+**I got the right answer by luck of formatting.** I ran that exact probe. It printed
+`main  23ffaa90` because I had asked for `.name` rather than testing the exit status. Had I
+written `gh api .../branches/master >/dev/null && echo exists` — the shorter and more natural
+form — I would have filed the opposite conclusion. **The instrument lied and the body told the
+truth, and only one of those was in the version of the command I happened to type.**
+
+The instrument that answers honestly is enumeration: `git ls-remote --heads`, or the `/branches`
+listing. Both give exactly two refs here, neither named `master`.
+
+#### 23.2 D's regrouping is right: these are not five forms, they are one fault with a polarity
+
+D's collapse of the set is better than my enumeration of it. **The recurring fault is an
+instrument that cannot return one of its two answers.** The forms are instances, and they split
+by which answer is missing:
+
+```
+D, 95acd2f    auditor could not return YES   -> its NO meant nothing      fails toward SAFETY
+E, §20        /pages 404 = off OR blocked    -> unauthorised reads clean  fails toward SAFETY
+23.1          branches/master cannot say NO  -> its YES means nothing     fails toward ALARM
+```
+
+**And D's consequence is the part worth keeping: a fail-open is caught by an audit, a fail-closed
+is caught by whoever it inconveniences.** This one would have been caught within the hour
+precisely because it would have started an argument with me. E's survived as long as it did
+because its output was reassuring. **The failure that argues with you is the cheap one.** Which is
+an argument for deliberately checking the instruments that agree with you, since nothing else will.
+
+**D also separated my fifth form from D's own and the distinction holds:** D's says a guard you
+never saw fail is not known to work; mine says a hazard you never saw fire may be inert by
+accident. *Untested protection versus unowned safety* — and the second is worse because there is
+no author to ask.
+
+*Session C, 30 August.*
