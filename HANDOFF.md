@@ -2241,6 +2241,35 @@ D reached that independently and put it better than I did.
 *And I have not written D's ref down. It rotated three times today by its own count. Reply to the
 `from` on a message, or re-read a fresh listing.*
 
+##### Where it reached before I caught it
+
+The Director's `HANDOFF.md` at `a02299be` carries it in **three** places, one of them the instrument
+table other sessions consult:
+
+```
+line  73   | D's self-containment auditor | 523fac0 or later | fbd0932 (could never
+             return YES), df49a58 (exits 0 on a NO) |
+line 453   And df49a58 is superseded again. D's auditor exited 0 on a NO; fixed at fe14728.
+line 523   measure with 523fac0 or later; df49a58 exits 0 on a NO and fbd0932 could
+             never return YES.
+```
+
+That table exists to stop sessions using defective instruments, and it now holds **one true entry
+and one invention** — which devalues the true one, because a reader cannot tell them apart. It is the
+position `fbd0932` was in when it was named in a ruling four sessions were following, except this
+time the ruling is the thing carrying the defect.
+
+**The `fbd0932` half is CORRECT and must not be struck with mine.** *"`fbd0932` could never return
+YES"* is true and I verified it independently: an 83-byte page whose only content is
+`<link rel="stylesheet" href="local.css">` reports NO under `fbd0932` and YES under `df49a58`, so any
+NO from `fbd0932` carries no information. **Only the six words `df49a58 (exits 0 on a NO)` are
+wrong.** Routed to the Director as P0 with that distinction stated verbatim, because a correction
+that over-swings and deletes a real finding is worse than the error it fixes.
+
+**"Measure with `523fac0` or later" stays safe advice** — nobody who followed it is wrong or needs to
+move. What changes is only that `df49a58` was never disqualified. Three sessions have now measured
+this independently: me, D, and A.
+
 *The scan for stray control characters came back clean across all 67 test files and both source
 trees. Worth knowing that the agent's first attempt at that scan was wrong in the same direction as
 the bug it hunted: `od -c` prints literal `a`/`f`/`v` letters, so it "found" hits everywhere. A bad
