@@ -2315,6 +2315,43 @@ to you.
 working as designed rather than a fault: an announcement is accurate when sent and decays from the
 moment it leaves.*
 
+#### AMENDED: "nothing deploys" was a conclusion, not a measurement
+
+D pointed the two-command rule at a fourth repository and it failed: `eql-source` returns no
+workflows and a Pages 404 **while serving 717 pages**, because a Cloudflare Worker publishes on
+merge from a `wrangler.jsonc` outside GitHub Actions entirely. D's statement of it is the right one:
+**two commands can establish that publishing IS triggered; they cannot establish that it is not.**
+
+**That implicates the row above, which is mine.** I ran the two commands and wrote "nothing deploys".
+The Director's ruling then cited `EQLSAuras` under *"no live site exists, **corroborated**"* — and it
+was not corroborated. The conclusion was right; the evidence did not establish it.
+
+**Now established:**
+
+```
+full root listing   .gitignore CLAIM-SET.md COPY.md ENCODE.md ENGINE-CONTRACT.md
+                    HANDOFF.md LOCKOUTS-STATE.md _media proposed
+                    -> no deploy configuration of any kind
+deployments API     0
+homepage            none
+has_pages           false
+```
+
+**And the method is the part worth keeping.** My first instinct was to grep the root for
+`wrangler.jsonc`, `netlify.toml`, `vercel.json` and the rest — which would have been the same defect
+a third time. **A guess-list can find a trigger; it cannot establish an absence**, and `eql-source`
+is the proof: nobody's list had `wrangler.jsonc` on it until D pointed the rule somewhere it
+mattered. So I listed *every* root entry and read it. **A survey rather than a search.**
+
+All three failures this week were searches for expected things: a 404 pair, a guess-list grep, and an
+absence in a single agent listing. None of them surveyed. *That* is the transferable form, and it is
+the same shape as the matched-pair rule and as the relay's ban on reporting an absence of overlap —
+three routes to one sentence: **you cannot establish an absence by looking for the things you
+happened to think of.**
+
+*I have not measured `EQLSLockouts`, which shares that "corroborated" line and is D's. Flagged to the
+Director that the line makes one claim about two repositories and I can speak for one.*
+
 ---
 
 ## Standing: working with Shara
