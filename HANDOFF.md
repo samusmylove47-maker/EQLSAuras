@@ -1974,6 +1974,37 @@ with `hour: null` still shipping so the ratchet keeps passing.
 takes it sooner, re-run `tools/smoke-render.js` and the replay control afterwards — the end-to-end
 verification on record was done against the current vendored copy, not this one.
 
+#### Amended: D then found a real coverage bug, and it does not reach our screen
+
+D found that the module held **two definitions of coverage** and `projectGrid` read both: `spans`
+was extended by every stamped line, `firstSeen`/`lastSeen` only by events surviving the early
+returns. A stretch of pure combat extended one and not the other. Latent for weeks; adding damage
+rows made it loud rather than creating it. Fixed at `fe14728`.
+
+**It bites on her corpus.** Both cores over the real 1,836,854 lines:
+
+```
+                    VENDORED (ships today)   FIXED (fe14728)
+coverageFrom        2026-08-19 12:38:22      2026-08-19 12:36:33
+coverageTo          2026-08-29 19:29:33      2026-08-29 20:15:04
+gaps                10, 83.7 h total         10, 83.7 h total      <- identical
+cell counts         10 / 14 / 1 / 0 / 0      10 / 14 / 1 / 0 / 0   <- identical
+```
+
+The vendored core under-reports the coverage window by **45m31s at the end** and 1m49s at the start.
+`20:15:04` is exactly the last line in her live log, so the fixed value is the right one.
+
+**But neither field reaches the =Auras UI.** The page reads `coverageGaps` and
+`period.provenance`/`atLeastDays`/`basis` and nothing else — `coverageFrom` and `coverageTo` appear
+nowhere in the renderer. Gaps are computed from `spans`, which was already correct in both. **So
+nothing on her screen is or was wrong, and the deferral stands.**
+
+*Recorded because I nearly reported the opposite.* The comparison script I wrote printed "THE NUMBER
+ON HER SCREEN CHANGES" on the strength of a field I had not checked was on the screen. That is the
+fourth time today I have phrased a finding wider than its evidence, and the only reason it did not
+reach a report is that I checked the renderer before believing my own output. The habit that keeps
+catching these is the same one every time: ask what consumes the thing before saying it matters.
+
 ---
 
 ## Standing: working with Shara
