@@ -95,6 +95,14 @@ const RX = {
   // TWO endings, and anchoring on `attention!` missed the second: 25 of 537 events read
   // "... has captured X's attention with an unparalleled approach!". Suffix-tolerant now.
   capture: /^(?<actor>.+?) has captured (?<target>.+?)'s attention[^!]*!$/,
+  // FIRST-PERSON capture, present tense - a SEPARATE shape, and it names the mob. 600 events in
+  // Avenrae's logs and ZERO in Shara's: it fires only for the logging player, so whether it appears
+  // at all depends on whether that character tanks. Missing this was the fifth instance of
+  // searching for a remembered phrasing instead of enumerating shapes.
+  captureSelf: /^You capture (?<target>.+?)'s attention[^!]*!$/,
+  // THE FREE GROUND TRUTH. The client asserting YOU ARE TOP OF THIS MOB'S HATE LIST, right now.
+  // 192 events. It does not name the mob, so it validates a moment rather than a target.
+  topOfHate: /^You already have your target's attention\.$/,
   tauntFail: /^(?<actor>.+?) failed to taunt (?<target>.+?)[.!]$/,
   slain: /^(?<target>.+?) has been slain by (?<killer>.+?)!$/,
   youSlain: /^You have slain (?<target>.+?)!$/,
@@ -108,7 +116,24 @@ const COMBATISH = /points? of|hit points?|damage from|has captured|is stunned|
 
 /* The log writes the logging player as `You` in first person and `YOU` when a mob hits them.
  * Left unnormalised these are two rows for one person. */
-function canonActor(n) { return n === 'YOU' ? 'You' : n; }
+/**
+ * `You` MEANS A DIFFERENT PERSON IN EVERY LOG. Merging two characters' logs into one state without
+ * resolving it records one player under two names. A validation pass caught exactly that: agreement
+ * sat at 63.2% and nearly every disagreement read "board saw Avenrae instead of You" - while the
+ * ground-truth line came from Avenrae's OWN log, where Avenrae IS "You".
+ *
+ * A caller MUST pass `self`, the logging character's name, with that character's lines. Feeding two
+ * characters' logs under one `self` is a caller error the engine cannot detect.
+ */
+function canonActor(n, self) {
+  // THREE casings for one person, in three shapes, and each was found only by a failure:
+  //   'You'  actor, first person melee          89,395
+  //   'YOU'  target of mob MELEE                57,955
+  //   'you'  target of mob SPELL damage          6,101   <- found when validation disagreed 122/122
+  // Leaving any of them unnormalised splits one player into several rows and makes the board wrong.
+  if (n === 'You' || n === 'YOU' || n === 'you') return self || 'You';
+  return n;
+}
 
 function parseStamp(line) {
   const m = STAMP.exec(line);
@@ -162,7 +187,8 @@ function newState() {
     unparsedSamples: [],
     targets: {},          // target -> encounter accumulator
     healsGiven: {},       // actor -> count, used by classifyActor
-    captures: [],         // the hard hate signal
+    captures: [],         // the hard hate signal, both persons
+    topOfHate: [],        // "You already have your target's attention." - binary ground truth
     lastMs: null,
   };
 }
@@ -195,6 +221,7 @@ function ingest(lines, opts) {
   const o = opts || {};
   const state = o.state || newState();
   const gap = o.encounterGapMs != null ? o.encounterGapMs : 45000;
+  const self = o.self || null;   // the logging character's name. REQUIRED for correct merging.
   const ctx = {
     mobNames: o.mobNames || null,
     healsGiven: new Map(Object.entries(state.healsGiven)),
@@ -209,7 +236,22 @@ function ingest(lines, opts) {
     let hit = false;
 
     // ORDER MATTERS. healOverTime before heal, dotSelf before dotOther, capture before slain.
-    let m = RX.capture.exec(body);
+    let m = RX.captureSelf.exec(body);
+    if (m) {
+      const t = ensureTarget(state, m.groups.target, ms);
+      t.captures += 1;
+      t.aggroEvents.push({ ms, holder: self || 'You', kind: 'capture' });
+      state.captures.push({ ms, actor: self || 'You', target: m.groups.target, person: 'first' });
+      state.parsed += 1;
+      continue;
+    }
+    if (RX.topOfHate.test(body)) {
+      // Ground truth with no target named. Recorded for VALIDATION, not for the board.
+      state.topOfHate.push({ ms });
+      state.parsed += 1;
+      continue;
+    }
+    m = RX.capture.exec(body);
     if (m) {
       const t = ensureTarget(state, m.groups.target, ms);
       t.captures += 1;
@@ -237,7 +279,7 @@ function ingest(lines, opts) {
 
     if (!hit && (m = RX.dotSelf.exec(body))) {
       const t = ensureTarget(state, m.groups.target, ms);
-      bump(t.dot, 'You', +m.groups.amt);
+      bump(t.dot, self || 'You', +m.groups.amt);
       hit = true;
     }
 
@@ -249,8 +291,8 @@ function ingest(lines, opts) {
 
     if (!hit && (m = RX.melee.exec(body))) {
       const { actor, target, amt } = m.groups;
-      const A = canonActor(actor);
-      const T = canonActor(target);
+      const A = canonActor(actor, self);
+      const T = canonActor(target, self);
       const actorIsMob = ARTICLE.test(A);
       // A target is only a PLAYER-SIDE aggro holder if it is not itself article-shaped AND not a
       // known mob. Without the catalogue test, `Maestro of Rancor` and `Innoruuk, the Prince of
@@ -312,6 +354,12 @@ function recordAggro(t, ms, holder) {
   if (!last || last.holder !== holder) {
     t.aggroEvents.push({ ms, holder, kind: last ? 'switch' : 'initial' });
   }
+  // The change-log alone cannot answer "who held it at time T" when nothing changed, which made a
+  // validation pass report 478 of 600 events as `no data` that were really steady-state holds.
+  t.lastAttacked = holder;
+  t.lastAttackedMs = ms;
+  (t.observations = t.observations || []).push({ ms, holder });
+  if (t.observations.length > 4000) t.observations.splice(0, 2000);
 }
 
 /**

@@ -13,6 +13,7 @@ const DIRS = [
   'C:/Users/Lindsey/Desktop/EQL Source',
   'C:/Users/Lindsey/Desktop/EQL Source/Spare Logs',
   'C:/Users/Lindsey/Desktop',
+  'C:/Users/Lindsey/Desktop/Cursor-eqls/state/logs',
 ];
 const SKIP = /inventory|transcript|caveguide|brutalstatic/i;
 
@@ -68,7 +69,9 @@ console.log('lines ' + state.lines + '  parsed ' + state.parsed +
   (100 * state.unparsedCombat / Math.max(1, state.parsed + state.unparsedCombat)).toFixed(3) +
   '% of combat lines)  non-combat ' + state.nonCombat);
 
-console.log('capture events (the coefficient-free hate signal): ' + state.captures.length);
+console.log('capture events: ' + state.captures.length + '  (first-person ' +
+  state.captures.filter(function (c) { return c.person === 'first'; }).length + ')' +
+  '   top-of-hate ground truth: ' + state.topOfHate.length);
 console.log('');
 
 const filter = process.argv[2];
