@@ -42,20 +42,52 @@ spell damage                 116,351          116,351     100.0%
 healing                       25,745           25,745     100.0%
   (heal events)                3,021            3,021     100.0%
 casts                             82               82     100.0%
-DoT damage                         0           38,030         --
+DoT damage                    REFUSED          REFUSED    see retraction below
 ```
 
 `scratchpad/two_vantage2.py`. Re-runnable.
 
-### The DoT row is not a defect, and it points the right way
+### RETRACTED — the DoT row was my instrument, and the conclusion I drew from it was wrong
 
-`<target> has taken N damage from <Spell> by <Actor>` is written **only for other actors, never for
-yourself**. Measured in Avenrae's own log: 8,411 such lines, and **zero** carry `by Avenrae` or
-`by You`.
+**I published: "`X has taken N damage from <Spell> by <Actor>` is written only for other actors,
+never for yourself", and concluded the two clients are complementary with the observer seeing more.
+Both halves are false.** Session E challenged the row and was right.
 
-So the two clients are partial in *complementary* directions, and **the observer is the one that
-sees more.** A meter watching other players is reading exactly the stream that is richest about
-them. Your own contribution comes from your own first-person lines, which you always have.
+Own-DoT **is** logged — in a **second shape** I never matched:
+
+```
+A ... Chosen has taken 126 damage from your Denon's Disruptive Discord VII.     <- FIRST PERSON
+A haunted chest has taken 90 damage from Envenomed Breath by Lartik.            <- third person
+```
+
+`from your <Spell>` versus `from <Spell> by <Actor>`. My regex required the `by <Actor>` form, so
+first-person DoT returned zero — **an artifact of the pattern, not a fact about the world.**
+
+Measured across both whole files:
+
+```
+                                       Avenrae's log   Shara's log
+'has taken N damage from <Spell> by X'         5,890         1,046
+'has taken N damage from your <Spell>'         2,521            35   <- the shape I missed
+'... by Avenrae' specifically                      0           675
+
+Avenrae's own DoT, own client:   2,521 lines, 151,996 damage
+Avenrae's DoT, Shara's client:     675 lines,  39,719 damage
+```
+
+**So the observer sees LESS DoT, not more.** The "complementary directions, observer sees more"
+claim is withdrawn entirely. Those two figures are whole-file and not co-presence-restricted, so
+they are **not** a visibility ratio and I am not presenting one — the DoT row of the table carries
+a refusal until the ground-truth arm is re-derived against both shapes.
+
+**This is the third time in one night that searching for a shape I expected produced a zero I
+believed** — after `begins to cast` (the string is `begins casting`, 65,238 lines) and
+`taunt` (the success line is `has captured … attention!` and contains no such word). Same
+operation, same day, three times, and every recovery came from enumerating shapes rather than
+searching for a remembered one.
+
+**Every other row of the co-presence table stands** — melee 99.8%, spell 100%, healing 100%, casts
+100%. Those arms matched both persons correctly and were reproduced independently.
 
 ### The number I am NOT reporting, and why
 
