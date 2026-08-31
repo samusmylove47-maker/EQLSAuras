@@ -138,3 +138,65 @@ That is still the tool the owner asked for. It is not a number pretending to be 
   inference from spells is therefore many-to-one and cannot identify a player's class from one cast.
 
 *Session C, 31 August.*
+
+---
+
+## The bound is actor identity, not visibility — and the catalogue join solves it
+
+**Session E found the constraint that actually limits this tool, and it is a different axis from
+mine.** I measured that a client *can see* other players. E measured that the client *cannot tell
+which name-shaped actor is a person*. Both are true and E's is the one that would have shipped a
+broken product.
+
+### Confirmed on 13 logs, and worse than E measured on one
+
+```
+actor                    lines     damage   inCatalog  heals   VERDICT
+Avenrae                 104619    7027187   -          74876   person
+Innoruuk`s Chosen        17427    1911171   YES           67   NOT-A-PERSON
+Heart harpie             10700    2428388   YES            0   NOT-A-PERSON
+Azzudien                  8370     825109   -           2093   person
+Ice boned skeleton        3447      25753   YES            0   NOT-A-PERSON
+Bzzazzt                   2520     452152   YES           16   NOT-A-PERSON
+```
+
+**Two charm pets take #2 and #3 on a raw damage leaderboard**, above every human except one. A
+top-4 built on name-shaped actors ships a charmed mob at the top and cannot know it did.
+
+### The fix, measured
+
+A charm pet is a mob, so it appears in B's mob-name population. Joining **actors** (not targets)
+against `bis-catalog.json` `records[].src.m` removes mobs and charmed mobs in one operation.
+
+```
+over all 305 name-shaped melee actors
+  person          66 actors   179,118 melee lines   74.5%
+  NOT-A-PERSON   130 actors    58,944 melee lines   24.5%
+  unknown        109 actors     2,323 melee lines    1.0%
+```
+
+**The unknown bucket is 1.0% of melee activity.** The three-way is usable rather than a shrug: 99%
+of activity is confidently classified and the residue is displayed, not dropped.
+
+Discriminators, in order: (1) in B's catalogue → not-a-person; (2) heals a named target 3+ times →
+person; (3) otherwise unknown. `Heart harpie` heals nothing, which is corroboration rather than the
+test.
+
+### A false negative I am flagging before it ships
+
+The catalogue check runs first, so **a player whose name collides with a catalogue mob name is
+silently removed from the board.** That is the dangerous direction — a real person vanishing from
+their own leaderboard, with no signal. The rule must be: a collision produces `unknown`, never
+`not-a-person`, unless a second discriminator agrees.
+
+`src.m` carries 2,315 distinct names against 656 observed melee actors, so the collision surface is
+real and I have not measured its rate. **NOT_ESTABLISHED**, and it is the next measurement.
+
+### The only direct evidence the log gives about pets
+
+59 lines of the form `<name> pet has been slain by <killer>` name a pet explicitly — and every one
+is article-prefixed (`A dracoliche pet`, `A fire giant warrior pet`). **No line in 2.39M names a
+charm pet's owner**, and there are 18 group-join lines in the whole corpus. There is no roster in
+the log, which is why the external catalogue is doing this work.
+
+*Session C, 31 August.*
