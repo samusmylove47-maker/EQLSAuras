@@ -105,10 +105,11 @@ would have been a badly misleading headline.**
 |---|---|---|
 | Melee damage | **yes** | `Avenrae slashes a gnoll elite for 77 points of damage.` |
 | Direct spell damage | **yes** | `... for 77 points of magic damage by Smite.` |
-| DoT / over-time damage | **yes, others only** | `<target> has taken 92 damage from <Spell> by Avenrae.` |
+| DoT / over-time damage | **yes, BOTH persons, two shapes** | third person `<target> has taken 92 damage from <Spell> by Avenrae.` / first person `<target> has taken 126 damage from your <Spell>.` **Matching only the first shape is what produced my retracted zero.** |
 | Healing | **yes** | `Avenrae healed herself for 2 hit points by Blessing of the Squire.` |
-| Flat-hate spell casts | **yes** | `Feedwhy begins casting Flash of Light.` — 16,717 lines |
-| Taunt | **NO — corrected** | only `Avenrae failed to taunt …` appears. **Successful taunts are unlogged**, so taunt is unusable as an instrument. I originally listed this as attributed; all 182 samples were failures. |
+| Flat-hate spell casts | **yes** | `Feedwhy begins casting Flash of Light.` — **65,238 lines over 820 spells** (my first count of 16,717 was low: a restrictive actor character class, and I missed `begins singing` entirely) |
+| Taunt | **not as taunt** | only `Avenrae failed to taunt …` appears; successful taunts are never identifiable *as taunts*. |
+| **Aggro capture** | **YES — the one coefficient-free signal** | `Avenrae has captured Guard Crucorn's attention!` — **244 events, 25 actors**, naming actor *and* mob. Measured on 13 logs: **11 actors captured attention having never once attempted a taunt** (Kenantik 41, Keker 34), so this is a **general aggro-gain event, not taunt success** — better, because it is not limited to taunt classes. |
 | Stun *effect* | no caster | `a Teir\`Dal priest is stunned by scintillating colors.` |
 
 **Stuns: ruled, and the ruling is right.** Key on the **cast**, not the effect. The owner's source
