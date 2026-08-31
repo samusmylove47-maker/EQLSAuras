@@ -76,7 +76,7 @@ would have been a badly misleading headline.**
 | DoT / over-time damage | **yes, others only** | `<target> has taken 92 damage from <Spell> by Avenrae.` |
 | Healing | **yes** | `Avenrae healed herself for 2 hit points by Blessing of the Squire.` |
 | Flat-hate spell casts | **yes** | `Feedwhy begins casting Flash of Light.` — 16,717 lines |
-| Taunt | **yes** | attributed |
+| Taunt | **NO — corrected** | only `Avenrae failed to taunt …` appears. **Successful taunts are unlogged**, so taunt is unusable as an instrument. I originally listed this as attributed; all 182 samples were failures. |
 | Stun *effect* | no caster | `a Teir\`Dal priest is stunned by scintillating colors.` |
 
 **Stuns: ruled, and the ruling is right.** Key on the **cast**, not the effect. The owner's source
