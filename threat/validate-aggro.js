@@ -97,7 +97,7 @@ let agree = 0, disagree = 0, noData = 0;
 const disagreements = [];
 
 for (const ev of firstPerson) {
-  const t = state.targets[ev.target];
+  const t = state.targets[core.targetKey(ev.target)];
   if (!t) { noData += 1; continue; }
   // who was the mob observed attacking in the window AFTER the capture?
   // Use raw OBSERVATIONS, not the change-log: a steady-state hold logs no change event, and

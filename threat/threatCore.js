@@ -195,10 +195,23 @@ function newState() {
 
 function bump(map, k, n) { map[k] = (map[k] || 0) + n; }
 
+/**
+ * EQ capitalises the leading article at the START of a line and not mid-sentence, so ONE mob
+ * arrives under two spellings:
+ *     "A vis ghoul knight hits Avenrae for 33 points of damage."     <- line-initial
+ *     "You capture a vis ghoul knight's attention!"                  <- mid-sentence
+ * Keying on the raw string made those two targets. The capture created one that was never attacked
+ * and every attack accumulated on the other, which is what produced 255 ground-truth events
+ * against a mob that had "never attacked anybody, ever". Key on a canonical form; keep the
+ * first-seen spelling for display.
+ */
+function targetKey(name) { return String(name).trim().toLowerCase(); }
+
 function ensureTarget(state, target, ms) {
-  let t = state.targets[target];
+  const key = targetKey(target);
+  let t = state.targets[key];
   if (!t) {
-    t = state.targets[target] = {
+    t = state.targets[key] = {
       name: target, firstMs: ms, lastMs: ms,
       damage: {}, dot: {}, heals: {}, casts: {},
       mobAttacks: {},       // player -> times the MOB hit them. THE AGGRO SIGNAL.
@@ -323,7 +336,7 @@ function ingest(lines, opts) {
     }
 
     if (!hit && ((m = RX.slain.exec(body)) || (m = RX.youSlain.exec(body)))) {
-      const t = state.targets[m.groups.target];
+      const t = state.targets[targetKey(m.groups.target)];
       if (t) t.slain = true;
       hit = true;
     }
@@ -370,7 +383,7 @@ function recordAggro(t, ms, holder) {
  * against their own health bar in the moment.
  */
 function aggroBoard(state, target, opts) {
-  const t = state.targets[target];
+  const t = state.targets[targetKey(target)];
   if (!t) return null;
   const ctx = { mobNames: (opts && opts.mobNames) || null, healsGiven: new Map(Object.entries(state.healsGiven)) };
   const rows = Object.entries(t.mobAttacks)
@@ -378,7 +391,7 @@ function aggroBoard(state, target, opts) {
     .sort((a, b) => b.hits - a.hits);
   const ev = t.aggroEvents;
   return {
-    target,
+    target: t.name,
     holder: ev.length ? ev[ev.length - 1].holder : null,
     switches: ev.filter((e) => e.kind === 'switch').length,
     captures: t.captures,
@@ -404,7 +417,7 @@ const ESTIMATE_MODEL = {
 };
 
 function threatEstimate(state, target, opts) {
-  const t = state.targets[target];
+  const t = state.targets[targetKey(target)];
   if (!t) return null;
   const model = Object.assign({}, ESTIMATE_MODEL, (opts && opts.model) || {});
   const ctx = { mobNames: (opts && opts.mobNames) || null, healsGiven: new Map(Object.entries(state.healsGiven)) };
@@ -441,6 +454,6 @@ function threatEstimate(state, target, opts) {
 }
 
 module.exports = {
-  ingest, newState, aggroBoard, threatEstimate, classifyActor, normaliseName,
+  ingest, newState, aggroBoard, threatEstimate, classifyActor, normaliseName, targetKey,
   VERB_STEMS, RX, ESTIMATE_MODEL,
 };
