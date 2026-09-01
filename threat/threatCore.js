@@ -68,8 +68,14 @@ const VERB_ALT = VERBS_ALL.map((v) => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).
 
 const MONTHS = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12 };
 
-/* EQ Legends writes "[Tue Aug 04 13:33:15 2026] ". The day is zero-padded (measured over 9,026,690
- * stamped lines); the single-space form is accepted anyway because tolerance is free. */
+/* EQ Legends writes "[Tue Aug 04 13:33:15 2026] ". THE DAY IS ZERO-PADDED, and here is the count
+ * rather than the assertion: across 16 log files, 1,270,007 lines carry a single-digit day and
+ * every one is written `0N`; the ctime() space-padded form `[Www Mmm  N ` occurs ZERO times. The
+ * field is strftime %d, fixed width. (Days present are 04-09; 01-03 do not occur in this corpus,
+ * so 1-3 is inference from a fixed-width formatter rather than a count.)
+ * The ` ?` below accepts the space-padded form anyway, because tolerance is free and it closes the
+ * inch that the corpus cannot. A tolerant regex is NOT evidence about padding - it parses either
+ * way - which is why the count above exists separately. See docs/UNREPORTED-FINDINGS.md item 1. */
 const STAMP = /^\[(\w{3}) (\w{3}) ?(\d{1,2}) (\d\d):(\d\d):(\d\d) (\d{4})\] (.*)$/;
 
 /* ── shapes, with measured corpus counts ────────────────────────────────────────────────────── */
