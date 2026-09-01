@@ -102,18 +102,15 @@ captured attention having **never once attempted a taunt**.
 
 ---
 
-## 5. One person arrives under three casings, and one mob under two
+## 5. A RAW MOB NAME IS NOT A KEY — EQ capitalises the leading article line-initially only
 
-**Three casings of the logging player**, each found only by a failure:
+**This is the item most worth your time if you read only one.** It has already been routed to two
+other sessions as a hazard against their own work, and it is promoted to its own entry rather than
+sitting inside a heading about something else — a row under the wrong heading is not findable by
+someone scanning for it.
 
-```
-'You'   actor, first-person melee        89,395
-'YOU'   target of mob MELEE              57,955
-'you'   target of mob SPELL damage        6,101
-```
-
-**And EQ capitalises a leading article at the start of a line but not mid-sentence**, so one mob
-arrives as both:
+EQ capitalises a leading article at the **start of a line** and not **mid-sentence**, so a single
+mob arrives under two spellings:
 
 ```
 "A vis ghoul knight hits Avenrae for 33 points of damage."     line-initial
@@ -121,13 +118,37 @@ arrives as both:
 ```
 
 **WHO IT CHANGES — anyone keying state on a raw name from this log.** Keying targets on the raw
-string made those two mobs. It hid **255 of 600** ground-truth events behind a target that had
-"never attacked anybody", and fixing it moved a validation from 133 decidable events at 72.2% to
-**385 at 86.8%**. Any key built from a raw mob name is subject to this.
+string made those two different mobs. Every aggro capture created a target that was then never
+attacked, while all the attacks accumulated on its twin.
+
+**What it cost, measured:** it hid **255 of 600** ground-truth events behind a target that had
+"never attacked anybody, ever", and fixing it moved a validation from **133 decidable events at
+72.2%** to **385 at 86.8%**. Nothing about it is visible from a parse — every line parsed cleanly,
+the counts all looked plausible, and the failure presented as *the game being quiet* rather than as
+an error.
+
+**The general form:** any key built from a raw name taken out of this log is subject to
+line-position capitalisation. Canonicalise the key and keep the first-seen spelling for display.
 
 ---
 
-## 6. `You` means a different person in every log
+## 6. The logging player arrives under three casings
+
+Each found only by a failure, none of them by reading:
+
+```
+'You'   actor, first-person melee        89,395
+'YOU'   target of mob MELEE              57,955
+'you'   target of mob SPELL damage        6,101
+```
+
+**WHO IT CHANGES — anyone counting per-player anything.** Left unnormalised these are three rows
+for one person. The third was found only when a validation pass disagreed 122 times out of 122 and
+the disagreements all read `-> you`.
+
+---
+
+## 7. `You` means a different person in every log
 
 `threat/threatCore.js` — `ingest()` now **requires** a `self` parameter.
 
@@ -141,7 +162,7 @@ and Avenrae logs on this machine.
 
 ---
 
-## 7. Things that make me look bad, which is the point
+## 8. Things that make me look bad, which is the point
 
 - **The same unquoted-shell-variable fault, twice, one message apart.** `grep -h "captured" $L` with
   `$L` unquoted word-split on the space in `EQL Source`. I published **244** capture events; the
