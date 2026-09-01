@@ -97,7 +97,27 @@ function reset(mobKey, display, now) {
   state.lastSeen = now;
 }
 
-function board(settings, now) {
+/**
+ * IS THIS NAME A PERSON? Session E measured the bound and could not close it: the top melee actor
+ * in its corpus was `Heart harpie` at 63% of all name-shaped melee, and it is a CHARM PET. The log
+ * alone cannot tell a player from a pet — one "X pet has been slain by Y" line in 181,325, one
+ * group-join line. E's conclusion was that it needs a roster from OUTSIDE the log.
+ *
+ * =Auras has one. `ctx.groupMembers` is maintained by the host's buffEngine from group join/leave
+ * lines and handed to every module call. E could not reach it; a module can.
+ *
+ * THREE-WAY, never a boolean, and the empty case is the dangerous one: the roster is legitimately
+ * empty when solo or before any join line is seen, and an empty roster must NEVER hide a real
+ * person. So no-roster yields `unknown`, which displays exactly as before.
+ */
+function inGroup(who, groupMembers, self) {
+  if (!Array.isArray(groupMembers) || !groupMembers.length) return 'unknown';
+  if (who === 'You' || who === self) return 'person';
+  const lower = who.toLowerCase();
+  return groupMembers.some((g) => String(g).toLowerCase() === lower) ? 'person' : 'not-in-group';
+}
+
+function board(settings, now, groupMembers) {
   const staleAfter = (Number(settings.staleSeconds) || 12) * 1000;
   const rows = [...state.hits.entries()].sort((a, b) => b[1] - a[1]);
 
@@ -125,9 +145,14 @@ function board(settings, now) {
   // justify: a stranger reads "Grimtusk (4) ▸ Nyssara (1)" as thin and "Grimtusk (312) ▸
   // Nyssara (48)" as solid, without knowing anything about this project. The previous label showed
   // a bare name, so 4 swings and 4,000 rendered identically.
+  // A name the host's group roster does not contain gets a marker rather than being hidden or
+  // silently trusted. `~` reads as "not one of your group" — a pet, another group's tank, or an
+  // unknown. When there is no roster at all nothing is marked, because absence of a roster is not
+  // evidence about anybody.
+  const mark = (who) => (inGroup(who, groupMembers, null) === 'not-in-group' ? '~' : '');
   const label = next
-    ? top + ' (' + topHits + ')  ▸ ' + next[0] + ' (' + next[1] + ')'
-    : top + ' (' + topHits + ')';
+    ? mark(top) + top + ' (' + topHits + ')  ▸ ' + mark(next[0]) + next[0] + ' (' + next[1] + ')'
+    : mark(top) + top + ' (' + topHits + ')';
   return { key: KEY_HOLDER, name: label, durationSec: 0 };
 }
 
@@ -171,7 +196,7 @@ module.exports = {
       const who = h.groups.who === 'YOU' || h.groups.who === 'you' ? 'You' : h.groups.who;
       state.hits.set(who, (state.hits.get(who) || 0) + 1);
       state.lastSeen = now;
-      return emit(board(settings, now));
+      return emit(board(settings, now, ctx.groupMembers));
     }
 
     const c1 = CAPTURE_1P.exec(msg);
@@ -182,7 +207,7 @@ module.exports = {
       // than waiting for the mob to swing.
       state.hits.set('You', (state.hits.get('You') || 0) + 3);
       state.lastSeen = now;
-      return emit(board(settings, now));
+      return emit(board(settings, now, ctx.groupMembers));
     }
 
     const c3 = CAPTURE_3P.exec(msg);
@@ -191,7 +216,7 @@ module.exports = {
       if (k !== state.mob) reset(k, c3.groups.mob, now);
       state.hits.set(c3.groups.who, (state.hits.get(c3.groups.who) || 0) + 3);
       state.lastSeen = now;
-      return emit(board(settings, now));
+      return emit(board(settings, now, ctx.groupMembers));
     }
 
     const s = SLAIN.exec(msg);
@@ -200,7 +225,7 @@ module.exports = {
       if (dead && dead === state.mob) {
         state.mob = null;
         state.hits = new Map();
-        return emit(board(settings, now));
+        return emit(board(settings, now, ctx.groupMembers));
       }
     }
 
@@ -208,7 +233,7 @@ module.exports = {
     // line about the mob we are tracking. Cheap: one comparison on most lines.
     if (state.mob && state.lastEmitted === KEY_HOLDER &&
         now - state.lastSeen > (Number(settings.staleSeconds) || 12) * 1000) {
-      return emit(board(settings, now));
+      return emit(board(settings, now, ctx.groupMembers));
     }
     return null;
   },
