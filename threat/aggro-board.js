@@ -25,13 +25,23 @@
 // the game itself named the aggro holder ("You capture <mob>'s attention!"). Agreement 86.8%.
 //
 // ─────────────────────────────────────────────────────────────────────────────────────────────
-// THE THREE STATES ARE THREE DIFFERENT TILES, AND THAT IS DELIBERATE
+// THE FOUR STATES ARE FOUR DIFFERENT TILES, AND THAT IS DELIBERATE
 //
 // Measured on 600 ground-truth events: 30.0% of the time the mob was NOT SWINGING AT ANYONE. The
-// board being empty is often the TRUTH, not a gap. So "nothing is swinging at anybody" and "I have
-// not seen anything recently" must not look the same, and a renderer must not have to remember to
-// tell them apart. They are emitted under three mutually exclusive KEYS, each clearing the others,
-// so exactly one is ever present. An ambiguous empty panel is impossible by construction.
+// board being empty is often the TRUTH, not a gap. So these must not look the same, and a renderer
+// must not have to remember to tell them apart:
+//
+//   aggro-holder     someone is being hit, and the tile carries HOW OFTEN
+//   aggro-watching   one swing seen. Not enough to name anybody yet, and it says so
+//   aggro-quiet      nothing is swinging at anybody
+//   aggro-stale      nothing seen recently — different from nothing happening
+//
+// They are emitted under four mutually exclusive KEYS, each clearing the others, so exactly one is
+// ever present. An ambiguous empty panel is impossible by construction rather than by care.
+//
+// THE COUNTS ARE ON THE TILE because a first-time user cannot otherwise tell 4 observations from
+// 4,000. That was found by a stranger test the afternoon of launch, and the previous label - a bare
+// name - failed it.
 
 'use strict';
 
@@ -57,6 +67,10 @@ const SLAIN = /^(?:(?<mob>.+?) has been slain by .+!|You have slain (?<mob2>.+?)
 const KEY_HOLDER = 'aggro-holder';
 const KEY_QUIET = 'aggro-quiet';
 const KEY_STALE = 'aggro-stale';
+// FOUND BY THE STRANGER TEST, and it was the failure I had praised the lockout grid for avoiding.
+// One mob swing used to render a bare confident name. The lockout tool, stripped of evidence, says
+// `not_looked` 25 times rather than guessing; this said "Grimtusk" off a single hit.
+const KEY_WATCHING = 'aggro-watching';
 
 // EQ capitalises a leading article at the START of a line and not mid-sentence, so one mob arrives
 // as "A vis ghoul knight" and "a vis ghoul knight". Keying on the raw string makes two mobs — that
@@ -90,18 +104,31 @@ function board(settings, now) {
     const secs = Math.round((now - state.lastSeen) / 1000);
     return { key: KEY_STALE, name: 'Aggro — no swings for ' + secs + 's', durationSec: 0 };
   }
+
+  const total = rows.reduce((a, r) => a + r[1], 0);
   const [top, topHits] = rows[0];
   const next = rows[1];
-  const margin = next ? topHits - next[1] : null;
+
+  // ONE SWING IS NOT A READING. A single observation named a tank with the same confidence as ten
+  // thousand did. Below two it says so instead — the same refusal the lockout grid makes when its
+  // coverage does not span the period.
+  if (total < 2) {
+    return { key: KEY_WATCHING, name: 'Aggro — watching (' + total + ' swing)', durationSec: 0 };
+  }
+
+  // THE EVIDENCE GOES ON THE TILE, ALWAYS. There is no threshold to tune and no constant to
+  // justify: a stranger reads "Grimtusk (4) ▸ Nyssara (1)" as thin and "Grimtusk (312) ▸
+  // Nyssara (48)" as solid, without knowing anything about this project. The previous label showed
+  // a bare name, so 4 swings and 4,000 rendered identically.
   const label = next
-    ? top + '  ▸ ' + next[0] + (settings.showMargin ? '  (+' + margin + ')' : '')
-    : top;
+    ? top + ' (' + topHits + ')  ▸ ' + next[0] + ' (' + next[1] + ')'
+    : top + ' (' + topHits + ')';
   return { key: KEY_HOLDER, name: label, durationSec: 0 };
 }
 
 // Exactly one tile is ever present: emit the current state and clear the other two.
 function emit(entry) {
-  const others = [KEY_HOLDER, KEY_QUIET, KEY_STALE].filter((k) => k !== entry.key);
+  const others = [KEY_HOLDER, KEY_QUIET, KEY_STALE, KEY_WATCHING].filter((k) => k !== entry.key);
   state.lastEmitted = entry.key;
   return [entry].concat(others.map((k) => ({ key: k, clear: true })));
 }
@@ -115,7 +142,8 @@ module.exports = {
 
   page: [
     { section: 'Display' },
-    { key: 'showMargin', type: 'checkbox', label: 'Show the lead over second place', default: true },
+    // `showMargin` is gone. It offered "(+3)", which renders identically to "(+3000)" and reads as
+    // a finding when it is noise. The raw counts replace it and cannot mislead the same way.
     { section: 'Staleness' },
     {
       key: 'staleSeconds',

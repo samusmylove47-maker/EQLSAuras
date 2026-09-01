@@ -90,7 +90,7 @@ console.log('       ' + calls.toLocaleString() + ' calls in ' + elapsed + 'ms  =
   (elapsed * 1000 / Math.max(1, calls)).toFixed(2) + 'us/line, ' + emitted.toLocaleString() + ' emissions');
 
 console.log('');
-console.log('=== 3. the three states ===');
+console.log('=== 3. the four states ===');
 ok(seenKeys.has('aggro-holder'), 'holder tile was produced');
 console.log('       states observed: ' + [...seenKeys].join(', '));
 ok(true, 'exactly one live tile on every emission (checked ' + emitted.toLocaleString() + ' times)');
