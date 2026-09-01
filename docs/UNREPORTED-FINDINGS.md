@@ -235,6 +235,32 @@ launched 2026-07-28, whose own wiki has no Aggro or Hate Management page. Nobody
 outside it can say whether EQL follows it. **That is why the estimate ships badged** — and the
 downgrade rests on the rule, not on a tally that happened to come out that way tonight.
 
+### And a corollary about the SENTENCES, which is the same fault one level up
+
+**How that bound came to be missing from this file is worth more than the correction.**
+
+Two people stripped it independently — the Director relaying D's rule upward, and me writing it
+down here — and neither knew the other had. Two independent readers making the same edit is not
+carelessness twice. **It is a property of the sentence.**
+
+The tally form (*"every reversal was a mechanism claim"*) is short, concrete, and quotable. The
+mechanism form (*"a measurement names its surface; a mechanism usually cannot"*) is the load-bearing
+half and is none of those things. So the tally travels and the qualification does not.
+
+> **A claim whose most quotable form is not its most correct form will shed the correct part every
+> time it is passed on.** Not sometimes — every time, because each relayer keeps what is easiest to
+> carry.
+
+This is the class in item 8 applied to language rather than to code: *a true-looking sentence that
+is a statement about what survives transport, rather than about what is true.* And it has the same
+remedy as the code version — **make the truncation impossible rather than asking relayers to
+remember**. Write the rule so the quotable part IS the qualified part, or so that removing the
+qualification leaves something that reads as obviously incomplete.
+
+That is the same move as the qualifier panel and the three mutually exclusive tiles elsewhere in
+this project: a convention fails open the first time somebody transmits the object generically; a
+shape cannot.
+
 ---
 
 ## 9. Things that make me look bad, which is the point
