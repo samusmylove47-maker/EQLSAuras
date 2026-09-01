@@ -162,7 +162,62 @@ and Avenrae logs on this machine.
 
 ---
 
-## 8. Things that make me look bad, which is the point
+## 8. THE ONE CLASS ALL OF TONIGHT'S FAULTS BELONG TO
+
+**A true-looking output that is a statement about the INSTRUMENT rather than about the world.**
+
+This is the general form, and it is worth more than any single finding in this file. It was named
+across three sessions and three unrelated engines in one night, by people who were not looking for
+it and did not know the others had hit it:
+
+| session | the output | what it actually said |
+|---|---|---|
+| this one | a mob "never attacked anybody, ever" | *my key split it into two mobs* |
+| D | a dedupe-horizon counter | *my window ended before the data did* |
+| E | "no outgoing damage lines matched" | *my regex was anchored to the wrong person* |
+
+Every one of them **parsed cleanly, counted plausibly, and read as a fact about the game.** None
+raised an error. That is the whole danger: a defect that announces itself gets found on the day it
+is written, and this class hides inside a correct-looking result until something independent
+disagrees with it.
+
+**MY OWN INSTANCES, all six, in one night:**
+
+- `begins to cast` returned 0 — the string is `begins casting`, **65,238 lines**
+- a search for `taunt` found only failures — the success line is `has captured …` and contains no
+  such word, so a parser reports a **100% taunt failure rate**, exactly inverted
+- own-DoT returned 0 — the shape is `from your <Spell>`, not `from <Spell> by <Actor>`
+- `grep -h … $L` **unquoted**, word-splitting on the space in `EQL Source`: published **244**
+  capture events against a true **537**. Then I made the identical error again *one message after
+  diagnosing it*
+- a `s.replace` with **no assertion** silently did nothing, and I re-ran believing a fix had applied
+- a raw mob name as a key — item 5 — which hid 255 of 600 ground-truth events
+
+**WHAT ACTUALLY CATCHES IT**, ranked by what worked here rather than by what sounds rigorous:
+
+1. **An independent instrument that can disagree.** Every one of the six was found by a second
+   measurement, never by re-reading the first. The validation pass against in-log ground truth found
+   three of them in an afternoon.
+2. **A re-implementation forced by a *different constraint*.** The drop-in module was written to fit
+   Shara's one-file contract, not to check the engine — and agreeing within 1.5 points was worth
+   more than a check built to be a check, because it could not be tuned toward the answer.
+3. **Make the instrument state its own scope.** Any command reading a file set reports the count it
+   opened. The unquoted-variable fault is dangerous precisely because it splits into tokens *some
+   of which resolve* — so it returns a plausible number and cannot say *"I read less than you asked"*.
+4. **Assert the mutation applied before believing the result.** Mutate line-wise by index and read
+   the line back. A mutation that does not apply is indistinguishable from a guard that works.
+
+**AND THE DIVIDING LINE WORTH CARRYING OUT OF THIS PROJECT:** every reversal any session made
+tonight was a **mechanism** claim — an explanation of *why*. Not one **measurement** was overturned.
+Mine held: `537`, `0.077%`, the co-presence table, `86.8%`. Mine that fell: *"the observer sees
+more"*, *"written only for other actors"*, *"taunt is unusable"* — all three were stories about how
+the log works. **Know which kind you are saying as you say it**, and hold the second kind loosely
+even when it is sourced. The EQEmu hate model this project's threat estimate rests on is a mechanism
+claim about a *different game's server*, and it belongs in the loosely-held column.
+
+---
+
+## 9. Things that make me look bad, which is the point
 
 - **The same unquoted-shell-variable fault, twice, one message apart.** `grep -h "captured" $L` with
   `$L` unquoted word-split on the space in `EQL Source`. I published **244** capture events; the
