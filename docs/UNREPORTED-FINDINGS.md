@@ -207,13 +207,33 @@ disagrees with it.
 4. **Assert the mutation applied before believing the result.** Mutate line-wise by index and read
    the line back. A mutation that does not apply is indistinguishable from a guard that works.
 
-**AND THE DIVIDING LINE WORTH CARRYING OUT OF THIS PROJECT:** every reversal any session made
-tonight was a **mechanism** claim — an explanation of *why*. Not one **measurement** was overturned.
-Mine held: `537`, `0.077%`, the co-presence table, `86.8%`. Mine that fell: *"the observer sees
-more"*, *"written only for other actors"*, *"taunt is unusable"* — all three were stories about how
-the log works. **Know which kind you are saying as you say it**, and hold the second kind loosely
-even when it is sourced. The EQEmu hate model this project's threat estimate rests on is a mechanism
-claim about a *different game's server*, and it belongs in the loosely-held column.
+**AND THE DIVIDING LINE WORTH CARRYING OUT OF THIS PROJECT — stated in its BOUNDED form, because
+I first wrote it unbounded and that version is weaker than it looks.**
+
+The rule is Session D's and it is this: **a measurement names its surface; a mechanism usually
+cannot.** That is why the two fail at different rates — not because of any tally.
+
+I originally wrote it as the tally: *every reversal any session made tonight was a mechanism claim,
+and not one measurement was overturned.* That is true of one night in one project, and it is
+**evidence for the rule, not the rule itself**. Stated alone it invites a reader to trust
+measurements generally and distrust mechanisms generally, which is not what D established. A
+measurement over the wrong surface fails exactly as hard — my own `244` capture events were a
+measurement, and they were wrong because the surface was a shell variable that had silently
+word-split.
+
+So the usable test is not *"is this a measurement or a mechanism?"* but **"can this claim name the
+surface it is true over?"**
+
+- Mine that held name theirs: `537` over 13 enumerated logs; `0.077%` over 5.6M lines; `86.8%` over
+  385 decidable ground-truth events.
+- Mine that fell could not: *"the observer sees more"*, *"written only for other actors"*,
+  *"taunt is unusable"* — each a story about how the log works, true over no surface I had checked.
+
+**Applied to this project's own threat estimate**, which is the case that matters here: the EQEmu
+hate model **cannot name its surface**. It describes EQEmu. EverQuest Legends is a different title,
+launched 2026-07-28, whose own wiki has no Aggro or Hate Management page. Nobody in this project or
+outside it can say whether EQL follows it. **That is why the estimate ships badged** — and the
+downgrade rests on the rule, not on a tally that happened to come out that way tonight.
 
 ---
 
