@@ -51,8 +51,13 @@ const STAMP_RE = /^\[[^\]]+\]\s*/;
 // 642,043 damage lines with residual 0, cross-checked against an independent EQL parser.
 const MOB_HIT = new RegExp(
   '^(?<mob>(?:a|an|the) [^.]+?) ' +
-  '(?:hits|punches|kicks|cleaves|slashes|bashes|pierces|stings|claws|crushes|strikes|' +
-  'backstabs|bites|smashes|slices|smites|shoots|reaves|frenzies|gores|mauls|rends|gouges|slams|burns) ' +
+  // `frenzies on` FIRST: it is two words, and matching bare `frenzies` leaves "on <name>" where the
+  // target should be. 20,305 lines in the corpus, 407 of them from article-prefixed mobs, and this
+  // module silently DROPPED every one of those - a coverage gap a residual check cannot see,
+  // because nothing failed to parse. Found in Shara's own damageLines.js, which had it and I did not.
+  '(?:frenzies on|hits|punches|kicks|cleaves|slashes|bashes|pierces|stings|claws|crushes|strikes|' +
+  'backstabs|bites|smashes|slices|smites|shoots|reaves|frenzies|gores|mauls|rends|gouges|slams|' +
+  'burns|gnaws|lashes|flurries) ' +
   '(?<who>[A-Za-z`\'"]+) for \\d+ points? of',
   'i');
 

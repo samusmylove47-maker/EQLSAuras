@@ -53,6 +53,8 @@ const VERB_STEMS = [
   'hit', 'slash', 'cleave', 'kick', 'bash', 'pierce', 'strike', 'punch', 'crush', 'smite',
   'bite', 'shoot', 'claw', 'backstab', 'slice', 'sting', 'smash', 'reave', 'frenzy',
   'gore', 'maul', 'rend', 'gouge', 'slam', 'burn',
+  // carried by Shara's shipped damageLines.js, measured on HER corpus, absent from mine:
+  'gnaw', 'lash', 'flurry',
 ];
 
 function inflect(stem) {
@@ -60,7 +62,14 @@ function inflect(stem) {
   return [stem + (/(s|sh|ch|x|z)$/.test(stem) ? 'es' : 's'), stem];
 }
 
-const VERBS_ALL = [];
+// MULTI-WORD VERBS. `frenzies on` is 20,305 lines in this corpus and MY RESIDUAL CHECK COULD NOT
+// SEE IT: the line parsed cleanly, it just parsed WRONG — "a gnoll elite | frenzies | on Avenrae".
+// A residual counts lines that failed to parse, never lines that parsed into the wrong fields, so
+// "residual 0 over 642,043 lines" was true and did not mean correct. Found by reading Shara's own
+// damageLines.js, which lists `frenzies on` as one token; her parser had it and mine did not.
+const MULTIWORD_VERBS = ['frenzies on', 'frenzy on'];
+
+const VERBS_ALL = MULTIWORD_VERBS.slice();
 for (const s of VERB_STEMS) for (const v of inflect(s)) VERBS_ALL.push(v);
 // longest-first so `slashes` is not shadowed by `slash`
 VERBS_ALL.sort((a, b) => b.length - a.length);

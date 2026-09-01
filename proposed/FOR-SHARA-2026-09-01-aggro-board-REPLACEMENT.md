@@ -37,6 +37,22 @@ like a finding. That setting is gone; the counts replace it. **Your settings pag
 "Show the lead over second place" and keeps the stale-seconds slider.** That is the only visible
 change to your UI.
 
+## And a fourth, which YOUR parser found in mine
+
+**Your `src/shared/damageLines.js` lists `frenzies on` as one token. Mine had bare `frenzies`.**
+
+That is **20,305 lines** in this corpus, 407 of them from article-prefixed mobs — and my module was
+**silently dropping every one of those aggro observations**, because after matching `frenzies` the
+pattern looked for a target and found `on Avenrae`. Not mis-attributed. Invisible.
+
+**My own residual check could not see it.** I had verified the verb lexicon at "residual 0 over
+642,043 lines" — but a residual counts lines that FAILED to parse, never lines that parsed into the
+wrong fields. The claim was true and did not mean what I took it to mean. Your parser had the right
+answer and a comment explaining why.
+
+I have also taken the four stems you carry that my corpus never produced — `gnaws`, `lashes`,
+`flurries`, and the rest — since yours were measured on your own logs and tolerance costs nothing.
+
 ---
 
 ## Verified against your code, not against my reading of it
