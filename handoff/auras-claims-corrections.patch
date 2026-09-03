@@ -1,0 +1,216 @@
+diff --git a/docs/auras/BAND-COPY.md b/docs/auras/BAND-COPY.md
+index cbfa22d..335f484 100644
+--- a/docs/auras/BAND-COPY.md
++++ b/docs/auras/BAND-COPY.md
+@@ -1,5 +1,13 @@
+ # EQL Auras — landing-page band
+ 
++> **⚠ CORRECTED 3 September 2026, and this file was a hazard.** It recommended
++> **11,337** as "a good promotional figure." **The true figure is 1,067 — this file
++> was wrong by 10.6×.** It also described a name clash that no longer exists. Both
++> are struck and corrected below with the measurement beside them. **This file is
++> 18 August guidance; anything in it not marked corrected has not been re-checked
++> against `LoxyBee/EQLS-Auras@3a4d119c`.** The band that shipped is
++> `handoff/auras-launch-band.html` in `samusmylove47-maker/EQLSAuras@main`.
++
+ Material for Session A, who owns `_build/build1.py` and lands this. Nothing here
+ was built or rebuilt in this worktree.
+ 
+@@ -97,13 +105,40 @@ motion away under `prefers-reduced-motion` and below 700px.
+ 
+ ## Two things for a later page, not for this band
+ 
+-**The name.** The application calls itself **EQ Buff Tracker** &mdash; window
+-title, taskbar, `package.json`. The band calls it **EQL Auras**. The band's
+-video never shows the application window, so the clash is invisible here, but it
+-will be obvious on any page carrying a screenshot of the app.
+-
+-**The roster figure.** The app's own About page says it knows roughly 3,300
+-buffs. Its data file holds **11,337** entries, 11,190 of them with landing text.
+-The About page understates the work by more than a factor of three. That is a
+-good promotional figure and it is not in this band, because a figure like that
+-should be printed from the data at build time rather than typed beside it.
++**The name. RESOLVED — this clash no longer exists.** As of
++`LoxyBee/EQLS-Auras@3a4d119c` the application's `productName` is **EQLS Auras**
++and its `name` is `eqls-auras`. The site says **EQLS Auras**. They agree.
++~~The application calls itself EQ Buff Tracker; the band calls it EQL Auras.~~
++Struck 3 Sep 2026. **Note the band markup in `band.html` beside this file still
++says "EQL Auras" — that file is the 18 Aug version and is superseded.**
++
++**The roster figure. CORRECTED 3 Sep 2026 — DO NOT USE 11,337. It is false by a
++factor of 10.6, and this file recommended it.**
++
++~~The app's own About page says it knows roughly 3,300 buffs. Its data file holds
++11,337 entries... That is a good promotional figure.~~ **Struck. Every sentence of
++that paragraph was wrong, including the direction of the error.**
++
++Measured at `LoxyBee/EQLS-Auras@3a4d119c`, 3 Sep 2026:
++
++| | |
++|---|---|
++| **The roster the app actually loads** | `src/shared/data/buffs.json` — **1,067 entries** |
++| **Loaded at** | `src/main/buffStore.js:43` |
++| **The 11,337 file** | `archive/buffs-legacy-11337.json` — referenced by **no shipped code** |
++| **Is it even installed?** | **No.** `build.files` is `['src/**/*','package.json','build/icon.ico','LICENSE']` — `archive/` is not in it, so the file is not inside the installer |
++| **Does the About page state 3,300?** | **No. It states no roster count at all.** `~3300` is a code comment at `buffStore.js:285` |
++
++**They are not the same kind of artefact.** The archive is a landing-text roster
++(`landingText`, `othersLandingSuffix`, `durationSec`); the live file is a spell
++catalogue (`spellId`, `kind`, `category`, `classes`, `manaCost`). One did not
++shrink into the other.
++
++**The printable figure is 1,067**, and the reason the original advice was sound
++even though its number was not: **print it from the data at build time rather
++than typing it beside the copy.** A figure typed by hand is a figure that goes
++stale silently, which is exactly what happened here.
++
++Also true and safe: **1,051 of the 1,067 carry a real game icon id**, and
++`buff-lines.json` holds **53 stacking slots, 55 upgrade ladders, 14 blocked
++pairs**.
+diff --git a/docs/auras/CLAIMS.md b/docs/auras/CLAIMS.md
+index b93466a..480b562 100644
+--- a/docs/auras/CLAIMS.md
++++ b/docs/auras/CLAIMS.md
+@@ -3,6 +3,16 @@
+ Every factual assertion in the band copy, and what backs it. For the Director to
+ adjudicate before it ships.
+ 
++> **⚠ RE-READ 3 September 2026 against `LoxyBee/EQLS-Auras@3a4d119c` (version
++> 1.0.0). Two claims below went stale, and both went stale in the direction that
++> flatters the tool — see §5 and §9.** That direction is the finding: a staleness
++> that makes a product look worse gets caught by whoever is proud of it; one that
++> makes it look cleaner has nobody hunting for it.
++>
++> **The original read was against a delivered zip; this one is against the live
++> repository at a named ref.** A zip cannot be re-read by anyone else — which is
++> why the corrections below name a commit instead.
++
+ Line references are to the Auras project source as delivered in `EQ tracker.zip`
+ (`EQ Buff Tracker`, version 0.1.0), read 18 August 2026. Video references are to
+ `EQ AURAS BURST.mp4` as delivered.
+@@ -50,7 +60,18 @@ first-party source: `ReadProcessMemory`, `WriteProcessMemory`, `OpenProcess`,
+ `VirtualAlloc`, `CreateRemoteThread`, `LoadLibrary`, `SetWindowsHookEx`,
+ `SendInput`, `keybd_event`, `mouse_event`, `node-ffi`, `ffi-napi`, `memoryjs`,
+ `robotjs`, `iohook`, `nut-js`, DLL loading, native `.node` bindings, `node-gyp`,
+-`desktopCapturer`, `globalShortcut`.
++`desktopCapturer`, ~~`globalShortcut`~~.
++
++> **⚠ CORRECTED 3 Sep 2026: `globalShortcut` is now PRESENT** at
++> `src/main/main.js:182-193`, and it is on this list as absent. **The claim it
++> supports nevertheless survives, and the reason is the point:** it registers a
++> *hide-auras* hotkey — **it receives a key press, it never sends one.** Sending
++> input to the game would be `SendInput` / `keybd_event` / `mouse_event`, and all
++> three remain absent. **So "does not send it input" is still true.**
++>
++> Kept here with its reason rather than quietly deleted, because a correction that
++> drops the reason invites the next reader to re-open it. Every other token on this
++> list was re-run against `3a4d119c` and remains absent.
+ 
+ It is also structurally hard for any of those to be present: `package.json:11-14`
+ declares **no runtime dependencies at all**, only `electron` and
+@@ -76,10 +97,32 @@ Zero matches under `src/` for `fetch`, `axios`, the `http` and `https` modules,
+ `XMLHttpRequest`, `WebSocket`, `net`, `dgram`, `autoUpdater`, `electron-updater`,
+ `telemetry`, `analytics`, `sentry`, `posthog`, `mixpanel`, `crashReporter`.
+ 
+-Stronger than that: a search of the entire `src/` tree — including the
++> **⚠ CORRECTED 3 Sep 2026. The sentence below is FALSE as of `3a4d119c`, and it
++> was false within hours of being written.** The font link landed **18 Aug at
++> 12:11** in `1fe8fb49` — the same day this file was written, shortly after.
++>
++> **There ARE URLs in the shipped source.** `src/renderer/main-window/index.html`
++> lines 19–21 preconnect to `fonts.googleapis.com` and `fonts.gstatic.com` and
++> fetch Poppins as a stylesheet. **So the main window discloses the user's IP to
++> Google at launch.**
++>
++> **The precision matters and `public/auras.html:111` already has it right:** nine
++> renderer windows *permit* Google Fonts in their CSP; **exactly one *requests* it.**
++> Permitting and requesting are different facts and only one of them discloses an
++> IP. The overlay drawn over the game requests nothing at all. **No change to
++> `auras.html` is needed — it is the accurate page.**
++>
++> **What survives unchanged, re-run against `3a4d119c` rather than inherited:**
++> `fetch`, `XMLHttpRequest`, `WebSocket`, the `http`/`https` modules, `autoUpdater`,
++> `electron-updater`, `telemetry`, `analytics`, `sentry`, `crashReporter` are **all
++> still absent**, and renderer CSP sets `connect-src 'none'`. **"No telemetry, no
++> analytics, no update check" is still true.** Only "makes no network requests of
++> its own" is not, and it has been struck from the band copy.
++
++~~Stronger than that: a search of the entire `src/` tree — including the
+ 86,511-line bundled buff roster — for `http://`, `https://`, `www.`, `.com`,
+ `.net`, `.org` and `ws://` returns **nothing**. There is not one URL in the
+-shipped source. All three window types run `contextIsolation: true`,
++shipped source.~~ All three window types run `contextIsolation: true`,
+ `nodeIntegration: false`, `sandbox: true`. Widget sharing is an offline
+ `EQBT2-` string the user copies to their clipboard, not a service
+ (`src/main/widgetStore.js:225`, `:516-526`).
+@@ -167,21 +210,54 @@ is honest, because it claims an intention rather than an event.
+ 
+ ## Not in the copy, and why
+ 
+-**No licence.** There is no LICENSE file, no `license` field, and
+-`"private": true` (`package.json:6`). The first-party code is unlicensed — all
+-rights reserved by default. **Do not describe it as open source, free, or
+-redistributable anywhere.** The site withdrew an unsourceable licence claim
+-about eqlwiki this week; this is the same shape of mistake waiting to happen.
+-
+-**No roster figure.** The bundled data file holds 11,337 buff entries, 11,190 of
+-them with landing text. The app's own About page says roughly 3,300 and is stale
+-by more than a factor of three. It is a good figure and it is deliberately
+-absent here: a number like that should be printed from the data at build time,
+-not typed beside it, and the band has no build step of its own. Worth telling
+-the author their About page understates their work threefold.
+-
+-**No feature that is only planned.** Sound is synthesised tones, not sound
+-files; user-supplied audio, the dispel notification and the bard-song widget are
+-unbuilt, with disabled placeholders visible in the app. The band claims none of
++**Licence. ⚠ CORRECTED 3 Sep 2026 — this reversed, and the old text forbids
++something now permitted.**
++
++~~There is no LICENSE file, no `license` field... Do not describe it as open
++source, free, or redistributable anywhere.~~
++
++At `3a4d119c` there **is** a `LICENSE` file — **MIT** — and `package.json`
++carries `"license": "MIT"`. It is also in `build.files`, so it ships with the
++installer. **The code is MIT licensed: open source, and redistributable under
++those terms.**
++
++`"private": true` is still set, but that is npm's publish guard, not a statement
++about rights, and it was doing no work in the original conclusion.
++
++**The band's "Free." is safe on both readings** — free of charge, and now free as
++in licence. The original caution was right for 18 August and would be wrong to
++carry forward.
++
++**No roster figure. ⚠ CORRECTED 3 Sep 2026 — every number in the struck text
++below is wrong, and so is the direction of the error.**
++
++~~The bundled data file holds 11,337 buff entries... the About page understates
++their work threefold.~~
++
++At `3a4d119c`: the roster the app loads is `src/shared/data/buffs.json`,
++**1,067 entries**, loaded at `src/main/buffStore.js:43`. The 11,337 file is
++`archive/buffs-legacy-11337.json`, referenced by **no shipped code** and **not
++inside the installer** — `build.files` is
++`['src/**/*','package.json','build/icon.ico','LICENSE']` and `archive/` is not in
++it. **And the About page states no roster count at all**; `~3300` is a code
++comment at `buffStore.js:285`.
++
++**So the advice inverted: the figure did not understate the work threefold, it
++overstated it by 10.6×.** The original reasoning was still right — print it from
++the data at build time rather than typing it beside the copy. **A hand-typed
++figure goes stale silently, which is what happened here.** The printable figure
++is **1,067**.
++
++**No feature that is only planned. ⚠ PARTLY CORRECTED 3 Sep 2026 — sound
++shipped.**
++
++~~Sound is synthesised tones, not sound files; user-supplied audio... unbuilt.~~
++At `3a4d119c` the installer ships **15 real audio files** under `sounds/` (via
++`build.extraFiles`), and `docs/HIGHLIGHTS.md` lists user-supplied audio as built:
++*"Use your own sound files. Any audio file on your PC."* **The band's "15 sounds"
++is counted from the shipped directory, not from that claim.**
++
++The dispel notification and bard-song widget were **not** re-checked; treat them
++as unverified rather than as still-unbuilt. The band claims none of
+ them. Two controls in the tutorial video are visibly labelled "planned", which
+ is a reason not to cut promotional stills from the settings screens.
