@@ -1,0 +1,63 @@
+<!-- ══════════════════════════════════════════════════════════════════════════════════════════
+     =AURAS LAUNCH BAND  —  built by Session C, 3 Sep 2026, for Session A to land.
+
+     PLACEMENT: immediately after </section> of the hero, BEFORE <section class="band doors">.
+     That is currently index.html line 98. The existing Auras band at line 134 is REPLACED by
+     this one — delete lines 134-187 rather than keeping both.
+
+     WHAT CHANGED AND WHY, so nobody restores the old version by accident:
+       - The old band's only call to action was "More about EQLS Auras". The product has been
+         released since 1 Sep and the home page carried no way to get it. This one downloads.
+       - The old band described one feature of nine. This one names six.
+       - The old band carried no figures while both neighbouring bands carry several.
+       - DO NOT restore "It makes no network requests of its own" from docs/auras/BAND-COPY.md.
+         It is false as of 18 Aug: src/renderer/main-window/index.html:21 fetches Poppins from
+         fonts.googleapis.com at launch. The three "no telemetry / no analytics / no update
+         check" clauses are still true and are kept. public/auras.html already discloses the
+         font fetch correctly; this band stays silent on it rather than contradicting it.
+     ══════════════════════════════════════════════════════════════════════════════════════ -->
+<section class="band feat" id="auras" style="--c:var(--instr)">
+  <div class="shell">
+    <div class="featwrap">
+      <div class="featgrid">
+        <figure class="feattrailer" id="auwrap"
+                data-video="assets/media/auras-trailer.5fc3fbbc.mp4"
+                data-poster="assets/media/auras-poster.5c861299.jpg">
+          <img src="assets/media/auras-poster.5c861299.jpg" width="1600" height="900"
+               alt="The EQLS Auras overlay running over the game, buff icons across the top
+                    of the screen each counting down its own remaining time.">
+          <button class="vplay" type="button">Play</button>
+          <figcaption><span>The overlay in play &middot; 9s, silent</span></figcaption>
+        </figure>
+        <div>
+          <p class="eyebrow">Out now &middot; <b>version 1.0</b></p>
+          <h2 class="feath">EQLS Auras</h2>
+
+          <p class="featlede">Stop alt-tabbing to check your buffs. EQLS Auras reads your
+            EverQuest Legends log and shows a countdown overlay on top of the game.</p>
+
+          <p class="featsub">Add overlays and put them where you want. Point an aura at any line
+            in your log, not just buffs the app knows. It shows what you have landed on each
+            groupmate, skins your action bar, routes you across the map, and tracks the weekly
+            raid lockouts EQ never prints. One key hides the lot.</p>
+
+          <p class="featsub">It reads files the client already has: the log it writes as you
+            play, your spellbook, and the game&rsquo;s own spell icons. It does not read or alter
+            the game&rsquo;s memory, inject code into it, or send it input. No telemetry, no
+            analytics, no update check.</p>
+
+          <p class="hero-sig featsig"><span>1,067 spells known</span><span>53 stacking slots</span><span>100+ zones routed</span><span>15 sounds included</span></p>
+
+          <div class="featdoors">
+            <a class="featdoor lead" href="https://github.com/LoxyBee/EQLS-Auras/releases/download/latest-dev/EQLS-Auras-Setup.exe">Download for Windows &middot; 79.1 MB &rarr;</a>
+            <a class="featdoor" href="auras">What it does &rarr;</a>
+          </div>
+
+          <p class="featfoot">Free. It finds your EverQuest install on its own. Windows
+            SmartScreen warns about an unknown publisher &mdash; <b>More info</b>, then
+            <b>Run anyway</b>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
