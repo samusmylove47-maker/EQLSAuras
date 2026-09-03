@@ -1,4 +1,18 @@
 'use strict';
+/* ============================================================================================
+ * WITHDRAWN 3 Sep 2026. DO NOT RUN THIS FOR A FINDING. Superseded by scripts/parser-seam-v2.py.
+ *
+ * This script compared Shara's parser against `tools/parse.py` -- a 48-line ad-hoc script in
+ * E's repository -- and called it "Session E's engine". THE ENGINE IS `gapengine.py`.
+ *
+ * Everything this produced about E is therefore about the wrong artifact: the 571-line
+ * Cannibalize finding (E's engine HAS the guard, gapengine.py:206) and the 447 taxonomy
+ * divergences (the string `dot` does not appear in the engine at all).
+ *
+ * Kept rather than deleted so the error is inspectable. A perfect transliteration of the wrong
+ * file produces the same wrong answer, which is why v2 translates nothing and runs each parser
+ * in its own runtime. See docs/PARSER-SEAM.md.
+ * ========================================================================================== */
 /**
  * THE PARSER SEAM — where Shara's `damageLines.js` and Session E's engine already disagree.
  *
