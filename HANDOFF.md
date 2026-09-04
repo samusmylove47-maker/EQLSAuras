@@ -3161,3 +3161,124 @@ right handling. **Say when there is something to check and I will take it.**
 *Session C, 4 September. Everything above measured at `eql-source@2b830680`,
 `LoxyBee/EQLS-Auras@ff3fccf9` and `sky-ledger@1a6654f7`, read-only. I have not written to Shara's
 repository and will not.*
+
+---
+
+### 26. `session-c/feat-lockouts-wip` — UNHARVESTED, not abandoned, and the 141 is the wrong number
+
+**Answering the three questions asked. Short version: four test guards exist nowhere else, none of
+them belongs to D, and the branch is a fork of Shara's application rather than lockouts work.**
+
+#### 0. THE PREMISE NEEDS CORRECTING FIRST, BECAUSE IT CHANGES THE ANSWER
+
+**`git merge-base main session-c/feat-lockouts-wip` returns EMPTY. The branch shares no history
+with `main` at all.** It is not 141 commits of work sitting on top of my repo — **it is a fork of
+Shara's application tree** (`src/main/buffEngine.js`, `sounds/`, `package.json`,
+`docs/HIGHLIGHTS.md`, `archive/buffs-legacy-11337.json`) that happens to live on a branch of mine.
+
+**So "141 commits unmerged" is measured against a tree it was never going to merge into.** Measured
+against the tree the content actually belongs to:
+
+```
+commits on the branch not in LoxyBee master :  4
+                     ... not in my main     : 141   (unrelated history, no merge base)
+```
+
+**Four. The other 137 are Shara's own commits.** The reading "it looks like lockouts work, lockouts
+belong to D" is understandable and it is wrong in both halves.
+
+#### 1. IS THERE ANYTHING NOBODY ELSE HAS? **YES — FOUR GUARDS, AND THE IMPLEMENTATION THEY GUARD IS ALREADY SHIPPED WITHOUT THEM**
+
+The four commits are 30 August, ~200 insertions across four files, and they are all one theme:
+
+```
+03bf9ac4  Three tests that passed against an inert splitter, and a guard measured by comment length
+086c15d9  A guard satisfied by its own comment is not a guard
+28feac27  Carry D's anti-constant ratchet across, and one of my own guards was asserting nothing
+c3d0a0f0  This file claimed "measured" for a number the vendored module calls "stated"
+
+  src/main/logRotation.js   +32
+  test/lockouts.test.js     +75
+  test/log-rotation.test.js +29
+  test/log-splitter.test.js +77
+```
+
+**The finding that decides the question:**
+
+```
+RESET_RULE  in Shara's src/   : 2 files      <- the implementation IS absorbed
+RESET_RULE  in Shara's test/  : 0 files      <- the guards on it are NOT
+RESET_RULE  in my branch test/: 2 files
+```
+
+**She shipped the rule and did not ship the tests that hold it to being the only one.** That is the
+unharvested part, stated exactly.
+
+Six test names were added by those commits. Checked across her **whole** tree and D's, with a
+working control on each side (her `test/` has 120 files and matches on known strings; D matches
+`RESET_RULE` in 13 files — so the zeros below are real zeros, not missing-path zeros):
+
+| guard | Shara | D |
+|---|---|---|
+| `NO RESET CONSTANT ANYWHERE EXCEPT RESET_RULE` | absent | **present** |
+| `RESET RULE: the only permitted constant, wearing its provenance` | absent | **present** |
+| `the rotation never claims a stronger provenance than the core` | absent | absent |
+| `the same batching with a broken format still raises, so the reset is not…` | absent | absent |
+| `the same log with the unstamped rate above the threshold does raise` | absent | absent |
+| `the same rate over enough lines is enough to accuse the parser` | absent | absent |
+
+**The two D already has are D's own** — commit `28feac27` says so in its title, *"Carry D's
+anti-constant ratchet across"*. **I imported them from D; D does not need them back.**
+
+**The four remaining exist in neither tree.** They are log-rotation and splitter guards, not lockout
+reset guards: they catch a splitter that passes while inert, a provenance claim stronger than its
+source, and a parser-accusation threshold that fires on rate without regard to volume.
+
+#### 2. DEAD OR NOT? **NOT DEAD — AND "UNHARVESTED" IS the right word, for a specific reason**
+
+**The value is not the lockout feature; that shipped.** The value is four tests whose entire subject
+is *a test that passes while the thing under it does nothing*. **That is the failure shape this
+fellowship has hit repeatedly and independently** — my own seam harness printed `NONE` when it was
+structurally incapable of failing in one direction, and printed `Shara events: 0` when a line-ending
+rewrite had silenced her parser. **Both were caught by a guard that asserts the instrument did
+something, which is exactly what these four commits are.**
+
+**So: park it, do not delete it, and record it as a decision.** I am not asking to merge it anywhere
+— it cannot merge into `main` (no shared history) and Shara's repo is hers.
+
+#### 3. DOES ANY OF IT BELONG TO D? **NO, AND I WOULD NOT ROUTE IT THERE**
+
+**D already has the only two guards that touch D's concept, and they were D's to begin with.** The
+other four are guards on **Shara's log rotation and splitter**, which is her feature in her tree.
+**They go to the owner if they go anywhere, on the standing rule that everything reaching Shara goes
+through the owner.**
+
+**If D is rebuilding its lockout model and wants a measurement rather than a repeat, the thing worth
+having is not these tests — it is the shape underneath them:** *a guard satisfied by its own comment
+is not a guard, and a test that cannot fail is not evidence.* **D derived that independently before
+I did; the ratchet I carried across was D's.**
+
+---
+
+#### 4. THE `dot` LABEL IS NOT AN OPEN QUESTION — IT WAS IDENTIFIED ON 3 SEPTEMBER
+
+**The third party is `tools/parse.py:32` in E's own repository**, and the label was emitted by **my
+transliteration of it**, not by anything of E's:
+
+```
+sky-ledger tools/parse.py:32   ev.append((t,'dot:'+m.group(3), ...))
+sky-ledger gapengine.py        occurrences of the string "dot": 0
+```
+
+**So the 447 comparison was between Shara's parser and a 48-line ad-hoc script in E's repo that
+neither party ships** — the same wrong artifact that produced the Cannibalize error, producing the
+second finding in the same run. **Both v1 findings have one cause, not two.** It is in the
+withdrawal commit `450f2d67` and in `docs/PARSER-SEAM.md`. **Nothing further is open on it.**
+
+**On the fidelity law: I would not file this under it.** The law is true, but a perfect
+transliteration of `tools/parse.py` would have produced both wrong findings anyway. **The error was
+that I never established that the file I measured was the file I named** — which is upstream of how
+faithfully I copied it, and is mine rather than yours.
+
+*Session C, 4 September. Measured at `EQLSAuras@03bf9ac4`, `LoxyBee/EQLS-Auras@ff3fccf9`,
+`EQLSLockouts@3efd2fac`, read-only.*
