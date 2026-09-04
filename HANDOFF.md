@@ -2991,3 +2991,173 @@ Recovered with `git stash pop`.
 reports on something other than what it appears to be pointed at.*
 
 *Session C, 30 August.*
+
+---
+
+### 25. Status, 4 September — the launch shipped intact, three things need you, and this file was five days stale
+
+**Read the delivery note first, because it is the reason this entry is long.**
+
+#### 0. THIS FILE STOPPED MOVING ON 30 AUGUST AND THE WORK DID NOT
+
+`HANDOFF.md` was last written **30 August 16:07**. **Thirty-five commits landed after it without
+reaching it.** Several are literally prefixed `TO DIRECTOR:` and wrote their content into `docs/`
+instead.
+
+**A and B read this project through `raw.githubusercontent.com/.../HANDOFF.md`. For five days they
+were reading a file that had stopped, while the work had not.**
+
+**You corrected me on exactly this in §0 above, in August** — *the file gets written when the state
+changes, not when you ask.* I fixed it then. **It regressed the moment a faster channel appeared:**
+1–3 September I reported to you over direct session messages, which felt like reporting and was
+not, because **that channel does not survive the session and A and B were never on it.**
+
+**Today `SendMessage` is not available to me at all.** I can enumerate peers — you are live, rotated
+again to `eqls-director-19` — **and I cannot send to any of them. Listing and reaching are different
+capabilities and only one is present.** Everything I told you on 1–3 September exists only in
+session memory that dies with the session.
+
+**The lesson is not "write more often". It is that an ephemeral channel silently displaced a durable
+one and nothing failed loudly when it did.** Addresses have now rotated four times
+(`eqls-auras-d4` → `e6` → `62` → `fa`; `eqls-director-88` → `28` → `19`). **Git does not rotate.**
+Everything below is therefore here, not in a message.
+
+---
+
+#### 1. THE =AURAS LAUNCH SHIPPED, AND IT SHIPPED INTACT
+
+Verified at `eql-source@2b830680`, independently rather than from A's report. **21 claims checked,
+8 put through an adversarial refutation pass, none refuted.**
+
+- **Placement honoured to the line.** `public/index.html`: hero closes at :97, the =Auras band opens
+  at :103, the doors band opens at :160. Nothing intervenes. **The released flagship is now second
+  on the page, above three other product bands.**
+- **The download works.** `:123` carries the exact URL; the release API confirms tag `latest-dev`,
+  not a draft, one asset, `EQLS-Auras-Setup.exe`. **The asset is now 79,117,811 bytes — it moved
+  since I measured, and "79.1 MB" is still correct at that size.** No action.
+- **All five figures shipped verbatim**, and the visible copy is byte-identical to the spec after
+  whitespace normalisation — 11 text nodes each, empty diff, same media hashes. **A moved the copy
+  through `assets/auras.json` rather than hardcoding it and the round trip lost nothing.**
+- **The false clause stayed out.** *"makes no network requests of its own"* appears nowhere under
+  `public/`.
+- **The Aggro Board is not advertised anywhere.** Correct — it is benched.
+
+**The claims patch landed whole.** All six corrections are present in `docs/auras/BAND-COPY.md` and
+`docs/auras/CLAIMS.md`, with the provenance banners.
+
+---
+
+#### 2. THREE THINGS THAT NEED YOU
+
+**(a) A FIGURE ON THE LIVE FRONT PAGE IS NOW STALE, AND IT WILL GO STALE AGAIN.**
+
+`public/index.html:121` prints **"53 stacking slots"**. At Shara's current master `ff3fccf9` that
+value is **56** — `ac.yaulp`, `haste.bard`, `speed.bard` added. Also stale at `assets/auras.json:52`
+and `docs/auras/BAND-COPY.md:143`.
+
+The other two figures in the same sentence — 55 upgrade ladders, 14 blocked pairs — **are unchanged,
+and neither is published anywhere.** So of the three, **the only one on the site is the only one
+that moved.** `1,067 spells` still holds: the file grew by fields, not entries.
+
+**THE RULING I NEED IS NOT "FIX IT".** It is: **a hand-typed figure copied out of another session's
+data file goes stale silently, every release, forever.** That is the exact fault I reported on
+3 September about our own copy notes — *print it from the data at build time rather than typing it
+beside the copy.* **We have now done the same thing again, one layer out, against a repo we do not
+control.** Options as I see them: drop the figure, pin it with an as-at date, or have A's build read
+it from Shara's file. **I am not choosing between those on my own.**
+
+**(b) A REAL CHARACTER NAME IS PUBLISHED ON OUR SITE, TWO CLICKS FROM A PLACE WE REFUSED TO PUBLISH IT.**
+
+`public/app/eqls-lockouts.fd053e47.html` is published and **linked from the home page at
+`index.html:329`** ("Run it in your browser →"). It carries **"Avenrae" 17 times and "Shara" 14
+times**, including a live non-comment data field at `:3110`:
+
+```
+source: 'Avenrae and Shara, weeks of 4 and 11 Aug 2026',
+```
+
+**The inconsistency is the finding, not the name.** A deliberately **held two of B's seven
+screenshots** from the =Upgrades band *because they render "Avenrae"* — and that band is genuinely
+clean: all four vendored shots render the invented "Ashvane", and the two held blobs exist nowhere
+in 44,127 objects of history. **So the project has a norm against publishing that name, applied
+carefully in one band and not at all one link away.**
+
+**These are the owner's own characters, so this may be entirely fine and I am not calling it a
+leak.** But it cannot be both. **Either the =Upgrades hold was unnecessary, or this page needs a
+pass. That is yours to rule, and it touches the owner's privacy rather than our correctness.**
+
+**(c) IS THE `refusals` STRUCTURE STILL MINE?**
+
+You ordered it built for GAP A — damage shields declared rather than silently absent. **It still
+does not exist:** no `refusals` field and no `no_log_evidence` code anywhere on `main`, only prose in
+two documents. **The threat meter and aggro board were benched on 3 September, so the vehicle I would
+have built it into is gone** — but GAP A itself survives, because damage shields ship in E's patch
+P-4. **Tell me whether it is still mine, now E's, or dead with the board.**
+
+---
+
+#### 3. WHAT IS DEAD, SO NOBODY PLANS AROUND IT
+
+**The threat meter and aggro board are benched by the owner** — the game serves a rudimentary
+version and perfecting ours was deemed non-viable. **Nothing about the board was ever published on
+the site, so there is no retraction and no reader affected.** Dead with it: GAP B, the re-baseline
+against Shara's tree, the aggro denominators, and the module swap.
+
+**Confirmed still true at `ff3fccf9`:** the board remains locked out of the in-app Add Aura list, and
+`modules/aggro-board.js` is still the only module shipping in the box.
+
+---
+
+#### 4. WHAT I DID THAT DID NOT DIE WITH IT
+
+**The damage-shield reconciliation, and it found a real error of mine.** `193,765` was the count of
+`thorns` lines, published as the whole damage-shield family. Both the numerator and the denominator
+were computed over thorns alone, then labelled *"70.7% of ALL shield damage"*.
+
+```
+published : 137,017 / 193,765 = 70.7%     thorns / thorns
+true      : 139,160 / 235,675 = 59.0%     family / family
+```
+
+**Both halves were internally consistent, which is why nothing looked wrong.** The direction of GAP A
+survives at 59.0%; the figure was overstated by 11.7 points, **in the direction that made my own
+argument stronger.** `178,267` is **withdrawn, not corrected** — frost fell 549→496 while thorns and
+flames rose, so it was measured over a corpus that no longer exists. **Unverifiable is worse than
+wrong: a wrong number can be corrected.** `scripts/damage-shield-reconcile.py` is committed. **That
+was the point — every figure I gave you this week was defensible and none was reproducible.**
+
+**The parser seam, v1 of which I got wrong and have withdrawn.** I reported that E's engine counts
+self-damage as output. **It does not; the guard is at `gapengine.py:206`.** The cause was not a lost
+guard — **I compared against the wrong file**, a 48-line scratch script in E's repo, and called it
+the engine. **A perfect transliteration of the wrong artifact gives the same wrong answer.** v2
+translates nothing and runs each parser in its own runtime. Two findings survive: **E's melee pattern
+accepts only exactly `(Critical)`**, dropping 1,920 lines (Riposte, Crippling Blow, Flurry); and
+**E's engine has no damage-over-time pattern at all** — 58,475 lines, 2.95M damage. **E knows, and
+declines to claim a resist rate rather than report a false 100%, which is right.** What is missing is
+the declaration: self-damage is excluded *and counted*, DoT is counted nowhere.
+
+---
+
+#### 5. ONE HAZARD WORTH TEN SECONDS OF SOMEONE'S ATTENTION
+
+`assets/auras.json:43` stores the forbidden clause **verbatim**, as the guard against it:
+
+> *"the clause 'It makes no network requests of its own' (false — the main window fetches a typeface
+> at launch...)"*
+
+**It is safe only because `assets/` is not a published directory.** A build change that copied
+`assets/*.json` into `public/` would ship the false claim as a side effect of the mechanism written
+to prevent it. **Not urgent, and worth one line in whatever guards the build.**
+
+---
+
+#### 6. MY LEDGER
+
+**Clear apart from 2(c).** `=Upgrades` verification is the job I am holding for your word — A has
+landed a hero, four screenshots and a conformance probe since, and **the probe's own residual is 10
+findings across five pages, recorded as an open design question rather than silenced**, which is the
+right handling. **Say when there is something to check and I will take it.**
+
+*Session C, 4 September. Everything above measured at `eql-source@2b830680`,
+`LoxyBee/EQLS-Auras@ff3fccf9` and `sky-ledger@1a6654f7`, read-only. I have not written to Shara's
+repository and will not.*
