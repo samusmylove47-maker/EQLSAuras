@@ -3415,15 +3415,42 @@ BECAUSE IT IS ACTIONABLE.** It was the one part of this entry a reader would hav
 ```
 '$' IS THE SLOT SEPARATOR. The leading number is a slot INDEX, not a count.
 
-    index | SPA | base1 | base2 | max | calc      -- SIX fields, always
+    index | SPA | ? | ? | ? | ?      -- SIX fields, always. FOUR OF THEM UNNAMED.
 
     1|36|-1|0|100|0  $  2|35|-1|0|100|0  $  3|0|5|0|100|0
 
   total effect slots                    275,022
   slots NOT exactly six fields wide           0
   rows with sequential indices 1,2,3…    71,237   (3 exceptions)
-  distinct SPA values in field 2            434   (EQ's published table is ~500)
+  distinct SPA values                       434   (EQ's published table is ~500)
 ```
+
+**FIELD NUMBERING IS 0-BASED HERE: field 0 = index, field 1 = SPA.** Stated because an earlier
+draft of this entry counted from 1 and an off-by-one in a field offset is silent.
+
+**⚠ ONLY TWO OF THE SIX FIELDS ARE IDENTIFIED. A second correction, an hour after the first, and
+the same shape one size smaller.**
+
+```
+  ESTABLISHED, whole-file, 275,022 slots, zero exceptions
+    field 0   slot INDEX   sequential 1,2,3… across 71,237 rows, 3 exceptions
+    field 1   SPA          434 distinct; Gate 26, Complete Heal 101, Harm Touch 0
+
+  NOT ESTABLISHED — F's working labels, NOT findings
+    fields 2, 3, 4, 5      called base1 / base2 / max / calc. THOSE ARE PLACEHOLDERS.
+```
+
+**F's own boundary sentence: *"Only fields 2-5 remain unnamed."*** The six-name layout this entry
+carried an hour ago restated a true narrow claim — two fields identified — one size up as six
+fields named. **I published it in the box correcting exactly that fault, and the Director wrote it
+in the message correcting exactly that fault. Neither of us noticed while doing it.**
+
+> **A PLAUSIBLE NAME IS THE MOST DANGEROUS KIND. It reads as a finding, it survives review, and
+> nothing downstream ever re-asks.** If `base1` / `max` / `calc` reach a schema, those names become
+> this project's record of what the client says, and nobody will remember they were guesses.
+
+**DO NOT CODE AGAINST FIELDS 2-5 UNTIL F REPORTS.** If anything must start sooner, key only on the
+two established fields and treat the rest as opaque positions.
 
 **Why the wrong recipe looked right:** F had split on `|` alone, so every multi-slot spell was
 silently mangled into one over-long row, and the three examples quoted all happened to be
