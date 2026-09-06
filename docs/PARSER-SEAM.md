@@ -212,7 +212,22 @@ transliteration of the instrument is the same error as measuring a transliterati
 **2. The guard I added to v2 would not have caught this.** `both sides produced events` was
 satisfied — v1 produced plenty of events, just from a quarter of the corpus. **A guard that asks
 "did the instrument do anything" does not ask "did it see everything."** The guard that catches
-this is printing **lines matched against lines read**, and v2 now does.
+this is printing **lines matched against lines read**.
+
+> **⚠ CORRECTED 6 Sep. This sentence originally ended "and v2 now does." IT DID NOT.** v2 counted
+> only `lines_total` and `inscope` — there was no matched counter anywhere in the file. **I
+> documented a guard I had not written, in the same paragraph where I criticised a tool for
+> reporting a partial read as the whole.** Caught by an adversarial pass over my own repo, not by
+> me. **The counter is now actually in `scripts/parser-seam-v2.py` and prints on every run.**
+>
+> **AND THE GUARD HAS A LIMIT I DID NOT STATE.** It catches the JavaScript failure mode, where the
+> stamp itself fails and the ratio collapses. **It does NOT catch the Python mode**, where `.`
+> matches `` so the stamp SUCCEEDS at 100% and the trailing `` rides inside the captured body
+> to break the `$`-anchored patterns downstream — a healthy-looking coverage block over a report
+> with no damage in it. **The guard has to sit at the layer that actually failed.** Session E built
+> both: a timestamp-layer coverage block, and a CRLF parity test that writes real `
+` bytes and
+> fails if either engine returns nothing.
 
 **3. v2 is unaffected, and NOT because I designed it that way.** Python's text-mode read performs
 universal-newline translation, so `'\r\n'` became `'\n'` before any pattern saw it. **That is an

@@ -126,12 +126,18 @@ def main():
     cell = Counter()
     example = {}
     self_seen = Counter()
-    lines_total = inscope = 0
+    lines_total = inscope = stamped = 0
     e_events = s_events = 0
 
     for f in files:
         raw = open(f, 'r', encoding='latin-1').read().split('\n')
         lines_total += len(raw)
+        # THE GUARD. Counted here because docs/PARSER-SEAM.md claimed this file had
+        # it and it did not -- caught 6 Sep by an adversarial pass over my own repo.
+        # A matched-vs-read ratio distinguishes "the instrument read everything" from
+        # "it read a quarter and reported the survivors as the whole", which is the
+        # defect that quartered v1. A did-it-produce-output guard cannot.
+        stamped += sum(1 for ln in raw if ln and STAMP.match(ln))
 
         src = os.path.join(tmpdir, 'in.txt')
         dst = os.path.join(tmpdir, 'out.txt')
@@ -197,6 +203,9 @@ def main():
                 example.setdefault(key, s_body.get(k, str(k)))
 
     print('\nLINES READ            : %d' % lines_total)
+    print('LINES STAMP-MATCHED   : %d   (%.1f%%)   a low ratio means the instrument is'
+          % (stamped, 100.0 * stamped / lines_total if lines_total else 0))
+    print('                                        silently reading part of the corpus')
     print('IN-SCOPE FIRST-PERSON : %d' % inscope)
     print('\n=== BOTH SIDES PRODUCED EVENTS? (a zero here makes any NONE below meaningless) ===')
     print('  Shara events : %d' % s_events)
