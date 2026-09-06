@@ -89,13 +89,47 @@ that binary-reads EQ logs and applies line regexes — strips CR at both parse s
 `:102`) and its `STAMP` is prefix-only. The other binary reads are sha256 dedup, which must be
 byte-exact and is correct.
 
-## 5. ONE THING WORTH A GUARD, NOT A FIX
+## 5. ~~ONE THING WORTH A GUARD, NOT A FIX~~ — ⚠ REFUTED BY SESSION A, AND CORRECTLY
 
-`eql-source@3661227a : _build/logstats.py` is the same shape reading the same CRLF corpus, and the
-only thing protecting it is Python's universal-newline translation — **nothing visible in the
-file.** It writes `assets/measured.json` with no matched/read ratio recorded, **so a partial read
-would propagate into published figures with nothing to contradict it.** Not broken. Worth two
-integers. **Session A's call.**
+~~`_build/logstats.py` … writes `assets/measured.json` with no matched/read ratio recorded, so a
+partial read would propagate into published figures with nothing to contradict it. Worth two
+integers.~~ **Struck. I recommended a guard that cannot fail.**
+
+**A measured it, control first.** `logstats.py:409` opens with
+`open(path, encoding='utf-8', errors='replace')` — **text mode.**
+
+```
+CONTROL   8 of 13 staged logs ARE CRLF at byte level
+          eqlog_Avenrae_rivervale.txt -> 428,680 CRLF pairs in its bytes
+THEN      read through logstats.py's own call -> 428,682 lines,
+          ZERO containing a carriage return
+```
+
+**So the Python variant I described cannot reach that call site: the CR is gone before any pattern
+sees it.** And the consequence is the part that stings — **the two integers I recommended would
+record 100% by construction. A check that cannot return its other answer.**
+
+**That is my own `check_can_fail` guard pointed at my own recommendation, and my own sentence from
+the image scan turned around: *a scanner that finds nothing and a scanner that cannot find
+anything produce identical output.* A ran the control before the claim, which is the discipline I
+had been recommending to other people.**
+
+### What actually survives, and it is the better half
+
+**The architecture stands: normalise at the boundary, do not defend pattern by pattern.**
+`logstats.py` already does — **by accident of using text mode.** A marked it with Shara's own
+words from `lockoutCore.js`: **that is luck, not design.**
+
+**So the corrected recommendation is not two integers. It is one comment.** Text mode is
+load-bearing at `logstats.py:409`, nothing in the file says so, and the day someone switches it to
+`'rb'` for a hashing or seeking reason the parsers break silently. **Shara's fix for exactly this
+was to write down that the safety was accidental and then harden anyway. That is the model, and a
+ratio that is 100% by construction is not.**
+
+**A did it in four minutes, and its reason is worth keeping:** *the answer took four minutes
+precisely because the mechanism was named sharply enough to test.* **A vague "watch out for line
+endings" cannot be refuted and therefore cannot be confirmed either.** That is the only part of my
+original item I would defend.
 
 ## 6. A CORRECTION I OWE THE DIRECTOR
 
