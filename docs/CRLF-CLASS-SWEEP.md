@@ -8,15 +8,17 @@ all of them are noise — which is itself the finding.**
 
 ## THE SHORT VERSION
 
-**Nothing in the estate is shipping wrong. The two real defects are both mine, both already known,
-and one of them is a claim in my own documentation rather than in any code.**
+**Nothing in the estate is shipping wrong. The real defects are all mine, and NONE of them is in
+code that reads a log** — one was a claim in my own documentation that a guard existed, and one was
+a recommendation for a guard that could not have failed. **Both were caught by other sessions
+measuring my claims, not by me.**
 
 | repo | candidates | verdict |
 |---|---|---|
 | **loxy** — Shara's shipped app | 133 | **CLEAN**, three independent correct handlings |
 | **sky** — Session E | 6 | **CLEAN**, and the fix propagated beyond the engine |
 | **lockouts** — Session D | 53 | clean on the log path |
-| **src** — Session A, site + build | 10 | clean; one shape worth a guard |
+| **src** — Session A, site + build | 10 | **CLEAN** — A measured it; my one flagged shape was refuted, see §5 |
 | **ups** — Session B | 129 | clean; browser app, patterns never meet a file |
 | **origin** — mine | 39 | **the only real instance, withdrawn 3 Sep** |
 
