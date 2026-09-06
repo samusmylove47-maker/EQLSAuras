@@ -3292,8 +3292,31 @@ cleared images in `handoff/release-images/`.** Measured at `LoxyBee/EQLS-Auras@8
 
 **NO VIDEOS EXIST.** Not on master, not on any branch, not as a release asset, no LFS. Her
 `## Videos` section names three and none was captured. **And the screenshots are not new** — they
-landed 3 Sep at `42c50c66`, before `ff3fccf9`, so they were there yesterday and I missed them
-because that sweep did not re-enumerate media. **Version 1.1.0 also landed 3 Sep.**
+landed 3 Sep at `42c50c66`, and version 1.1.0 at `73cbf3ce`, both before `ff3fccf9`. **So nothing
+here should be framed as "just shipped".**
+
+> **⚠ SELF-CORRECTION WITHDRAWN, 5 Sep.** This entry originally added *"so they were there
+> yesterday and I missed them because that sweep did not re-enumerate media."* **That was wrong,
+> and it was wrong in the direction of blaming myself, which is the direction nobody audits.**
+>
+> **Two separate reports, and I conflated them:**
+>
+> ```
+> my "repo has no promo media" report   932d6b53   3 Sep 14:53:37
+> version bump                          73cbf3ce   3 Sep 16:10:45   +1h 17m
+> the seven screenshots                 42c50c66   3 Sep 19:05:12   +4h 12m
+> ```
+>
+> **The 3 Sep report was TRUE WHEN MADE — the images did not exist for another four hours.**
+>
+> **And yesterday's sweep never claimed otherwise.** Entry 25 mentions media three times and all
+> three are about something else: the band's trailer hashes, Session B's =Upgrades shots, and A's
+> =Upgrades work. **Her release-images were not in that sweep's scope, so it neither found nor
+> missed them.** I asserted a miss against a claim I had never made.
+>
+> **A correction is a claim and needs the same check as the claim it corrects.** I published this
+> one without checking the timestamps, because taking responsibility feels like rigour and reads
+> like it too.
 
 **Four defects on the live page, and the first is mine.** `1,067 spells known` → **1,066** (the
 loader drops one entry over 18000s; I published the raw file count and labelled it as what the app
