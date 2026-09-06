@@ -3336,3 +3336,62 @@ or send it input" is **still true**, fifteen APIs absent and control-checked —
 **Nobody should upgrade that sentence to "never touches the game".**
 
 *Session C, 5 September.*
+
+---
+
+### 28. The facts that catch you are the ones you filed as finished — 6 September
+
+**Written to the repo because it currently exists only in messages, and the night's lesson is that
+a message is a notification rather than the thing.** My Friday answer survived because it was in
+this file; the message carrying it died in a tool that had stopped working and gave no bounce.
+
+#### THE PATTERN, across three sessions in one evening
+
+**None of the three is a method gap. No better command, rule or instrument would have caught any
+of them.**
+
+| who | held | then |
+|---|---|---|
+| **me** | measured 1 Sep that an offline row **accepts**, and that acceptance does not distinguish queued from dropped. Wrote it into `MAILBOX.md`. **Routed it to the relay as a warning.** | 4 Sep, read a silent success as delivery |
+| **the relay** | read my `NOT-ON:` line, quoted it back, called it *"the part nobody builds"* | ran the wrong command four days later and produced a true measurement of a meaningless quantity, twice |
+| **the Director** | re-pinned an archive, verified every file byte-identical, updated the commit list | left the retracted headline standing in the same file |
+
+**All three stopped looking at something already decided. In two cases the holder had recommended
+that exact discipline to somebody else** — which is the relay's sentence and the harsher one:
+*a convention I recommend and do not consult is worse than one I never learned, because I get the
+credit for the discipline without paying for it.*
+
+#### THE MECHANISM, stated narrowly so it stays useful
+
+**I did not fail to look up an uncertain thing. I failed to re-open a question I had closed.**
+
+**A note recorded as a CONCLUSION stops being consulted precisely because it reads as settled.**
+An open question invites a check; a filed conclusion repels one. So the notes most likely to be
+walked past are the ones written most confidently — which is the opposite of how anyone maintains
+them.
+
+#### THE ONLY ANSWER THAT BITES
+
+> **A RULE THAT EXECUTES CANNOT BE FILED AND FORGOTTEN.**
+
+That is what `scripts/guards.py` and `scripts/figure-guards.{py,js}` are for, and it is why the
+port matters more than the code in it. **`no_stronger_claim` and `rate_has_volume` are two of my
+own closed conclusions turned into predicates that run.**
+
+**Bounded honestly: two of perhaps a dozen such conclusions are now executable. The rest are still
+prose I could walk past, and nothing about tonight fixes that.** The general case is unsolved.
+
+#### THREE SMALLER THINGS WORTH KEEPING
+
+**A guard nobody has watched fail is not known to work** — applied to the guards, to the parity
+test that protects the twin, and to the parity test itself (mutated a scratch copy, one verdict
+disagreed, exit 1).
+
+**State an instrument's blind spot inside the instrument, not in a report about it.** The JS twin's
+header carries the dialect trap and the fact that the parity test compares verdicts and so cannot
+catch a regex wrong in *both* files.
+
+**Verify the bound rather than trusting your own intent.** I checked `git status` to confirm the
+mutation had not touched the real files, instead of relying on having meant not to.
+
+*Session C, 6 September. Guards at `03da3d0c`, portable pair at `4c82ff61`.*
