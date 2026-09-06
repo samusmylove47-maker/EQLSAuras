@@ -64,8 +64,36 @@ taken) rather than the sound *feature*. **Say if you read that differently.**
 
 ---
 
+## PRIVACY: ALL SEVEN CLEARED, AND THE REMAINING LINE CHECKED
+
+**The owner's ruling:** *"It's fine for my character's name to appear in B's example, and for
+Shara's name to appear as an example, or in screenshots. We can use our characters as examples,
+but we do not want to share any personal information publicly."*
+
+**So character names, play dates and in-game figures are all cleared** — including `01-hero`'s
+nameplate and guild tag, and `04-lockouts`' dated kill cells and its *"5 gaps, 137.9h in total"*
+line. **My earlier flag on that raid history is withdrawn; the owner has covered it.**
+
+**The line that remains is real-world identity, and that is a different search from the one
+already done** — a character-name pass does not find a Windows username. **I ran it:**
+
+- **Embedded metadata:** all seven carry a single sRGB chunk, **no EXIF, no text chunks**. The
+  four JPEGs I produced carry **zero** EXIF tags.
+- **Raw byte scan** for Windows user paths, `/home/`, emails, Discord handles, the owner's real
+  name, UNC/machine names, `AppData`, and `eqlog_*` filenames — **no marker in any file.**
+  `scripts/image-identity-scan.py`, committed. **Its control matched 9 of 9 pattern classes on a
+  synthetic string**, so the clean result is a real zero and not a broken scanner.
+- **Rendered text:** a byte scan cannot see text drawn as pixels, so I viewed all seven at native
+  size. **The only UI in the set that could plausibly render a path is `04-lockouts`' header — I
+  zoomed it 2×, and "Change log file…" is a button label, not a path.**
+
+**Nothing in the seven shows real-world identity. Ship them.**
+
+---
+
 ## ONE FLAG THAT IS NOT ABOUT A NAME
 
+**⚠ SUPERSEDED by the section above — the owner has cleared this too. Kept for the record.**
 **`04-lockouts.png` is cleared for the name and still worth a glance.** Beyond "Shara" in the
 dropdown, the grid publishes a **real dated raid history** — *"This period: Aug 25 – Sep 1, 2026"*
 with dated kill cells. **The owner's ruling was about the name; it did not mention this.** Not a
