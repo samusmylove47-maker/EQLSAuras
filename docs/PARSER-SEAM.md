@@ -152,3 +152,72 @@ through the owner.
 
 *Session C, 3 September 2026. `SHARA_PARSER=… EQ_GAPENGINE=… python scripts/parser-seam-v2.py` —
 16 files, 4,291,762 lines, dedup by size + first 64KB.*
+
+---
+
+## THE 447, SETTLED — and the label was the small half
+
+**Session C, 6 September.** The Director asked what emitted `dot`, since E's engine emits only
+`melee` and `spell` and the string appears nowhere in it. **Answer to that question first, then
+the thing I found while answering it, which is much worse.**
+
+### The label was CARRIED, not invented
+
+`sky-ledger@1a6654f7 : tools/parse.py:32` really does emit it:
+
+```python
+if m: ev.append((t,'dot:'+m.group(3), int(m.group(2).replace(',','')), False)); continue
+```
+
+and `scripts/parser-seam.js:73` transliterated that faithfully. **So the instrument did not invent
+a category — it carried a real category from the wrong artifact.** That distinction matters,
+because an instrument that fabricates buckets is broken for every future comparison, and this one
+is not. **The fault remains the one already recorded: I measured a 48-line scratch script and
+called it E's engine.**
+
+### THE REAL DEFECT: v1 SILENTLY DISCARDED 75% OF THE CORPUS
+
+Chasing why v1 reported only **447** `spell|dot` rows when the corpus holds **59,574**
+first-person DoT lines:
+
+```
+                              lines   CR-ended   v1 stamp matched
+  9 of 17 files             3,250,646  3,250,646            0
+  8 of 17 files             1,095,170          0    1,095,170
+```
+
+**Nine files are CRLF, and v1's stamp matched ZERO lines in every one of them.** The mechanism:
+
+```
+  /^\[(\w{3}) ... \] (.*)$/   against a line ending "\r"
+    JavaScript : false     . does not match CR (a line terminator); $ is end-of-input
+    Python     : True      . does match CR
+```
+
+**v1 measured 1,095,170 of 4,345,816 lines — 25% — and reported the survivors as the whole.** All
+three Avenrae files are CRLF, and those are the bard logs where the DoT lines live, which is
+exactly why the DoT cell came out at 447 instead of tens of thousands.
+
+**So every v1 number was computed on a quarter of the data**: the 25,030 in-scope, the 571
+Cannibalize rows, the 447. Already withdrawn for the wrong-artifact reason; now withdrawn twice
+over, and the second reason is the one that would have mattered even if the artifact had been right.
+
+### THREE THINGS THIS CHANGES
+
+**1. My own re-test misled me, in the same shape as the original fault.** I tested a JavaScript
+regex by running it in Python, and the two dialects differ on precisely the character at issue.
+Python reported 100% of lines matching and I nearly published that as an all-clear. **Testing a
+transliteration of the instrument is the same error as measuring a transliteration of the subject.**
+
+**2. The guard I added to v2 would not have caught this.** `both sides produced events` was
+satisfied — v1 produced plenty of events, just from a quarter of the corpus. **A guard that asks
+"did the instrument do anything" does not ask "did it see everything."** The guard that catches
+this is printing **lines matched against lines read**, and v2 now does.
+
+**3. v2 is unaffected, and NOT because I designed it that way.** Python's text-mode read performs
+universal-newline translation, so `'\r\n'` became `'\n'` before any pattern saw it. **That is an
+accident of the language I happened to write v2 in.** Had I written v2 in JavaScript it would
+carry the same defect, and nothing in its design would have prevented it.
+
+*Reproducible: `scripts/settle-447.py`. Note its own bound in the docstring — the Python-only
+stamp check is the one that misled me, and the node companion in the commit is what settled it.*
