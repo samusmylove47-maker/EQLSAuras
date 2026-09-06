@@ -38,6 +38,8 @@ import os
 import re
 import sys
 from collections import Counter
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from guards import rate_has_volume, GuardFailure
 
 # ---------------------------------------------------------------------------
 # CORPUS. Same discovery and dedup rule as scratchpad/first-person.py, which is
@@ -137,6 +139,16 @@ def main():
 
     print('\n=== VERBS CARRYING THE SHAPE ===')
     print('  ' + '  '.join('%s=%d' % (v, c) for v, c in verbs.most_common(8)))
+
+    # The 70.7% that turned out to be thorns-over-thorns was arithmetically fine and
+    # wrong about its population. This guard does not catch a wrong population -- nothing
+    # does but naming it -- but it does refuse a percentage with too little behind it.
+    # Ported from session-c/feat-lockouts-wip 03bf9ac4.
+    if broad:
+        try:
+            rate_has_volume(owners.most_common(1)[0][1], broad, 'top-owner share')
+        except GuardFailure as e:
+            print('  GUARD FAILED: %s' % e)
 
     print('\n=== OWNER CONCENTRATION -- the part of the claim that mattered ===')
     print('  distinct owners : %d   (published: 206)' % len(owners))

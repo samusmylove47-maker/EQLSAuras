@@ -48,6 +48,8 @@ import subprocess
 import sys
 import tempfile
 from collections import Counter
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from guards import instrument_saw_the_corpus, GuardFailure
 
 PATTERNS = [
     r'C:\Users\Lindsey\Desktop\EQL Source\*.txt',
@@ -206,6 +208,14 @@ def main():
     print('LINES STAMP-MATCHED   : %d   (%.1f%%)   a low ratio means the instrument is'
           % (stamped, 100.0 * stamped / lines_total if lines_total else 0))
     print('                                        silently reading part of the corpus')
+    # ENFORCED, not merely printed. docs/PARSER-SEAM.md once claimed this guard existed
+    # here when it did not; a printed number nobody asserts on is the same defect wearing
+    # a number. Ported from session-c/feat-lockouts-wip 03bf9ac4.
+    try:
+        instrument_saw_the_corpus(lines_total, stamped, 'parser-seam v2')
+    except GuardFailure as e:
+        print('  GUARD FAILED: ' + str(e))
+        return 1
     print('IN-SCOPE FIRST-PERSON : %d' % inscope)
     print('\n=== BOTH SIDES PRODUCED EVENTS? (a zero here makes any NONE below meaningless) ===')
     print('  Shara events : %d' % s_events)
