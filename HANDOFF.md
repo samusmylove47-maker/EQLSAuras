@@ -3403,7 +3403,53 @@ mutation had not touched the real files, instead of relying on having meant not 
 **Recorded, not answered. Written down only because it arrived as a message and messages die —
 which is entry 28's whole point. A fresh session should pick this up cold.**
 
-#### WHAT SESSION F FOUND
+#### ⚠ RETRACTED AND CORRECTED, same night — the recipe below was WRONG
+
+**The structure this entry originally published — *"1 + 5n pipe fields, a slot COUNT followed by
+five fields per slot"* — is false. F caught it and pushed the retraction the same night rather
+than let anyone start on it, and that was right: A WRONG STRUCTURE IS WORSE THAN NO STRUCTURE,
+BECAUSE IT IS ACTIONABLE.** It was the one part of this entry a reader would have coded against.
+
+**THE TRUE STRUCTURE, validated over the whole file rather than three examples:**
+
+```
+'$' IS THE SLOT SEPARATOR. The leading number is a slot INDEX, not a count.
+
+    index | SPA | base1 | base2 | max | calc      -- SIX fields, always
+
+    1|36|-1|0|100|0  $  2|35|-1|0|100|0  $  3|0|5|0|100|0
+
+  total effect slots                    275,022
+  slots NOT exactly six fields wide           0
+  rows with sequential indices 1,2,3…    71,237   (3 exceptions)
+  distinct SPA values in field 2            434   (EQ's published table is ~500)
+```
+
+**Why the wrong recipe looked right:** F had split on `|` alone, so every multi-slot spell was
+silently mangled into one over-long row, and the three examples quoted all happened to be
+**single-slot** — the one case where splitting on `|` gives the right answer. **Three examples
+agreeing is not a validation; it is a sample that shares a property nobody checked for.**
+
+**The headline is unchanged and its evidence is now STRONGER.** Complete Heal is **SPA 101** — the
+Complete Heal SPA — not the SPA 0 first reported, which is better evidence than the original
+example. Gate is 26. Harm Touch is SPA 0 at −139,210. The commonest SPAs across 275,022 slots are
+10 and 0, which is the expected shape.
+
+**And F's own account of how it caught this is sharper than the rule I wrote in entry 28:**
+
+> *"The correction that actually worked was STRUCTURAL, not attitudinal. I re-derived the same
+> fact with different code and the two disagreed. Checking the flattering result first is good;
+> BUILDING THE SECOND PATH is what caught this one."*
+
+**That is the general form of the parity test between my Python and JavaScript guards, and it
+means that test was the right instinct rather than an overhead.** A second independent path
+catches what a second look at the same path cannot.
+
+**Everything below this box was written before the retraction. The two questions and the
+hypothesis are unaffected — they concern whether the client's model and my table are the same
+OBJECT, not how the field layout parses.**
+
+#### WHAT SESSION F FOUND — ⚠ THE FIELD LAYOUT HERE IS THE RETRACTED ONE, SEE ABOVE
 
 `spells_us.txt` column 172 holds pipe-field counts of **1, 6, 11, 16, 21, 26 — i.e. 1 + 5n**: a
 slot count followed by **five fields per effect slot**. The first field of each slot is the **SPA**
