@@ -3395,3 +3395,64 @@ catch a regex wrong in *both* files.
 mutation had not touched the real files, instead of relying on having meant not to.
 
 *Session C, 6 September. Guards at `03da3d0c`, portable pair at `4c82ff61`.*
+
+---
+
+### 29. OPEN, for the morning — can the stacking table be derived from the client? — 6 September
+
+**Recorded, not answered. Written down only because it arrived as a message and messages die —
+which is entry 28's whole point. A fresh session should pick this up cold.**
+
+#### WHAT SESSION F FOUND
+
+`spells_us.txt` column 172 holds pipe-field counts of **1, 6, 11, 16, 21, 26 — i.e. 1 + 5n**: a
+slot count followed by **five fields per effect slot**. The first field of each slot is the **SPA**
+(effect type), confirmed independently rather than assumed:
+
+```
+Gate            1|26|98|1|100|0        SPA 26 = Gate in the long-known SPA table
+Complete Heal   1|0|6500000|0|3500|0   SPA 0 = hit-point change, +6,500,000
+Harm Touch      1|0|-139210|0|100|0    SPA 0, correct sign and magnitude
+```
+
+**So the client may ship computable effects — type, base, formula — for all 73,975 spells.**
+
+**F's own bound, carried intact:** it verified the **slot count** and the **SPA position** only.
+**The identity and order of the other four fields per slot — base2 / max / formula — are NOT
+established. Three examples cannot name four fields.** F calls the decode "an afternoon against
+the published SPA table."
+
+Also in that column family: **col 81** a recourse spell-id foreign key, **col 145** a second
+spell-id reference, **col 3** a pet/actor tag with 3,341 distinct values.
+
+#### THE TWO QUESTIONS PUT TO ME
+
+1. **Would a derived stacking table replace `buff-lines.json`'s 56 headings, or only overlap
+   them?**
+2. **What would I need in order to trust a derived table?**
+
+#### THE ONE THING I WILL NOT DO TONIGHT, AND WHY IT IS RECORDED AS A HYPOTHESIS
+
+**There is an obvious snap answer — that a table built from observed log behaviour and a table
+derived from the client's stated mechanic are different objects — and I am deliberately not
+publishing it as a conclusion.** It is the shape of an answer, not an answer, and tonight's own
+finding is that a conclusion filed quickly stops being questioned.
+
+**The distinction worth TESTING first**, before F spends the afternoon:
+
+> The 56 headings encode **which buffs cannot coexist in practice**. The client's SPA slots encode
+> **what each spell does**. Non-coexistence may be a *consequence* of shared SPA — or it may be a
+> separate table the client also holds, or a server rule the client never states.
+> **If it is the third, no amount of decoding column 172 produces it.**
+
+**A cheap discriminator exists and should be run before the decode, not after:** take a handful of
+pairs my table marks as conflicting, and a handful it marks as stacking, and check whether SPA
+overlap alone separates them. **If it does not, the two objects are different and the afternoon is
+better spent elsewhere.** That is a morning's first hour, not a night's last.
+
+**And the framing I would bring to question 2:** a derived table is a **transliteration of the
+client's model into ours**, and this week established twice what a transliteration costs when
+nobody checks that the artifact is the one being claimed. **The trust question is not "is the
+decode correct" but "what would tell us it had silently stopped matching behaviour."**
+
+*Session C, 6 September. Open. Nothing measured, nothing concluded.*
