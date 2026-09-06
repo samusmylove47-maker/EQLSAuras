@@ -254,3 +254,57 @@ B's two =Upgrades shots on 3 September.
 
 *Session C, 5 September 2026. Her copy is quoted verbatim and marked; my additions are the
 placement notes and the crop. Nothing was written to her repository.*
+
+---
+
+## 7. ADDENDUM, 5 Sep — the hero is cleared, the format pass is done, the figures are gone
+
+**Three changes since §1–§6 above. Where they conflict with the earlier sections, these win.**
+
+**THE HERO SHIPS.** The owner has ruled: *"Shara's name is fine, it's her own screenshot of her
+app."* **§1's hold is withdrawn and `01-hero.jpg` ships with the nameplate and guild tag.** The
+cropped banner survives as `00-hero-nameless-ALTERNATE.jpg` and is now only a fallback if anyone
+later wants a nameless variant — **do not use it in preference to the real hero.** The ruling
+covers her name in her screenshot and nothing wider.
+
+**`04-lockouts.png` is cleared on the same ground** and is now in the manifest. **Its dated raid
+history is a separate matter the ruling did not mention** — flagged, not blocked.
+
+**THE FORMAT PASS IS DONE.** A's finding reproduced exactly: `01`, `02`, `05`, `06` were
+photographic content in PNG at 1.05–1.74 B/px against the site poster's 0.12; `03`, `04`, `07` are
+flat UI and correctly PNG. **Re-encoded the four to progressive JPEG q85** — 84% off those four,
+**72% off the whole set, 1,984,051 → 560,241 bytes.** The hero alone goes 1,089,162 → 166,862 at
+0.21 B/px. Checked at native size for artefacts before shipping.
+
+**THE FIGURES ARE OUT OF THE BAND.** Under the ruling *publish a figure with a guard or stop
+publishing it*: two of the strip's four had drifted within two days — the roster figure was the raw
+count where the loader loads **1,066**, and 53 became **56**. **`assets/auras.json` carried
+provenance for both and it did not stop the drift, because a recorded source is not a check.**
+
+**The band now publishes no figures and no version.** `auras-v11-band.html` carries the
+alternative in a comment: build-time derivation with the exact source paths
+(`buffs.json` minus the `durationSec > 18000` filter → 1,066; `headings` in `buff-lines.json` → 56;
+`ZONES` in `zoneGraph.js` → 104; audio under `sounds/` → 15). **That is A's call because A owns the
+build. I recommend shipping without them today — the band works without them, and it beats
+shipping wrong figures a third time.**
+
+**The download button also loses "79.1 MB".** The URL is deliberately unpinned, the binary moves,
+and the tag ref resolves 328 commits behind the asset's own timestamp — **I cannot show which
+commit the published installer was built from.** "Download for Windows" stays true; a byte count
+does not.
+
+### Manifest, superseding §6
+
+```
+handoff/release-images/
+  01-hero.jpg                      1123x710   166,862   fb27a9b8f3b7b73a…   CLEARED, ships
+  02-list-aura.jpg                  322x408    37,464   a4831a91242c3ade…
+  03-add-aura.png                   985x731    62,379   c20a1696bfbe46f6…
+  04-lockouts.png                   902x560    70,025   77f3357dcb003e1a…   cleared; raid history flagged
+  05-travel-popup.jpg               637x474    58,363   e723e5648b274c6b…
+  06-travel-route.jpg               390x264    25,752   62ce15ada88835d8…
+  07-stances.png                    755x468    74,794   8aa710c205a71bbe…
+  00-hero-nameless-ALTERNATE.jpg   1123x254    64,602   (derivative; fallback only)
+```
+
+**Nothing is held any more except the share-code copy line**, which is §4 and is the owner's.

@@ -1,44 +1,40 @@
 <!-- ══════════════════════════════════════════════════════════════════════════════════════════
      =AURAS v1.1 BAND — Session C, 5 Sep 2026. Replaces public/index.html lines 103–158.
 
-     FOUR THINGS ON THE LIVE PAGE ARE WRONG. This band fixes all four. Do not hand-merge only
-     some of them; the figures move together.
+     THE STAT STRIP IS GONE, DELIBERATELY. See the note at the bottom of this file before
+     restoring it. Everything else below is a fix to something currently wrong on the live page.
 
-       :116  "version 1.0"            -> the app has been 1.1.0 since 73cbf3ce, 3 Sep
-       :121  "1,067 spells known"     -> the app LOADS 1,066. 1,067 is the raw file count and
-                                         the loader at buffStore.js:51 drops one entry. This was
-                                         MY error and it is the right-number-wrong-population
-                                         shape: both numbers are real, only one is the population
-                                         the sentence names.
-       :121  "53 stacking slots"      -> 56, and has been since before ff3fccf9
-       :118  "Stop alt-tabbing…"      -> Shara DELETED that sentence from her pitch at fdf623a7,
-                                         3 Sep. We are publishing copy she has withdrawn. The
-                                         lede below is her current one, verbatim.
+       :116  "version 1.0"          -> the app is 1.1.0. REMOVED rather than corrected — the
+                                       version drifts every release and nothing guards it.
+                                       /auras already made this exact call for the same reason.
+       :118  "Stop alt-tabbing…"    -> Shara DELETED that sentence from her pitch at fdf623a7,
+                                       3 Sep. We were publishing copy its author retired. The
+                                       lede below is her current one, verbatim.
+       :121  the four-figure strip  -> REMOVED. Two of the four had already drifted (1,067 vs a
+                                       loaded 1,066; 53 vs 56) despite provenance records in
+                                       assets/auras.json that did not stop the drift.
+       hero                         -> the media now carries 01-hero.jpg, cleared by the owner.
 
-     UNCHANGED AND STILL CORRECT: the download URL, "79.1 MB" (re-measured today at 79,136,781
-     bytes), "100+ zones routed" (true — the graph holds 104), "15 sounds included", the trailer
-     and poster, and the three privacy clauses.
+     UNCHANGED AND STILL CORRECT: the download URL, the three privacy clauses, the SmartScreen
+     line (now using Shara's wording), placement.
 
-     STILL MUST NOT APPEAR, all re-checked at 8da2cc88: the Aggro Board (locked out at
-     main-window.js:4641), the Buff Planner ('exp' badge), the Pull Timer panel (private, and not
-     shipped), 'Combat state' triggers (Planned badge), and the clause "makes no network requests
-     of its own" (false — the main window fetches a typeface at launch).
+     STILL MUST NOT APPEAR, re-checked at 8da2cc88: the Aggro Board (locked, main-window.js:4641),
+     Buff Planner ('exp'), Pull Timer panel (private, not shipped), 'Combat state' triggers
+     (Planned), and the clause "makes no network requests of its own" (false).
      ══════════════════════════════════════════════════════════════════════════════════════ -->
 <section class="band feat" id="auras" style="--c:var(--instr)">
   <div class="shell">
     <div class="featwrap">
       <div class="featgrid">
-        <figure class="feattrailer" id="auwrap"
-                data-video="assets/media/auras-trailer.5fc3fbbc.mp4"
-                data-poster="assets/media/auras-poster.5c861299.jpg">
-          <img src="assets/media/auras-poster.5c861299.jpg" width="1600" height="900"
-               alt="The EQLS Auras overlay running over the game, buff icons across the top
-                    of the screen each counting down its own remaining time.">
-          <button class="vplay" type="button">Play</button>
-          <figcaption><span>The overlay in play &middot; 9s, silent</span></figcaption>
+        <figure class="feattrailer" id="auwrap">
+          <img src="assets/media/auras-hero.<HASH>.jpg" width="1123" height="710"
+               alt="EQLS Auras running over EverQuest: fourteen buff tiles across the top of the
+                    screen each counting down its own remaining time, and a second group of aura
+                    tiles down the left.">
+          <figcaption><span>The overlay in play</span></figcaption>
         </figure>
         <div>
-          <p class="eyebrow">Out now &middot; <b>version 1.1</b></p>
+          <p class="eyebrow">Out now &middot; <b>reads your own log</b></p>
           <h2 class="feath">EQLS Auras</h2>
 
           <p class="featlede">A countdown timer for every buff you&rsquo;re running, right on top
@@ -47,25 +43,67 @@
           <p class="featsub">Add overlays and put them where you want. Point an aura at any line
             in your log, not just buffs the app knows. It shows what you have landed on each
             groupmate, skins your action bar, routes you across the map, and tracks the weekly
-            raid lockouts EQ never prints. One key hides the lot.</p>
+            raid lockouts EQ never prints.</p>
 
           <p class="featsub">It reads files the client already has: the log it writes as you
             play, your spellbook, and the game&rsquo;s own spell icons. It does not read or alter
             the game&rsquo;s memory, inject code into it, or send it input. No telemetry, no
             analytics, no update check.</p>
 
-          <p class="hero-sig featsig"><span>1,066 spells known</span><span>56 stacking slots</span><span>104 zones routed</span><span>15 sounds included</span></p>
-
           <div class="featdoors">
-            <a class="featdoor lead" href="https://github.com/LoxyBee/EQLS-Auras/releases/download/latest-dev/EQLS-Auras-Setup.exe">Download for Windows &middot; 79.1 MB &rarr;</a>
+            <a class="featdoor lead" href="https://github.com/LoxyBee/EQLS-Auras/releases/download/latest-dev/EQLS-Auras-Setup.exe">Download for Windows &rarr;</a>
             <a class="featdoor" href="auras">What it does &rarr;</a>
           </div>
 
-          <p class="featfoot">Free, MIT licensed. It finds your EverQuest install on its own.
-            Windows SmartScreen warns about an unknown publisher &mdash; <b>More info</b>, then
-            <b>Run anyway</b>.</p>
+          <p class="featfoot">Windows only. Free. Windows SmartScreen will warn about an unknown
+            publisher &mdash; click <b>More info</b>, then <b>Run anyway</b>. It finds your
+            EverQuest install on its own &mdash; nothing to point it at.</p>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<!-- ══════════════════════════════════════════════════════════════════════════════════════════
+     TWO THINGS THIS BAND DELIBERATELY DOES NOT DO, AND WHY.
+
+     1. NO FIGURES. The strip read "1,067 spells known · 53 stacking slots · 100+ zones routed ·
+        15 sounds included" and TWO OF THE FOUR WERE WRONG within two days of shipping — the
+        roster figure was the raw file count where the loader loads 1,066, and 53 became 56 when
+        Shara added three headings. assets/auras.json carried provenance for both and the
+        provenance did not stop the drift, because a recorded source is not a check.
+
+        Applying the ruling — publish a figure with a guard or stop publishing it — these are the
+        two honest options, and they are A's to pick because A owns the build:
+
+        (a) GUARD IT. Derive all four at build time from Shara's own files, which are stable
+            paths in a public repo:
+              spells loaded  src/shared/data/buffs.json, minus entries with durationSec > 18000
+                             (the filter at src/main/buffStore.js:51) -> 1,066 today
+              stacking slots keys of `headings` in src/shared/data/buff-lines.json -> 56 today
+              zones routed   keys of ZONES in src/shared/data/zoneGraph.js -> 104 today
+              sounds         audio files under sounds/, excluding LICENSE.txt -> 15 today
+            A build that reads these cannot drift. One that copies them by hand already has,
+            twice.
+
+        (b) DROP IT, which is what this file does. The band still says what the product IS
+            without asserting a number that needs re-checking every time Shara commits.
+
+        I recommend (b) now and (a) later if the figures are wanted back. The band does not need
+        them to work, and shipping (b) today is strictly better than shipping wrong figures for a
+        third time.
+
+     2. NO VERSION AND NO FILE SIZE ON THE DOWNLOAD. Both move on every build, the download URL
+        is deliberately unpinned (latest-dev), and I cannot show which commit the published
+        binary was built from — the tag ref resolves 328 commits behind the asset's own
+        timestamp. "Download for Windows" is true forever. "79.1 MB" is true until she rebuilds.
+        /auras already dropped the version for this reason; this is the same call.
+
+     MEDIA: the <HASH> in the img src is the content hash _build/media.py assigns. Add
+     handoff/release-images/01-hero.jpg to _media/ as auras-hero.jpg and let the build hash it,
+     exactly as auras-poster.jpg is handled today.
+
+     The previous trailer/poster pair still exists and still works. If you prefer to keep the
+     video, put 01-hero.jpg in as the poster — it is a far better still than the current one, and
+     the owner has called the current visual bad.
+     ══════════════════════════════════════════════════════════════════════════════════════ -->
