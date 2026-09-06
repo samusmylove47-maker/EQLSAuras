@@ -1,0 +1,71 @@
+<!-- ══════════════════════════════════════════════════════════════════════════════════════════
+     =AURAS v1.1 BAND — Session C, 5 Sep 2026. Replaces public/index.html lines 103–158.
+
+     FOUR THINGS ON THE LIVE PAGE ARE WRONG. This band fixes all four. Do not hand-merge only
+     some of them; the figures move together.
+
+       :116  "version 1.0"            -> the app has been 1.1.0 since 73cbf3ce, 3 Sep
+       :121  "1,067 spells known"     -> the app LOADS 1,066. 1,067 is the raw file count and
+                                         the loader at buffStore.js:51 drops one entry. This was
+                                         MY error and it is the right-number-wrong-population
+                                         shape: both numbers are real, only one is the population
+                                         the sentence names.
+       :121  "53 stacking slots"      -> 56, and has been since before ff3fccf9
+       :118  "Stop alt-tabbing…"      -> Shara DELETED that sentence from her pitch at fdf623a7,
+                                         3 Sep. We are publishing copy she has withdrawn. The
+                                         lede below is her current one, verbatim.
+
+     UNCHANGED AND STILL CORRECT: the download URL, "79.1 MB" (re-measured today at 79,136,781
+     bytes), "100+ zones routed" (true — the graph holds 104), "15 sounds included", the trailer
+     and poster, and the three privacy clauses.
+
+     STILL MUST NOT APPEAR, all re-checked at 8da2cc88: the Aggro Board (locked out at
+     main-window.js:4641), the Buff Planner ('exp' badge), the Pull Timer panel (private, and not
+     shipped), 'Combat state' triggers (Planned badge), and the clause "makes no network requests
+     of its own" (false — the main window fetches a typeface at launch).
+     ══════════════════════════════════════════════════════════════════════════════════════ -->
+<section class="band feat" id="auras" style="--c:var(--instr)">
+  <div class="shell">
+    <div class="featwrap">
+      <div class="featgrid">
+        <figure class="feattrailer" id="auwrap"
+                data-video="assets/media/auras-trailer.5fc3fbbc.mp4"
+                data-poster="assets/media/auras-poster.5c861299.jpg">
+          <img src="assets/media/auras-poster.5c861299.jpg" width="1600" height="900"
+               alt="The EQLS Auras overlay running over the game, buff icons across the top
+                    of the screen each counting down its own remaining time.">
+          <button class="vplay" type="button">Play</button>
+          <figcaption><span>The overlay in play &middot; 9s, silent</span></figcaption>
+        </figure>
+        <div>
+          <p class="eyebrow">Out now &middot; <b>version 1.1</b></p>
+          <h2 class="feath">EQLS Auras</h2>
+
+          <p class="featlede">A countdown timer for every buff you&rsquo;re running, right on top
+            of the game. Read straight from your EverQuest Legends log.</p>
+
+          <p class="featsub">Add overlays and put them where you want. Point an aura at any line
+            in your log, not just buffs the app knows. It shows what you have landed on each
+            groupmate, skins your action bar, routes you across the map, and tracks the weekly
+            raid lockouts EQ never prints. One key hides the lot.</p>
+
+          <p class="featsub">It reads files the client already has: the log it writes as you
+            play, your spellbook, and the game&rsquo;s own spell icons. It does not read or alter
+            the game&rsquo;s memory, inject code into it, or send it input. No telemetry, no
+            analytics, no update check.</p>
+
+          <p class="hero-sig featsig"><span>1,066 spells known</span><span>56 stacking slots</span><span>104 zones routed</span><span>15 sounds included</span></p>
+
+          <div class="featdoors">
+            <a class="featdoor lead" href="https://github.com/LoxyBee/EQLS-Auras/releases/download/latest-dev/EQLS-Auras-Setup.exe">Download for Windows &middot; 79.1 MB &rarr;</a>
+            <a class="featdoor" href="auras">What it does &rarr;</a>
+          </div>
+
+          <p class="featfoot">Free, MIT licensed. It finds your EverQuest install on its own.
+            Windows SmartScreen warns about an unknown publisher &mdash; <b>More info</b>, then
+            <b>Run anyway</b>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

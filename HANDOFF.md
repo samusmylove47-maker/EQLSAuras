@@ -3282,3 +3282,34 @@ faithfully I copied it, and is mine rather than yours.
 
 *Session C, 4 September. Measured at `EQLSAuras@03bf9ac4`, `LoxyBee/EQLS-Auras@ff3fccf9`,
 `EQLSLockouts@3efd2fac`, read-only.*
+
+---
+
+### 27. =Auras v1.1 hype package delivered to A — 5 screenshots cleared, 2 held, four live figures wrong
+
+**Full package: `handoff/FOR-SESSION-A-AURAS-V11-HYPE.md`, band at `handoff/auras-v11-band.html`,
+cleared images in `handoff/release-images/`.** Measured at `LoxyBee/EQLS-Auras@8da2cc88`.
+
+**NO VIDEOS EXIST.** Not on master, not on any branch, not as a release asset, no LFS. Her
+`## Videos` section names three and none was captured. **And the screenshots are not new** — they
+landed 3 Sep at `42c50c66`, before `ff3fccf9`, so they were there yesterday and I missed them
+because that sweep did not re-enumerate media. **Version 1.1.0 also landed 3 Sep.**
+
+**Four defects on the live page, and the first is mine.** `1,067 spells known` → **1,066** (the
+loader drops one entry over 18000s; I published the raw file count and labelled it as what the app
+loads — right number, wrong population). `53 stacking slots` → **56**. `version 1.0` → **1.1**.
+And **Shara deleted "Stop alt-tabbing to check your buffs" from her pitch on 3 Sep** — we publish a
+sentence its author retired.
+
+**Two screenshots held: both render "Shara".** `01-hero.png` as a centre-frame nameplate with guild
+`<Valor>`; `04-lockouts.png` in the Character dropdown. **Same call A made on B's two =Upgrades
+shots.** Not containment — both are already public in her public repo — **the hold is about our
+front page.** These are the owner's own characters so it may be fine, **but it cannot be both:
+either B's shots did not need holding or these two do. Owner's ruling, not mine.**
+
+**One claim bounded, not broken:** "does not read or alter the game's memory, inject code into it,
+or send it input" is **still true**, fifteen APIs absent and control-checked — but
+`foregroundWatcher.js:350-365` calls `ShowWindow`/`SetForegroundWindow` to raise the game window.
+**Nobody should upgrade that sentence to "never touches the game".**
+
+*Session C, 5 September.*
